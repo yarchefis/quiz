@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Page</title>
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/9.8.1/firebase-app-compat.js"></script>
+    <!-- Firebase Authentication -->
+    <script src="https://www.gstatic.com/firebasejs/9.8.1/firebase-auth-compat.js"></script>
+    <!-- Firebase Realtime Database -->
+    <script src="https://www.gstatic.com/firebasejs/9.8.1/firebase-database-compat.js"></script>
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC0HRay6-aZeGMWDacTWZe5UutG9dhPznE",
+            authDomain: "tests-be00f.firebaseapp.com",
+            databaseURL: "https://tests-be00f-default-rtdb.firebaseio.com",
+            projectId: "tests-be00f",
+            storageBucket: "tests-be00f.appspot.com",
+            messagingSenderId: "566141226562",
+            appId: "1:566141226562:web:0a4c9e8866b747be1e67db",
+            measurementId: "G-7F29PR9KR9"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        let currentUser;
+
+        // Check if user is logged in
+        firebase.auth().onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+            } else {
+                console.log('User is logged in:', user);
+                currentUser = user;
+                document.getElementById('userEmail').textContent = user.email;
+                loadTests();
+            }
+        });
+
+        // Logout function
+        function logout() {
+            firebase.auth().signOut().then(() => {
+                window.location.href = 'index.html';
+            }).catch((error) => {
+                console.error('Error logging out:', error);
+                alert('Error: ' + error.message);
+            });
+        }
+
+        // Add test function
+        function addTest() {
+            const testName = prompt('Enter the test name:');
+            if (testName) {
+                const testId = firebase.database().ref().child('tests').push().key;
+                const testData = {
+                    name: testName,
+                    createdAt: new Date().toISOString()
+                };
+                const updates = {};
+                updates['/tests/' + currentUser.uid + '/' + testId] = testData;
+                firebase.database().ref().update(updates)
+                    .then(() => {
+                        alert('Test added successfully!');
+                        loadTests();
+                    })
+                    .catch((error) => {
+                        console.error('Error adding test:', error);
+                        alert('Error: ' + error.message);
+                    });
+            }
+        }
+
+        // Load tests function
+        function loadTests() {
+            const testsRef = firebase.database().ref('/tests/' + currentUser.uid);
+            testsRef.once('value', (snapshot) => {
+                const tests = snapshot.val();
+                const testsTableBody = document.getElementById('testsTableBody');
+                testsTableBody.innerHTML = '';
+                for (const testId in tests) {
+                    const test = tests[testId];
+                    const row = document.createElement('tr');
+                    const nameCell = document.createElement('td');
+                    const link = document.createElement('a');
+                    link.href = `edittest.html?testId=${testId}`;
+                    link.textContent = test.name;
+                    nameCell.appendChild(link);
+                    const dateCell = document.createElement('td');
+                    dateCell.textContent = new Date(test.createdAt).toLocaleString();
+                    row.appendChild(nameCell);
+                    row.appendChild(dateCell);
+                    testsTableBody.appendChild(row);
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>Admin Page</h1>
+    <p>Welcome to the admin page. Only authenticated users can see this.</p>
+    <p>Logged in as: <span id="userEmail"></span></p>
+    <button onclick="logout()">Logout</button>
+    <h2>Your Tests</h2>
+    <button onclick="addTest()">Add Test</button>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Test Name</th>
+                <th>Created At</th>
+            </tr>
+        </thead>
+        <tbody id="testsTableBody">
+            <!-- Tests will be loaded here -->
+        </tbody>
+    </table>
+</body>
+</html>
