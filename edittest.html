@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,10 +12,21 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 </head>
+
 <body>
     <div class="container mt-5">
         <h1 class="text-center">Edit Test</h1>
         <p class="text-center">Logged in as: <span id="userEmail"></span></p>
+
+        <div class="mb-3">
+            <label for="startDate" class="form-label">Start Date</label>
+            <input type="date" class="form-control" id="startDate" required>
+        </div>
+        <div class="mb-3">
+            <label for="endDate" class="form-label">End Date</label>
+            <input type="date" class="form-control" id="endDate" required>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="saveTestDates()">Save Dates</button>
 
         <ul class="nav nav-tabs" id="editTabs" role="tablist">
             <li class="nav-item" role="presentation">
@@ -107,6 +119,11 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- New field for time in seconds -->
+                        <div class="mb-3">
+                            <label for="timeInSeconds" class="form-label">Time (seconds)</label>
+                            <input type="number" class="form-control" id="timeInSeconds" required>
+                        </div>
                         <input type="hidden" id="currentQuestionId">
                     </form>
                 </div>
@@ -145,7 +162,8 @@
                 testId = urlParams.get('testId');
                 loadQuestions();
                 generateTestLink();
-                loadTestResults(currentUser.uid, testId)
+                loadTestResults(currentUser.uid, testId);
+                loadTestDates();
             }
         });
 
@@ -166,6 +184,16 @@
                     document.getElementById('isCorrect3').checked = question.choices[2].isCorrect;
                     document.getElementById('choice4').value = question.choices[3].text;
                     document.getElementById('isCorrect4').checked = question.choices[3].isCorrect;
+                    document.getElementById('timeInSeconds').value = question.timeInSeconds || '';
+                });
+
+                const testRef = firebase.database().ref('/tests/' + testId);
+                testRef.once('value', (snapshot) => {
+                    const test = snapshot.val();
+                    if (test) {
+                        document.getElementById('startDate').value = test.startDate || '';
+                        document.getElementById('endDate').value = test.endDate || '';
+                    }
                 });
             }
 
@@ -175,6 +203,7 @@
 
         function saveQuestion() {
             const questionText = document.getElementById('questionText').value;
+            const timeInSeconds = document.getElementById('timeInSeconds').value;
             const choices = [
                 {
                     text: document.getElementById('choice1').value,
@@ -199,7 +228,8 @@
                 text: questionText,
                 createdAt: new Date().toISOString(),
                 type: 'test',
-                choices: choices
+                choices: choices,
+                timeInSeconds: parseInt(timeInSeconds, 10) // Ensure time in seconds is stored as a number
             };
 
             const updates = {};
@@ -252,6 +282,35 @@
                         alert('Error: ' + error.message);
                     });
             }
+        }
+
+        function loadTestDates() {
+            const testRef = firebase.database().ref(`/tests/${currentUser.uid}/${testId}`);
+            testRef.once('value', (snapshot) => {
+                const test = snapshot.val();
+                if (test) {
+                    document.getElementById('startDate').value = test.startDate || '';
+                    document.getElementById('endDate').value = test.endDate || '';
+                }
+            });
+        }
+
+        function saveTestDates() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            const updates = {};
+            updates[`/tests/${currentUser.uid}/${testId}/startDate`] = startDate;
+            updates[`/tests/${currentUser.uid}/${testId}/endDate`] = endDate;
+
+            firebase.database().ref().update(updates)
+                .then(() => {
+                    alert('Test dates saved successfully!');
+                })
+                .catch((error) => {
+                    console.error('Error saving test dates:', error);
+                    alert('Error: ' + error.message);
+                });
         }
 
         function generateTestLink() {
@@ -310,4 +369,5 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
