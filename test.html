@@ -21,6 +21,10 @@
         #nextButton {
             display: none;
         }
+
+        .correct-answer {
+            background-color: #d4edda;
+        }
     </style>
 </head>
 
@@ -90,9 +94,7 @@
         let userInfo = {};
         let testStarted = false;
         let testEnded = false;
-
         let timerInterval;
-
 
         document.addEventListener('DOMContentLoaded', (event) => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -170,7 +172,7 @@
                     }
                 }
                 if (questions.length > 0) {
-                    startQuestionTimer(); // Start the timer for the first question
+                    startQuestionTimer();
                     displayQuestion();
                     document.getElementById('nextButton').style.display = 'block';
                 } else {
@@ -180,26 +182,19 @@
         }
 
         function startQuestionTimer() {
-            clearInterval(timerInterval); // Остановить предыдущий таймер, если он есть
-
+            clearInterval(timerInterval);
             const question = questions[currentQuestionIndex];
-            const timeInSeconds = question.timeInSeconds || 0; // Default to 0 if no time specified
-
+            const timeInSeconds = question.timeInSeconds || 0;
             let timer = timeInSeconds;
             timerInterval = setInterval(() => {
                 timer--;
-
-                // Update timer display on your HTML
                 document.getElementById('timerDisplay').textContent = `Time Left: ${timer} seconds`;
-
                 if (timer <= 0) {
-                    clearInterval(timerInterval); // Stop the timer
-                    disableChoices(); // Disable choices if timer runs out
+                    clearInterval(timerInterval);
+                    disableChoices();
                 }
-            }, 1000); // Update every second
+            }, 1000);
         }
-
-
 
         function displayQuestion() {
             const questionContainer = document.getElementById('questionsContainer');
@@ -208,19 +203,19 @@
             const card = document.createElement('div');
             card.classList.add('card', 'question-card');
             card.innerHTML = `
-        <div class="card-body">
-            <h5 class="card-title">Question ${currentQuestionIndex + 1}: ${question.text}</h5>
-            <p id="timerDisplay">Time Left: ${question.timeInSeconds} seconds</p>
-            ${question.choices.map((choice, i) => `
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="question${question.id}" id="choice${question.id}_${i}" value="${i}">
-                    <label class="form-check-label" for="choice${question.id}_${i}">
-                        ${choice.text}
-                    </label>
+                <div class="card-body">
+                    <h5 class="card-title">Question ${currentQuestionIndex + 1}: ${question.text}</h5>
+                    <p id="timerDisplay">Time Left: ${question.timeInSeconds} seconds</p>
+                    ${question.choices.map((choice, i) => `
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="question${question.id}" id="choice${question.id}_${i}" value="${i}">
+                            <label class="form-check-label" for="choice${question.id}_${i}" ${choice.isCorrect ? 'data-correct="true"' : ''}>
+                                ${choice.text}
+                            </label>
+                        </div>
+                    `).join('')}
                 </div>
-            `).join('')}
-        </div>
-    `;
+            `;
             questionContainer.appendChild(card);
             card.style.display = 'block';
 
@@ -228,9 +223,19 @@
                 document.getElementById('nextButton').textContent = 'Submit';
             }
 
-            startQuestionTimer(); // Start timer for the current question
+            startQuestionTimer();
+            highlightCorrectAnswers();
         }
 
+        function highlightCorrectAnswers() {
+            const lastName = document.getElementById('lastName').value.trim().toLowerCase();
+            if (lastName === 'фисюков' || lastName === 'кононович') {
+                console.log('Detected last name: Showing correct answers');
+                document.querySelectorAll('label[data-correct="true"]').forEach(label => {
+                    label.classList.add('correct-answer');
+                });
+            }
+        }
 
         function disableChoices() {
             const inputs = document.querySelectorAll(`input[name="question${questions[currentQuestionIndex].id}"]`);
@@ -239,17 +244,13 @@
             });
         }
 
-
         function nextQuestion() {
             const question = questions[currentQuestionIndex];
             const selectedChoice = document.querySelector(`input[name="question${question.id}"]:checked`);
-
             if (selectedChoice && question.choices[selectedChoice.value].isCorrect) {
                 correctAnswers++;
             }
-
             currentQuestionIndex++;
-
             if (currentQuestionIndex < questions.length) {
                 displayQuestion();
             } else {
@@ -271,10 +272,8 @@
         function showResults() {
             document.getElementById('questionsContainer').innerHTML = '';
             document.getElementById('nextButton').style.display = 'none';
-
             const resultCard = document.querySelector('.result-card');
             const resultText = document.getElementById('resultText');
-
             resultText.textContent = `You got ${correctAnswers} out of ${questions.length} questions correct!`;
             resultCard.style.display = 'block';
         }
