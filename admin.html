@@ -10,6 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.8.1/firebase-auth-compat.js"></script>
     <!-- Firebase Realtime Database -->
     <script src="https://www.gstatic.com/firebasejs/9.8.1/firebase-database-compat.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <script>
         // Firebase configuration
         const firebaseConfig = {
@@ -97,24 +98,71 @@
             });
         }
     </script>
+    <style>
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .container {
+            margin-top: 30px;
+        }
+        .table {
+            margin-top: 20px;
+        }
+        .logout-btn {
+            background-color: #e74c3c;
+            border-color: #e74c3c;
+        }
+        .logout-btn:hover {
+            background-color: #c0392b;
+            border-color: #c0392b;
+        }
+        .add-test-btn {
+            background-color: #3498db;
+            border-color: #3498db;
+        }
+        .add-test-btn:hover {
+            background-color: #2980b9;
+            border-color: #2980b9;
+        }
+    </style>
 </head>
 <body>
-    <h1>Admin Page</h1>
-    <p>Welcome to the admin page. Only authenticated users can see this.</p>
-    <p>Logged in as: <span id="userEmail"></span></p>
-    <button onclick="logout()">Logout</button>
-    <h2>Your Tests</h2>
-    <button onclick="addTest()">Add Test</button>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Test Name</th>
-                <th>Created At</th>
-            </tr>
-        </thead>
-        <tbody id="testsTableBody">
-            <!-- Tests will be loaded here -->
-        </tbody>
-    </table>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Admin Page</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <span class="nav-link" id="userEmail"></span>
+                    </li>
+                    <li class="nav-item">
+                        <button class="btn logout-btn text-white ms-2" onclick="logout()">Logout</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <h2 class="my-4">Your Tests</h2>
+        <button class="btn add-test-btn text-white mb-3" onclick="addTest()">Add Test</button>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Test Name</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+                <tbody id="testsTableBody">
+                    <!-- Tests will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
