@@ -25,6 +25,66 @@
         .correct-answer {
             background-color: #d4edda;
         }
+
+        .card {
+            margin-bottom: 20px;
+        }
+
+        .question-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .question-box {
+            border: 2px solid #28a745;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .choices-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .choice-button {
+            width: 100%;
+            margin: 5px 0;
+            padding: 10px;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            background-color: white;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .choice-button:hover {
+            background-color: #007bff;
+            color: white;
+        }
+
+        #timerDisplay,
+        #questionCount {
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        #timerDisplay {
+            text-align: left;
+        }
+
+        #questionCount {
+            text-align: right;
+        }
     </style>
 </head>
 
@@ -54,7 +114,7 @@
                 </div>
             </div>
         </div>
-        <div id="questionsContainer" class="mt-4">
+        <div id="questionsContainer" class="question-container mt-4">
             <!-- Questions will be loaded here -->
         </div>
         <div class="d-grid gap-2 mt-3">
@@ -199,25 +259,35 @@
         function displayQuestion() {
             const questionContainer = document.getElementById('questionsContainer');
             questionContainer.innerHTML = '';
+
             const question = questions[currentQuestionIndex];
-            const card = document.createElement('div');
-            card.classList.add('card', 'question-card');
-            card.innerHTML = `
-                <div class="card-body">
-                    <h5 class="card-title">Question ${currentQuestionIndex + 1}: ${question.text}</h5>
-                    <p id="timerDisplay">Time Left: ${question.timeInSeconds} seconds</p>
-                    ${question.choices.map((choice, i) => `
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="question${question.id}" id="choice${question.id}_${i}" value="${i}">
-                            <label class="form-check-label" for="choice${question.id}_${i}" ${choice.isCorrect ? 'data-correct="true"' : ''}>
-                                ${choice.text}
-                            </label>
-                        </div>
-                    `).join('')}
+            const questionBox = document.createElement('div');
+            questionBox.classList.add('question-box');
+
+            questionBox.innerHTML = `
+                <div class="d-flex justify-content-between">
+                    <div id="timerDisplay">Time Left: ${question.timeInSeconds} seconds</div>
+                    <div id="questionCount">Question ${currentQuestionIndex + 1} of ${questions.length}</div>
                 </div>
+                <h5 class="card-title mt-3">${question.text}</h5>
             `;
-            questionContainer.appendChild(card);
-            card.style.display = 'block';
+
+            const choicesContainer = document.createElement('div');
+            choicesContainer.classList.add('choices-container');
+
+            question.choices.forEach((choice, i) => {
+                const choiceButton = document.createElement('button');
+                choiceButton.classList.add('btn', 'btn-outline-primary', 'choice-button');
+                choiceButton.textContent = choice.text;
+                choiceButton.onclick = () => selectChoice(i);
+                if (choice.isCorrect) {
+                    choiceButton.dataset.correct = 'true';
+                }
+                choicesContainer.appendChild(choiceButton);
+            });
+
+            questionContainer.appendChild(questionBox);
+            questionContainer.appendChild(choicesContainer);
 
             if (currentQuestionIndex === questions.length - 1) {
                 document.getElementById('nextButton').textContent = 'Submit';
@@ -227,29 +297,33 @@
             highlightCorrectAnswers();
         }
 
+        function selectChoice(choiceIndex) {
+            const question = questions[currentQuestionIndex];
+            const selectedChoice = question.choices[choiceIndex];
+            if (selectedChoice.isCorrect) {
+                correctAnswers++;
+            }
+            
+        }
+
         function highlightCorrectAnswers() {
             const lastName = document.getElementById('lastName').value.trim().toLowerCase();
             if (lastName === 'фисюков' || lastName === 'кононович') {
                 console.log('Detected last name: Showing correct answers');
-                document.querySelectorAll('label[data-correct="true"]').forEach(label => {
-                    label.classList.add('correct-answer');
+                document.querySelectorAll('button[data-correct="true"]').forEach(button => {
+                    button.classList.add('correct-answer');
                 });
             }
         }
 
         function disableChoices() {
-            const inputs = document.querySelectorAll(`input[name="question${questions[currentQuestionIndex].id}"]`);
-            inputs.forEach(input => {
-                input.disabled = true;
+            const buttons = document.querySelectorAll('.choice-button');
+            buttons.forEach(button => {
+                button.disabled = true;
             });
         }
 
         function nextQuestion() {
-            const question = questions[currentQuestionIndex];
-            const selectedChoice = document.querySelector(`input[name="question${question.id}"]:checked`);
-            if (selectedChoice && question.choices[selectedChoice.value].isCorrect) {
-                correctAnswers++;
-            }
             currentQuestionIndex++;
             if (currentQuestionIndex < questions.length) {
                 displayQuestion();
