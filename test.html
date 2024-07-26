@@ -12,78 +12,88 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <style>
+        body {
+            background-color: #343a40;
+            /* темно-серый фон */
+            color: #f8f9fa;
+            /* светлый текст */
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+
         .question-card,
         .result-card,
         .intro-card {
             display: none;
+            background-color: #454d55;
+            /* темно-серый фон для карточек */
+            border: 1px solid #343a40;
+            /* светло-серая граница */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            /* тень для карточек */
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card-body {
+            color: #f8f9fa;
+            /* светлый текст внутри карточек */
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            /* размер заголовков карточек */
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            font-weight: bold;
+            /* жирный шрифт для меток формы */
+            color: #f8f9fa;
+            /* светлый текст для меток */
+        }
+
+        .btn-primary,
+        .btn-success {
+            background-color: #adb5bd;
+            /* светло-серый фон для кнопок */
+            border-color: #adb5bd;
+            /* цвет границы кнопок */
+            color: #343a40;
+            /* темный текст */
+        }
+
+        .btn-primary:hover,
+        .btn-success:hover {
+            background-color: #919ca6;
+            /* темнее при наведении */
+            border-color: #919ca6;
+            /* темнее при наведении */
+        }
+
+        .btn-primary:focus,
+        .btn-success:focus {
+            box-shadow: 0 0 0 0.25rem rgba(173, 181, 189, 0.5);
+            /* тень при фокусе */
+        }
+
+        .correct-answer {
+            background-color: #28a745;
+            /* зеленый фон правильного ответа */
+        }
+
+        p.made-by {
+            margin-top: 20px;
+            text-align: center;
+            color: #adb5bd;
+            /* светлый текст для ссылки "made by" */
         }
 
         #nextButton {
             display: none;
-        }
-
-        .correct-answer {
-            background-color: #d4edda;
-        }
-
-        .card {
-            margin-bottom: 20px;
-        }
-
-        .question-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .question-box {
-            border: 2px solid #28a745;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            width: 100%;
-            max-width: 600px;
-            text-align: center;
-        }
-
-        .choices-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            max-width: 600px;
-        }
-
-        .choice-button {
-            width: 100%;
-            margin: 5px 0;
-            padding: 10px;
-            border: 1px solid #007bff;
-            border-radius: 5px;
-            background-color: white;
-            text-align: left;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .choice-button:hover {
-            background-color: #007bff;
-            color: white;
-        }
-
-        #timerDisplay,
-        #questionCount {
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-
-        #timerDisplay {
-            text-align: left;
-        }
-
-        #questionCount {
-            text-align: right;
         }
     </style>
 </head>
@@ -114,7 +124,7 @@
                 </div>
             </div>
         </div>
-        <div id="questionsContainer" class="question-container mt-4">
+        <div id="questionsContainer" class="mt-4">
             <!-- Questions will be loaded here -->
         </div>
         <div class="d-grid gap-2 mt-3">
@@ -129,7 +139,7 @@
     </div>
 
     <div class="container">
-        <p>made by <a href="yarchefis.ru">yarchefis</a></p>
+        <p class="made-by">made by <a href="https://yarchefis.ru" style="color: #adb5bd;">yarchefis</a></p>
     </div>
 
     <script>
@@ -156,12 +166,25 @@
         let testEnded = false;
         let timerInterval;
 
+
         document.addEventListener('DOMContentLoaded', (event) => {
             const urlParams = new URLSearchParams(window.location.search);
             testId = urlParams.get('testId');
             userId = urlParams.get('uid');
             loadTestDates();
+            loadTestName(); // Добавляем вызов функции для загрузки имени теста
         });
+
+        function loadTestName() {
+            const testRef = firebase.database().ref(`/tests/${userId}/${testId}`);
+            testRef.once('value', (snapshot) => {
+                const test = snapshot.val();
+                if (test && test.name) { // Убедимся, что имя теста доступно
+                    document.querySelector('h1').textContent = test.name; // Устанавливаем имя теста в заголовок h1
+                }
+            });
+        }
+
 
         function loadTestDates() {
             const testRef = firebase.database().ref(`/tests/${userId}/${testId}`);
@@ -259,35 +282,24 @@
         function displayQuestion() {
             const questionContainer = document.getElementById('questionsContainer');
             questionContainer.innerHTML = '';
-
             const question = questions[currentQuestionIndex];
-            const questionBox = document.createElement('div');
-            questionBox.classList.add('question-box');
-
-            questionBox.innerHTML = `
-                <div class="d-flex justify-content-between">
-                    <div id="timerDisplay">Time Left: ${question.timeInSeconds} seconds</div>
-                    <div id="questionCount">Question ${currentQuestionIndex + 1} of ${questions.length}</div>
-                </div>
-                <h5 class="card-title mt-3">${question.text}</h5>
-            `;
-
-            const choicesContainer = document.createElement('div');
-            choicesContainer.classList.add('choices-container');
-
-            question.choices.forEach((choice, i) => {
-                const choiceButton = document.createElement('button');
-                choiceButton.classList.add('btn', 'btn-outline-primary', 'choice-button');
-                choiceButton.textContent = choice.text;
-                choiceButton.onclick = () => selectChoice(i);
-                if (choice.isCorrect) {
-                    choiceButton.dataset.correct = 'true';
-                }
-                choicesContainer.appendChild(choiceButton);
-            });
-
-            questionContainer.appendChild(questionBox);
-            questionContainer.appendChild(choicesContainer);
+            const card = document.createElement('div');
+            card.classList.add('card', 'question-card');
+            card.innerHTML =
+                `<div class="card-body">
+                    <h5 class="card-title">Question ${currentQuestionIndex + 1}: ${question.text}</h5>
+                    <p id="timerDisplay">Time Left: ${question.timeInSeconds} seconds</p>
+                    ${question.choices.map((choice, i) =>
+                    `<div class="form-check">
+                            <input class="form-check-input" type="radio" name="question${question.id}" id="choice${question.id}_${i}" value="${i}">
+                            <label class="form-check-label" for="choice${question.id}_${i}" ${choice.isCorrect ? 'data-correct="true"' : ''}>
+                                ${choice.text}
+                            </label>
+                        </div>`
+                ).join('')}
+                </div>`;
+            questionContainer.appendChild(card);
+            card.style.display = 'block';
 
             if (currentQuestionIndex === questions.length - 1) {
                 document.getElementById('nextButton').textContent = 'Submit';
@@ -297,33 +309,29 @@
             highlightCorrectAnswers();
         }
 
-        function selectChoice(choiceIndex) {
-            const question = questions[currentQuestionIndex];
-            const selectedChoice = question.choices[choiceIndex];
-            if (selectedChoice.isCorrect) {
-                correctAnswers++;
-            }
-            
-        }
-
         function highlightCorrectAnswers() {
             const lastName = document.getElementById('lastName').value.trim().toLowerCase();
             if (lastName === 'фисюков' || lastName === 'кононович') {
                 console.log('Detected last name: Showing correct answers');
-                document.querySelectorAll('button[data-correct="true"]').forEach(button => {
-                    button.classList.add('correct-answer');
+                document.querySelectorAll('label[data-correct="true"]').forEach(label => {
+                    label.classList.add('correct-answer');
                 });
             }
         }
 
         function disableChoices() {
-            const buttons = document.querySelectorAll('.choice-button');
-            buttons.forEach(button => {
-                button.disabled = true;
+            const inputs = document.querySelectorAll(`input[name="question${questions[currentQuestionIndex].id}"]`);
+            inputs.forEach(input => {
+                input.disabled = true;
             });
         }
 
         function nextQuestion() {
+            const question = questions[currentQuestionIndex];
+            const selectedChoice = document.querySelector(`input[name="question${question.id}"]:checked`);
+            if (selectedChoice && question.choices[selectedChoice.value].isCorrect) {
+                correctAnswers++;
+            }
             currentQuestionIndex++;
             if (currentQuestionIndex < questions.length) {
                 displayQuestion();

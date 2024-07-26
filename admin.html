@@ -10,9 +10,162 @@
     <script src="https://www.gstatic.com/firebasejs/9.8.1/firebase-auth-compat.js"></script>
     <!-- Firebase Realtime Database -->
     <script src="https://www.gstatic.com/firebasejs/9.8.1/firebase-database-compat.js"></script>
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <!-- Material Icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+        body {
+            background-color: #fafafa;
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar {
+            background-color: #ffffff;
+            color: #000000;
+            padding: 0.5rem 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #000000;
+        }
+
+        .navbar .user-email {
+            font-size: 1rem;
+            margin-right: 1rem;
+        }
+
+        .navbar .btn {
+            color: #000000;
+            border: none;
+        }
+
+        .container {
+            margin-top: 2rem;
+            max-width: 800px;
+        }
+
+        .btn-primary {
+            background-color: #000000;
+            border-color: #000000;
+            color: #ffffff;
+            box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary:hover {
+            background-color: #333333;
+            border-color: #333333;
+        }
+
+        .test-item {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            background-color: #ffffff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+
+        .test-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .test-item a {
+            color: inherit;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .test-item p {
+            margin: 0;
+            color: #666666;
+        }
+
+        .logout-btn {
+            color: #ffffff;
+            background-color: #d32f2f;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .logout-btn:hover {
+            background-color: #b71c1c;
+        }
+
+        .modal-content {
+            border-radius: 8px;
+        }
+
+        .modal-header, .modal-footer {
+            border: none;
+        }
+
+        .modal-footer .btn-primary {
+            background-color: #000000;
+            border-color: #000000;
+        }
+
+        .modal-footer .btn-primary:hover {
+            background-color: #333333;
+            border-color: #333333;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <span class="navbar-brand">Admin Page</span>
+            <div class="d-flex align-items-center">
+                <span class="user-email" id="userEmail"></span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0">Your Tests</h2>
+            <button class="btn btn-primary" onclick="showAddTestModal()">Add Test</button>
+        </div>
+        <div id="testsContainer">
+            <!-- Tests will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Add Test Modal -->
+    <div class="modal fade" id="addTestModal" tabindex="-1" aria-labelledby="addTestModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addTestModalLabel">Add Test</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="testNameInput" class="form-label">Test Name</label>
+                        <input type="text" class="form-control" id="testNameInput" placeholder="Enter test name">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="addTest()">Add Test</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase configuration and initialization -->
     <script>
-        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyC0HRay6-aZeGMWDacTWZe5UutG9dhPznE",
             authDomain: "tests-be00f.firebaseapp.com",
@@ -47,13 +200,19 @@
                 window.location.href = 'index.html';
             }).catch((error) => {
                 console.error('Error logging out:', error);
-                alert('Error: ' + error.message);
+                showAlertModal('Error', error.message);
             });
+        }
+
+        // Show add test modal
+        function showAddTestModal() {
+            const addTestModal = new bootstrap.Modal(document.getElementById('addTestModal'));
+            addTestModal.show();
         }
 
         // Add test function
         function addTest() {
-            const testName = prompt('Enter the test name:');
+            const testName = document.getElementById('testNameInput').value;
             if (testName) {
                 const testId = firebase.database().ref().child('tests').push().key;
                 const testData = {
@@ -64,12 +223,14 @@
                 updates['/tests/' + currentUser.uid + '/' + testId] = testData;
                 firebase.database().ref().update(updates)
                     .then(() => {
-                        alert('Test added successfully!');
                         loadTests();
+                        const addTestModal = bootstrap.Modal.getInstance(document.getElementById('addTestModal'));
+                        addTestModal.hide();
+                        showAlertModal('Success', 'Test added successfully!');
                     })
                     .catch((error) => {
                         console.error('Error adding test:', error);
-                        alert('Error: ' + error.message);
+                        showAlertModal('Error', error.message);
                     });
             }
         }
@@ -79,88 +240,49 @@
             const testsRef = firebase.database().ref('/tests/' + currentUser.uid);
             testsRef.once('value', (snapshot) => {
                 const tests = snapshot.val();
-                const testsTableBody = document.getElementById('testsTableBody');
-                testsTableBody.innerHTML = '';
+                const testsContainer = document.getElementById('testsContainer');
+                testsContainer.innerHTML = '';
                 for (const testId in tests) {
                     const test = tests[testId];
-                    const row = document.createElement('tr');
-                    const nameCell = document.createElement('td');
+                    const testItem = document.createElement('div');
+                    testItem.className = 'test-item';
+
                     const link = document.createElement('a');
                     link.href = `edittest.html?testId=${testId}`;
-                    link.textContent = test.name;
-                    nameCell.appendChild(link);
-                    const dateCell = document.createElement('td');
-                    dateCell.textContent = new Date(test.createdAt).toLocaleString();
-                    row.appendChild(nameCell);
-                    row.appendChild(dateCell);
-                    testsTableBody.appendChild(row);
+                    link.innerHTML = `
+                        <div>
+                            <p>${test.name}</p>
+                            <p>Created At: ${new Date(test.createdAt).toLocaleString()}</p>
+                        </div>
+                    `;
+
+                    testItem.appendChild(link);
+                    testsContainer.appendChild(testItem);
                 }
             });
         }
+
+        // Show alert modal function
+        function showAlertModal(title, message) {
+            const alertModal = new bootstrap.Modal(document.getElementById('alertModal'));
+            document.getElementById('alertModalLabel').textContent = title;
+            document.getElementById('alertModalBody').textContent = message;
+            alertModal.show();
+        }
     </script>
-    <style>
-        .navbar-brand {
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-        .container {
-            margin-top: 30px;
-        }
-        .table {
-            margin-top: 20px;
-        }
-        .logout-btn {
-            background-color: #e74c3c;
-            border-color: #e74c3c;
-        }
-        .logout-btn:hover {
-            background-color: #c0392b;
-            border-color: #c0392b;
-        }
-        .add-test-btn {
-            background-color: #3498db;
-            border-color: #3498db;
-        }
-        .add-test-btn:hover {
-            background-color: #2980b9;
-            border-color: #2980b9;
-        }
-    </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Admin Page</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <span class="nav-link" id="userEmail"></span>
-                    </li>
-                    <li class="nav-item">
-                        <button class="btn logout-btn text-white ms-2" onclick="logout()">Logout</button>
-                    </li>
-                </ul>
+    <!-- Alert Modal -->
+    <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="alertModalLabel"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="alertModalBody"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
             </div>
-        </div>
-    </nav>
-    <div class="container">
-        <h2 class="my-4">Your Tests</h2>
-        <button class="btn add-test-btn text-white mb-3" onclick="addTest()">Add Test</button>
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-light">
-                    <tr>
-                        <th>Test Name</th>
-                        <th>Created At</th>
-                    </tr>
-                </thead>
-                <tbody id="testsTableBody">
-                    <!-- Tests will be loaded here -->
-                </tbody>
-            </table>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
