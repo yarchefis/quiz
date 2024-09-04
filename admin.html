@@ -15,51 +15,69 @@
     <!-- Material Icons -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <style>
+        /* Основные стили */
         body {
-            background-color: #fafafa;
+            background-color: #f8f9fa;
             font-family: 'Roboto', sans-serif;
             margin: 0;
             padding: 0;
+            color: #212529;
         }
 
         .navbar {
             background-color: #ffffff;
-            color: #000000;
-            padding: 0.5rem 1rem;
+            color: #212529;
+            padding: 1rem;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .navbar .navbar-brand {
             font-size: 1.5rem;
-            font-weight: bold;
-            color: #000000;
+            font-weight: 500;
+            color: #212529;
         }
 
         .navbar .user-email {
             font-size: 1rem;
             margin-right: 1rem;
+            color: #212529;
         }
 
-        .navbar .btn {
-            color: #000000;
+        .navbar .logout-btn {
+            color: #ffffff;
+            background-color: #d32f2f;
             border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .navbar .logout-btn:hover {
+            background-color: #b71c1c;
         }
 
         .container {
             margin-top: 2rem;
-            max-width: 800px;
+            max-width: 900px;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            font-weight: 500;
+            color: #212529;
         }
 
         .btn-primary {
-            background-color: #000000;
-            border-color: #000000;
+            background-color: #212529;
+            border-color: #212529;
             color: #ffffff;
-            box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
 
         .btn-primary:hover {
-            background-color: #333333;
-            border-color: #333333;
+            background-color: #343a40;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
         }
 
         .test-item {
@@ -68,16 +86,17 @@
             border-radius: 8px;
             background-color: #ffffff;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.2s;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
             cursor: pointer;
         }
 
         .test-item:hover {
-            background-color: #f0f0f0;
+            background-color: #f1f3f5;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
         }
 
         .test-item a {
-            color: inherit;
+            color: #212529;
             text-decoration: none;
             display: block;
             width: 100%;
@@ -86,21 +105,7 @@
 
         .test-item p {
             margin: 0;
-            color: #666666;
-        }
-
-        .logout-btn {
-            color: #ffffff;
-            background-color: #d32f2f;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .logout-btn:hover {
-            background-color: #b71c1c;
+            color: #6c757d;
         }
 
         .modal-content {
@@ -112,13 +117,12 @@
         }
 
         .modal-footer .btn-primary {
-            background-color: #000000;
-            border-color: #000000;
+            background-color: #212529;
+            border-color: #212529;
         }
 
         .modal-footer .btn-primary:hover {
-            background-color: #333333;
-            border-color: #333333;
+            background-color: #343a40;
         }
     </style>
 </head>
@@ -165,111 +169,7 @@
     </div>
 
     <!-- Firebase configuration and initialization -->
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyC0HRay6-aZeGMWDacTWZe5UutG9dhPznE",
-            authDomain: "tests-be00f.firebaseapp.com",
-            databaseURL: "https://tests-be00f-default-rtdb.firebaseio.com",
-            projectId: "tests-be00f",
-            storageBucket: "tests-be00f.appspot.com",
-            messagingSenderId: "566141226562",
-            appId: "1:566141226562:web:0a4c9e8866b747be1e67db",
-            measurementId: "G-7F29PR9KR9"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-
-        let currentUser;
-
-        // Check if user is logged in
-        firebase.auth().onAuthStateChanged((user) => {
-            if (!user) {
-                window.location.href = 'index.html';
-            } else {
-                console.log('User is logged in:', user);
-                currentUser = user;
-                document.getElementById('userEmail').textContent = user.email;
-                loadTests();
-            }
-        });
-
-        // Logout function
-        function logout() {
-            firebase.auth().signOut().then(() => {
-                window.location.href = 'index.html';
-            }).catch((error) => {
-                console.error('Error logging out:', error);
-                showAlertModal('Error', error.message);
-            });
-        }
-
-        // Show add test modal
-        function showAddTestModal() {
-            const addTestModal = new bootstrap.Modal(document.getElementById('addTestModal'));
-            addTestModal.show();
-        }
-
-        // Add test function
-        function addTest() {
-            const testName = document.getElementById('testNameInput').value;
-            if (testName) {
-                const testId = firebase.database().ref().child('tests').push().key;
-                const testData = {
-                    name: testName,
-                    createdAt: new Date().toISOString()
-                };
-                const updates = {};
-                updates['/tests/' + currentUser.uid + '/' + testId] = testData;
-                firebase.database().ref().update(updates)
-                    .then(() => {
-                        loadTests();
-                        const addTestModal = bootstrap.Modal.getInstance(document.getElementById('addTestModal'));
-                        addTestModal.hide();
-                        showAlertModal('Success', 'Test added successfully!');
-                    })
-                    .catch((error) => {
-                        console.error('Error adding test:', error);
-                        showAlertModal('Error', error.message);
-                    });
-            }
-        }
-
-        // Load tests function
-        function loadTests() {
-            const testsRef = firebase.database().ref('/tests/' + currentUser.uid);
-            testsRef.once('value', (snapshot) => {
-                const tests = snapshot.val();
-                const testsContainer = document.getElementById('testsContainer');
-                testsContainer.innerHTML = '';
-                for (const testId in tests) {
-                    const test = tests[testId];
-                    const testItem = document.createElement('div');
-                    testItem.className = 'test-item';
-
-                    const link = document.createElement('a');
-                    link.href = `edittest.html?testId=${testId}`;
-                    link.innerHTML = `
-                        <div>
-                            <p>${test.name}</p>
-                            <p>Created At: ${new Date(test.createdAt).toLocaleString()}</p>
-                        </div>
-                    `;
-
-                    testItem.appendChild(link);
-                    testsContainer.appendChild(testItem);
-                }
-            });
-        }
-
-        // Show alert modal function
-        function showAlertModal(title, message) {
-            const alertModal = new bootstrap.Modal(document.getElementById('alertModal'));
-            document.getElementById('alertModalLabel').textContent = title;
-            document.getElementById('alertModalBody').textContent = message;
-            alertModal.show();
-        }
-    </script>
+    <script src="admin.js"></script>
     <!-- Alert Modal -->
     <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
         <div class="modal-dialog">
