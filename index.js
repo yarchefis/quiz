@@ -17,6 +17,11 @@ document.getElementById('loginForm').onsubmit = function(event) {
     event.preventDefault();
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
+    const errorAlert = document.getElementById('error-alert');
+
+    // Clear previous error
+    errorAlert.style.display = 'none';
+    errorAlert.textContent = '';
 
     firebase.auth().signInWithEmailAndPassword(email, password)
         .then((userCredential) => {
@@ -26,8 +31,12 @@ document.getElementById('loginForm').onsubmit = function(event) {
         })
         .catch((error) => {
             const errorCode = error.code;
-            const errorMessage = error.message;
-            console.error('Error:', errorCode, errorMessage);
-            alert('Error: ' + errorMessage);
+            console.error('Error:', errorCode);
+
+            // Show a custom error message for invalid login credentials
+            if (errorCode === 'auth/invalid-login-credentials') {
+                errorAlert.style.display = 'block';
+                errorAlert.textContent = 'Неверный email или пароль. Попробуйте снова.';
+            }
         });
 };

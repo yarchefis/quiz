@@ -1,4 +1,3 @@
-
 const firebaseConfig = {
     apiKey: "AIzaSyC0HRay6-aZeGMWDacTWZe5UutG9dhPznE",
     authDomain: "tests-be00f.firebaseapp.com",
@@ -18,10 +17,10 @@ let questions = [];
 let currentQuestionIndex = 0;
 let correctAnswers = 0;
 let userInfo = {};
+let userAnswers = {};
 let testStarted = false;
 let testEnded = false;
 let timerInterval;
-
 
 document.addEventListener('DOMContentLoaded', (event) => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -41,7 +40,6 @@ function loadTestName() {
     });
 }
 
-
 function loadTestDates() {
     const testRef = firebase.database().ref(`/tests/${userId}/${testId}`);
     testRef.once('value', (snapshot) => {
@@ -54,7 +52,7 @@ function loadTestDates() {
             testStarted = currentDate >= startDate;
             testEnded = currentDate > endDate;
 
-            document.getElementById('testDates').textContent = `Test is available from ${startDate.toLocaleDateString()} to ${endDate.toLocaleDateString()}`;
+            document.getElementById('testDates').textContent = `Тест доступен с ${startDate.toLocaleDateString()} по ${endDate.toLocaleDateString()}`;
 
             if (!testStarted || testEnded) {
                 document.getElementById('startTestButton').disabled = true;
@@ -63,7 +61,7 @@ function loadTestDates() {
                 document.querySelector('.intro-card').style.display = 'block';
             }
         } else {
-            alert('Test dates not available.');
+            alert('Срок выполнения теста истек!');
         }
     });
 }
@@ -76,7 +74,7 @@ function startTest() {
     if (lastName && firstName && className) {
         checkUserExists(firstName, lastName, className);
     } else {
-        alert('Please fill in all fields.');
+        alert('Заполните все поля!');
     }
 }
 
@@ -91,7 +89,7 @@ function checkUserExists(firstName, lastName, className) {
             }
         });
         if (userExists) {
-            alert('User with the same first and last name already exists.');
+            alert('Вы уже сдавали тест, повторно нельзя!');
         } else {
             userInfo = { lastName, firstName, class: className };
             document.querySelector('.intro-card').style.display = 'none';
@@ -111,6 +109,8 @@ function loadQuestions() {
             }
         }
         if (questions.length > 0) {
+            shuffleArray(questions); // Перемешиваем вопросы
+            questions.forEach(q => shuffleArray(q.choices)); // Перемешиваем варианты ответов для каждого вопроса
             startQuestionTimer();
             displayQuestion();
             document.getElementById('nextButton').style.display = 'block';
@@ -120,6 +120,13 @@ function loadQuestions() {
     });
 }
 
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]]; // Обмен элементов
+    }
+}
+
 function startQuestionTimer() {
     clearInterval(timerInterval);
     const question = questions[currentQuestionIndex];
@@ -127,7 +134,7 @@ function startQuestionTimer() {
     let timer = timeInSeconds;
     timerInterval = setInterval(() => {
         timer--;
-        document.getElementById('timerDisplay').textContent = `Time Left: ${timer} seconds`;
+        document.getElementById('timerDisplay').textContent = `Осталось: ${timer} секунд`;
         if (timer <= 0) {
             clearInterval(timerInterval);
             disableChoices();
@@ -185,9 +192,21 @@ function disableChoices() {
 function nextQuestion() {
     const question = questions[currentQuestionIndex];
     const selectedChoice = document.querySelector(`input[name="question${question.id}"]:checked`);
-    if (selectedChoice && question.choices[selectedChoice.value].isCorrect) {
-        correctAnswers++;
+
+    if (selectedChoice) {
+        const choiceValue = selectedChoice.value;
+        const choiceText = question.choices[choiceValue].text; // Получаем текст выбранного варианта
+        userAnswers[question.id] = choiceText; // Сохраняем текст варианта
+        
+        if (question.choices[choiceValue].isCorrect) {
+            correctAnswers++;
+        }
+    } else {
+        userAnswers[question.id] = null; // Если ничего не выбрано
     }
+
+    console.log('User answers so far:', userAnswers); // Логируем выбранные ответы
+
     currentQuestionIndex++;
     if (currentQuestionIndex < questions.length) {
         displayQuestion();
@@ -197,21 +216,30 @@ function nextQuestion() {
     }
 }
 
+
 function saveResults() {
     const resultsRef = firebase.database().ref('/results/' + userId + '/' + testId).push();
-    resultsRef.set({
+    const resultData = {
         userInfo,
         score: correctAnswers,
         totalQuestions: questions.length,
+        userAnswers,  // Сохраняем текстовые значения выбранных ответов
         timestamp: new Date().toISOString()
-    });
+    };
+
+    console.log('Saving results:', resultData); // Логируем данные перед сохранением
+
+    resultsRef.set(resultData)
+        .then(() => console.log('Results saved successfully'))
+        .catch(error => console.error('Error saving results:', error));
 }
+
 
 function showResults() {
     document.getElementById('questionsContainer').innerHTML = '';
     document.getElementById('nextButton').style.display = 'none';
     const resultCard = document.querySelector('.result-card');
     const resultText = document.getElementById('resultText');
-    resultText.textContent = `You got ${correctAnswers} out of ${questions.length} questions correct!`;
+    resultText.textContent = `Вы выполнили ${correctAnswers} из ${questions.length} вопросов! Ваши ответы можно посмотреть у учителя`;
     resultCard.style.display = 'block';
 }

@@ -233,27 +233,143 @@ function generateTestLink() {
     testLink.textContent = testLink.href;
 }
 
+// function loadTestResults(userId, testId) {
+//     const resultsRef = firebase.database().ref(`/results/${userId}/${testId}`);
+//     resultsRef.once('value', (snapshot) => {
+//         const results = snapshot.val();
+//         const resultsTable = document.getElementById('resultsTable');
+//         resultsTable.innerHTML = `
+//                     <table class="table table-bordered">
+//                         <thead>
+//                             <tr>
+//                                 <th>#</th>
+//                                 <th>Фамилия</th>
+//                                 <th>Имя</th>
+//                                 <th>Класс</th>
+//                                 <th>Количество выполненных / всего</th>
+//                             </tr>
+//                         </thead>
+//                         <tbody id="resultsList">
+//                             <!-- Results will be loaded here -->
+//                         </tbody>
+//                     </table>
+//                 `;
+
+//         const resultsList = document.getElementById('resultsList');
+//         resultsList.innerHTML = '';
+//         let index = 1;
+
+//         if (results) {
+//             for (const resultKey in results) {
+//                 const result = results[resultKey];
+//                 const row = document.createElement('tr');
+//                 row.innerHTML = `
+//                             <td>${index++}</td>
+//                             <td>${result.userInfo.lastName}</td>
+//                             <td>${result.userInfo.firstName}</td>
+//                             <td>${result.userInfo.class}</td>
+//                             <td>${result.score} / ${result.totalQuestions}</td>
+//                         `;
+//                 resultsList.appendChild(row);
+//             }
+//         } else {
+//             const row = document.createElement('tr');
+//             row.innerHTML = `<td colspan="5">No results found</td>`;
+//             resultsList.appendChild(row);
+//         }
+//     });
+// }
+
+
+
+function viewSelectedAnswers(resultKey) {
+    const resultRef = firebase.database().ref(`/results/${currentUser.uid}/${testId}/${resultKey}`);
+    resultRef.once('value', (snapshot) => {
+        const result = snapshot.val();
+        
+        // Отладочная информация
+        console.log('Snapshot:', snapshot.val());
+        
+        if (result && result.userAnswers) {
+            const modalBody = document.getElementById('selectedAnswersModalBody');
+            modalBody.innerHTML = '';
+
+            // Преобразование userAnswers в массив
+            const answersArray = Object.entries(result.userAnswers).map(([questionId, selectedChoice]) => ({
+                questionId,
+                selectedChoice
+            }));
+
+            // Обработка всех ответов
+            Promise.all(answersArray.map(async (answer, index) => {
+                try {
+                    const questionRef = firebase.database().ref(`/questions/${currentUser.uid}/${testId}/${answer.questionId}`);
+                    const questionSnapshot = await questionRef.once('value');
+                    const question = questionSnapshot.val();
+
+                    // Отладочная информация
+                    console.log(`Question ${answer.questionId}:`, question);
+
+                    if (question) {
+                        // Создание элемента с ответом
+                        const answerElement = document.createElement('div');
+                        answerElement.classList.add('mb-3');
+                        const correctChoice = question.choices ? question.choices.find(choice => choice.isCorrect) : null;
+                        answerElement.innerHTML = `
+                            <h5>Вопрос ${index + 1}: ${question.text}</h5>
+                            <p>Ваш ответ: ${answer.selectedChoice}</p>
+                            <p>Правильный ответ: ${correctChoice ? correctChoice.text : 'Неизвестно'}</p>
+                        `;
+                        modalBody.appendChild(answerElement);
+                    } else {
+                        console.warn(`Question with ID ${answer.questionId} not found.`);
+                    }
+                } catch (error) {
+                    console.error(`Error fetching question with ID ${answer.questionId}:`, error);
+                }
+            })).then(() => {
+                const modal = new bootstrap.Modal(document.getElementById('selectedAnswersModal'));
+                modal.show();
+            }).catch(error => {
+                console.error('Error displaying answers:', error);
+                alert('Error displaying answers. Check console for details.');
+            });
+
+        } else {
+            console.log('Result:', result);
+            alert('No answers found for this result.');
+        }
+    }).catch(error => {
+        console.error('Error fetching result:', error);
+        alert('Error fetching result. Check console for details.');
+    });
+}
+
+
+
+
 function loadTestResults(userId, testId) {
     const resultsRef = firebase.database().ref(`/results/${userId}/${testId}`);
     resultsRef.once('value', (snapshot) => {
         const results = snapshot.val();
         const resultsTable = document.getElementById('resultsTable');
         resultsTable.innerHTML = `
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Фамилия</th>
-                                <th>Имя</th>
-                                <th>Класс</th>
-                                <th>Количество выполненных / всего</th>
-                            </tr>
-                        </thead>
-                        <tbody id="resultsList">
-                            <!-- Results will be loaded here -->
-                        </tbody>
-                    </table>
-                `;
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Фамилия</th>
+                        <th>Имя</th>
+                        <th>Класс</th>
+                        <th>Количество выполненных / всего</th>
+                        <th>Действие</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsList">
+                    <!-- Results will be loaded here -->
+                </tbody>
+            </table>
+        `;
 
         const resultsList = document.getElementById('resultsList');
         resultsList.innerHTML = '';
@@ -264,17 +380,18 @@ function loadTestResults(userId, testId) {
                 const result = results[resultKey];
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                            <td>${index++}</td>
-                            <td>${result.userInfo.lastName}</td>
-                            <td>${result.userInfo.firstName}</td>
-                            <td>${result.userInfo.class}</td>
-                            <td>${result.score} / ${result.totalQuestions}</td>
-                        `;
+                    <td>${index++}</td>
+                    <td>${result.userInfo.lastName}</td>
+                    <td>${result.userInfo.firstName}</td>
+                    <td>${result.userInfo.class}</td>
+                    <td>${result.score} / ${result.totalQuestions}</td>
+                    <td><button class="btn btn-info btn-sm" onclick="viewSelectedAnswers('${resultKey}')">Посмотреть выбранные</button></td>
+                `;
                 resultsList.appendChild(row);
             }
         } else {
             const row = document.createElement('tr');
-            row.innerHTML = `<td colspan="5">No results found</td>`;
+            row.innerHTML = `<td colspan="6">No results found</td>`;
             resultsList.appendChild(row);
         }
     });

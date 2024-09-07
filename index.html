@@ -37,6 +37,10 @@
         .btn-primary:hover {
             background-color: #28b998;
         }
+        .alert {
+            display: none;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -52,6 +56,8 @@
                 <input type="password" class="form-control" id="login-password" placeholder="Enter your password" required>
             </div>
             <button type="submit" class="btn btn-primary w-100">Login</button>
+            <!-- Alert for errors -->
+            <div id="error-alert" class="alert alert-danger" role="alert"></div>
         </form>
     </div>
 

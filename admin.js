@@ -58,7 +58,6 @@ function addTest() {
                 loadTests();
                 const addTestModal = bootstrap.Modal.getInstance(document.getElementById('addTestModal'));
                 addTestModal.hide();
-                showAlertModal('Success', 'Test added successfully!');
             })
             .catch((error) => {
                 console.error('Error adding test:', error);
@@ -77,27 +76,91 @@ function loadTests() {
         for (const testId in tests) {
             const test = tests[testId];
             const testItem = document.createElement('div');
-            testItem.className = 'test-item';
+            testItem.className = 'test-item d-flex justify-content-between align-items-center';
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'flex-grow-1';
+            contentDiv.innerHTML = `
+                <p>${test.name}</p>
+                <p>Создан в: ${new Date(test.createdAt).toLocaleString()}</p>
+            `;
 
             const link = document.createElement('a');
             link.href = `edittest.html?testId=${testId}`;
-            link.innerHTML = `
-                <div>
-                    <p>${test.name}</p>
-                    <p>Created At: ${new Date(test.createdAt).toLocaleString()}</p>
-                </div>
-            `;
+            link.appendChild(contentDiv);
+
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'btn btn-danger btn-sm ms-2'; // Added margin-start for spacing
+            deleteButton.textContent = 'Удалить';
+            deleteButton.onclick = () => deleteTest(testId);
+
+
+            const buttonWrapper = document.createElement('div');
+            buttonWrapper.className = 'd-flex align-items-center';
+            buttonWrapper.appendChild(deleteButton);
 
             testItem.appendChild(link);
+            testItem.appendChild(buttonWrapper);
             testsContainer.appendChild(testItem);
         }
     });
 }
 
-// Show alert modal function
+
+function deleteTest(testId) {
+    if (confirm('Are you sure you want to delete this test?')) {
+        firebase.database().ref('/tests/' + currentUser.uid + '/' + testId).remove()
+            .then(() => {
+                loadTests();
+            })
+            .catch((error) => {
+                console.error('Error deleting test:', error);
+                showAlertModal('Error', error.message);
+            });
+    }
+}
+
+
+// Показать модальное окно для смены пароля
+function showChangePasswordModal() {
+    const changePasswordModal = new bootstrap.Modal(document.getElementById('changePasswordModal'));
+    changePasswordModal.show();
+}
+
+// Смена пароля
+function changePassword() {
+    const currentPassword = document.getElementById('currentPasswordInput').value;
+    const newPassword = document.getElementById('newPasswordInput').value;
+    const confirmPassword = document.getElementById('confirmPasswordInput').value;
+
+    if (newPassword === confirmPassword) {
+        const user = firebase.auth().currentUser;
+        const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
+
+        // Повторная аутентификация пользователя
+        user.reauthenticateWithCredential(credential)
+            .then(() => {
+                // Если успешная повторная аутентификация, меняем пароль
+                return user.updatePassword(newPassword);
+            })
+            .then(() => {
+                showAlertModal('Успех', 'Пароль успешно изменен');
+                const changePasswordModal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
+                changePasswordModal.hide();
+            })
+            .catch((error) => {
+                console.error('Ошибка при смене пароля:', error);
+                showAlertModal('Ошибка', error.message);
+            });
+    } else {
+        showAlertModal('Ошибка', 'Пароли не совпадают');
+    }
+}
+
+// Функция для показа модального окна с сообщением
 function showAlertModal(title, message) {
+    document.getElementById('alertModalLabel').innerText = title;
+    document.getElementById('alertModalBody').innerText = message;
     const alertModal = new bootstrap.Modal(document.getElementById('alertModal'));
-    document.getElementById('alertModalLabel').textContent = title;
-    document.getElementById('alertModalBody').textContent = message;
     alertModal.show();
 }

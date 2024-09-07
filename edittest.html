@@ -84,7 +84,8 @@
         border-radius: 8px;
     }
 
-    .modal-header, .modal-footer {
+    .modal-header,
+    .modal-footer {
         border: none;
     }
 
@@ -101,42 +102,42 @@
 <body>
 
     <div class="container mt-5">
-        <h1 class="text-center">Edit Test</h1>
+        <h1 class="text-center">Редактировать тест</h1>
         <p class="text-center">Logged in as: <span id="userEmail"></span></p>
 
         <div class="mb-3">
-            <label for="startDate" class="form-label">Start Date</label>
+            <label for="startDate" class="form-label">Дата начала проведения</label>
             <input type="date" class="form-control" id="startDate" required>
         </div>
         <div class="mb-3">
-            <label for="endDate" class="form-label">End Date</label>
+            <label for="endDate" class="form-label">Дата когда текст завершится</label>
             <input type="date" class="form-control" id="endDate" required>
         </div>
-        <button type="button" class="btn btn-primary" onclick="saveTestDates()">Save Dates</button>
+        <button type="button" class="btn btn-primary" onclick="saveTestDates()">Сохранить дату</button>
 
         <ul class="nav nav-tabs" id="editTabs" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="questions-tab" data-bs-toggle="tab" data-bs-target="#questions"
-                    type="button" role="tab" aria-controls="questions" aria-selected="true">Questions</button>
+                    type="button" role="tab" aria-controls="questions" aria-selected="true">Вопросы</button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="results-tab" data-bs-toggle="tab" data-bs-target="#results" type="button"
-                    role="tab" aria-controls="results" aria-selected="false">Results</button>
+                    role="tab" aria-controls="results" aria-selected="false">Результаты</button>
             </li>
         </ul>
 
         <div class="tab-content" id="editTabsContent">
             <div class="tab-pane fade show active" id="questions" role="tabpanel" aria-labelledby="questions-tab">
                 <div class="d-flex justify-content-between align-items-center mt-3">
-                    <h2>Questions</h2>
-                    <button class="btn btn-primary" onclick="showQuestionTypeModal()">Add Question</button>
+                    <h2>Вопросы</h2>
+                    <button class="btn btn-primary" onclick="showQuestionTypeModal()">Добавить вопрос</button>
                 </div>
                 <table class="table table-bordered mt-3 table-hover">
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>Question</th>
-                            <th>Actions</th>
+                            <th>Вопрос</th>
+                            <th>Действие</th>
                         </tr>
                     </thead>
                     <tbody id="questionsList">
@@ -144,12 +145,12 @@
                     </tbody>
                 </table>
                 <div class="mt-3">
-                    <h3>Test Link</h3>
-                    <p><a id="testLink" href="#" target="_blank">Generate Test Link</a></p>
+                    <h3>Ссылка теста</h3>
+                    <p><a id="testLink" href="#" target="_blank">Ссылка для проведения тестирования</a></p>
                 </div>
             </div>
             <div class="tab-pane fade" id="results" role="tabpanel" aria-labelledby="results-tab">
-                <h2 class="mt-3">Results</h2>
+                <h2 class="mt-3">Результаты</h2>
                 <div id="resultsTable" class="mt-3">
                     <!-- Results table will be loaded here -->
                 </div>
@@ -157,26 +158,47 @@
         </div>
     </div>
 
+
+    <!-- Selected Answers Modal -->
+    <div class="modal fade" id="selectedAnswersModal" tabindex="-1" aria-labelledby="selectedAnswersModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="selectedAnswersModalLabel">Выбранные ответы</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="selectedAnswersModalBody">
+                    <!-- Selected answers will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Question Type Modal -->
     <div class="modal fade" id="questionTypeModal" tabindex="-1" aria-labelledby="questionTypeModalLabel"
         aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="questionTypeModalLabel">Choose Question Type</h5>
+                    <h5 class="modal-title" id="questionTypeModalLabel">Выберите тип теста</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="questionTypeForm">
                         <div class="mb-3">
-                            <label for="questionType" class="form-label">Question Type</label>
+                            <label for="questionType" class="form-label">Тип теста</label>
                             <select class="form-control" id="questionType" required>
-                                <option value="test">Multiple Choice</option>
-                                <option value="yesno">Yes/No</option>
+                                <option value="test">Выбор одного Варианта</option>
+                                <option value="yesno">выбор да/нет</option>
                             </select>
                         </div>
                         <button type="button" class="btn btn-primary"
-                            onclick="handleQuestionTypeSelection()">Select</button>
+                            onclick="handleQuestionTypeSelection()">Выбрать</button>
                     </form>
                 </div>
             </div>
@@ -254,6 +276,37 @@
                             <label for="timeInSeconds" class="form-label">Время (секунды)</label>
                             <input type="number" class="form-control" id="timeInSeconds" required>
                         </div>
+
+
+                        <br><br>
+                        <p>Конвертер минут в секунды</p>
+
+
+                        <div class="mb-3">
+                            <label for="minutesInput" class="form-label">Минуты</label>
+                            <input type="number" class="form-control" id="minutesInput" placeholder="Введите минуты">
+                        </div>
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-primary" id="convertButton">Конвертировать</button>
+                        </div>
+                        <div class="mb-3">
+                            <label for="convertedSeconds" class="form-label">Конвертированное время (секунды)</label>
+                            <input type="text" class="form-control" id="convertedSeconds" readonly>
+                        </div>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', () => {
+                                document.getElementById('convertButton').addEventListener('click', () => {
+                                    const minutes = parseFloat(document.getElementById('minutesInput').value);
+                                    if (!isNaN(minutes) && minutes >= 0) {
+                                        const seconds = minutes * 60;
+                                        document.getElementById('convertedSeconds').value = seconds;
+                                    } else {
+                                        document.getElementById('convertedSeconds').value = 'Введите корректное число';
+                                    }
+                                });
+                            });
+
+                        </script>
                         <input type="hidden" id="currentQuestionId">
                     </form>
                 </div>

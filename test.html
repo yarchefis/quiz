@@ -19,6 +19,17 @@
             /* светлый текст */
         }
 
+        * {
+            -webkit-user-select: none;
+            /* Chrome, Safari, and Opera */
+            -moz-user-select: none;
+            /* Firefox */
+            -ms-user-select: none;
+            /* Internet Explorer/Edge */
+            user-select: none;
+            /* Non-prefixed version, currently supported by Chrome, Opera, and Edge */
+        }
+
         .container {
             max-width: 800px;
             margin: auto;
@@ -100,27 +111,28 @@
 
 <body>
     <div class="container mt-5">
-        <h1 class="text-center">Take Test</h1>
+        <h1 class="text-center">Загрузка...</h1>
         <div id="testDatesContainer" class="text-center mt-4">
             <p id="testDates"></p>
         </div>
         <div id="introContainer" class="mt-4">
             <div class="card intro-card">
                 <div class="card-body">
-                    <h5 class="card-title">Enter Your Information</h5>
+                    <h5 class="card-title">Пожалуйста, введите свои данные</h5>
                     <div class="mb-3">
-                        <label for="lastName" class="form-label">Last Name</label>
+                        <label for="lastName" class="form-label">Фамилия</label>
                         <input type="text" class="form-control" id="lastName" required>
                     </div>
                     <div class="mb-3">
-                        <label for="firstName" class="form-label">First Name</label>
+                        <label for="firstName" class="form-label">Имя</label>
                         <input type="text" class="form-control" id="firstName" required>
                     </div>
                     <div class="mb-3">
-                        <label for="class" class="form-label">Class</label>
+                        <label for="class" class="form-label">Класс(цифрабуква)</label>
                         <input type="text" class="form-control" id="class" required>
                     </div>
-                    <button class="btn btn-primary" id="startTestButton" onclick="startTest()">Start Test</button>
+                    <button class="btn btn-primary" id="startTestButton" onclick="startTest()">Начать
+                        тестирование</button>
                 </div>
             </div>
         </div>
@@ -128,18 +140,20 @@
             <!-- Questions will be loaded here -->
         </div>
         <div class="d-grid gap-2 mt-3">
-            <button class="btn btn-success" id="nextButton" onclick="nextQuestion()">Next</button>
+            <button class="btn btn-success" id="nextButton" onclick="nextQuestion()">Далее</button>
         </div>
         <div class="card result-card mt-4">
             <div class="card-body text-center">
-                <h3 class="card-title">Test Results</h3>
+                <h3 class="card-title">Результаты теста</h3>
                 <p id="resultText"></p>
             </div>
         </div>
     </div>
 
     <div class="container">
-        <p class="made-by">made by <a href="https://yarchefis.ru" style="color: #adb5bd;">yarchefis</a></p>
+        <p class="made-by">тг автора <a href="https://t.me/yarchefis" style="color: #adb5bd;">@yarchefis</a></p>
+        <p class="made-by">сайт автора(временно не работает) <a href="https://yarchefis.ru"
+                style="color: #adb5bd;">yarchefis.ru</a></p>
     </div>
 
     <script src="test.js"></script>
