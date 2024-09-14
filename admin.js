@@ -80,24 +80,35 @@ function loadTests() {
 
             const contentDiv = document.createElement('div');
             contentDiv.className = 'flex-grow-1';
-            contentDiv.innerHTML = `
-                <p>${test.name}</p>
-                <p>Создан в: ${new Date(test.createdAt).toLocaleString()}</p>
-            `;
+            contentDiv.innerHTML = 
+                `<p>${test.name}</p>
+                <p>Создан в: ${new Date(test.createdAt).toLocaleString()}</p>`;
 
             const link = document.createElement('a');
             link.href = `edittest.html?testId=${testId}`;
             link.appendChild(contentDiv);
 
             const deleteButton = document.createElement('button');
-            deleteButton.className = 'btn btn-danger btn-sm ms-2'; // Added margin-start for spacing
+            deleteButton.className = 'btn btn-danger btn-sm ms-2';
             deleteButton.textContent = 'Удалить';
             deleteButton.onclick = () => deleteTest(testId);
 
+            const duplicateButton = document.createElement('button');
+            duplicateButton.className = 'btn btn-primary btn-sm ms-2';
+            duplicateButton.textContent = 'Дублировать';
+            duplicateButton.onclick = () => duplicateTest(testId, test.name);
+
+            // New Rename Button
+            const renameButton = document.createElement('button');
+            renameButton.className = 'btn btn-secondary btn-sm ms-2';
+            renameButton.textContent = 'Изменить';
+            renameButton.onclick = () => showRenameTestModal(testId, test.name);
 
             const buttonWrapper = document.createElement('div');
             buttonWrapper.className = 'd-flex align-items-center';
             buttonWrapper.appendChild(deleteButton);
+            buttonWrapper.appendChild(duplicateButton);
+            buttonWrapper.appendChild(renameButton); // Add Rename Button
 
             testItem.appendChild(link);
             testItem.appendChild(buttonWrapper);
@@ -107,18 +118,111 @@ function loadTests() {
 }
 
 
-function deleteTest(testId) {
-    if (confirm('Are you sure you want to delete this test?')) {
-        firebase.database().ref('/tests/' + currentUser.uid + '/' + testId).remove()
+let testIdToRename = null;
+
+function showRenameTestModal(testId, currentName) {
+    testIdToRename = testId;
+    document.getElementById('renameTestInput').value = currentName; // Set current name as the placeholder
+    const renameTestModal = new bootstrap.Modal(document.getElementById('renameTestModal'));
+    renameTestModal.show();
+}
+
+function renameTest() {
+    const newTestName = document.getElementById('renameTestInput').value;
+
+    if (newTestName && testIdToRename) {
+        const updates = {};
+        updates['/tests/' + currentUser.uid + '/' + testIdToRename + '/name'] = newTestName;
+        
+        firebase.database().ref().update(updates)
             .then(() => {
                 loadTests();
+                const renameTestModal = bootstrap.Modal.getInstance(document.getElementById('renameTestModal'));
+                renameTestModal.hide();
+                showAlertModal('Успех', 'Имя теста успешно изменено');
             })
             .catch((error) => {
-                console.error('Error deleting test:', error);
-                showAlertModal('Error', error.message);
+                console.error('Ошибка при изменении имени теста:', error);
+                showAlertModal('Ошибка', error.message);
             });
     }
 }
+
+
+
+function deleteTest(testId) {
+    if (confirm('Вы уверены, что хотите удалить этот тест? Это действие нельзя отменить.')) {
+        // Сначала удаляем тест из ветки tests
+        const testRef = firebase.database().ref('/tests/' + currentUser.uid + '/' + testId);
+        testRef.remove()
+            .then(() => {
+                // Затем удаляем все связанные вопросы из ветки questions
+                const questionsRef = firebase.database().ref('/questions/' + currentUser.uid + '/' + testId);
+                return questionsRef.remove();
+            })
+            .then(() => {
+                // Обновляем список тестов после удаления
+                loadTests();
+                showAlertModal('Успех', 'Тест и связанные с ним вопросы успешно удалены');
+            })
+            .catch((error) => {
+                console.error('Ошибка при удалении теста и вопросов:', error);
+                showAlertModal('Ошибка', error.message);
+            });
+    }
+}
+
+
+
+// Функция для дублирования теста
+function duplicateTest(originalTestId) {
+    // Получаем данные оригинального теста
+    const originalTestRef = firebase.database().ref('/tests/' + currentUser.uid + '/' + originalTestId);
+    originalTestRef.once('value', (snapshot) => {
+        const originalTest = snapshot.val();
+
+        // Создаем новый тест с новым testId
+        const newTestId = firebase.database().ref().child('tests').push().key;
+        const newTestData = {
+            ...originalTest, // Копируем данные теста
+            name: originalTest.name + ' (Копия)', // Меняем название
+            createdAt: new Date().toISOString()  // Обновляем дату создания
+        };
+
+        // Сохраняем новый тест в базе данных
+        const updates = {};
+        updates['/tests/' + currentUser.uid + '/' + newTestId] = newTestData;
+        firebase.database().ref().update(updates)
+            .then(() => {
+                // Копируем вопросы из оригинального теста
+                const originalQuestionsRef = firebase.database().ref('/questions/' + currentUser.uid + '/' + originalTestId);
+                originalQuestionsRef.once('value', (questionsSnapshot) => {
+                    const questions = questionsSnapshot.val();
+                    if (questions) {
+                        const questionsUpdates = {};
+                        for (const questionId in questions) {
+                            questionsUpdates['/questions/' + currentUser.uid + '/' + newTestId + '/' + questionId] = questions[questionId];
+                        }
+                        // Обновляем базу данных с новыми вопросами
+                        firebase.database().ref().update(questionsUpdates)
+                            .then(() => {
+                                loadTests();
+                                showAlertModal('Успех', 'Тест успешно дублирован');
+                            })
+                            .catch((error) => {
+                                console.error('Ошибка при копировании вопросов:', error);
+                                showAlertModal('Ошибка', error.message);
+                            });
+                    }
+                });
+            })
+            .catch((error) => {
+                console.error('Ошибка при дублировании теста:', error);
+                showAlertModal('Ошибка', error.message);
+            });
+    });
+}
+
 
 
 // Показать модальное окно для смены пароля
