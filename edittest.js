@@ -355,7 +355,6 @@ function loadTestResults(userId, testId) {
                         <button class="btn btn-danger btn-sm" onclick="deleteResult('${resultKey}')">Удалить</button>
                     </td>
                 `;
-
                 resultsList.appendChild(row);
             }
         } else {
@@ -365,7 +364,6 @@ function loadTestResults(userId, testId) {
         }
     });
 }
-
 
 function deleteResult(resultKey) {
     if (confirm('Вы уверены, что хотите удалить этот результат?')) {
