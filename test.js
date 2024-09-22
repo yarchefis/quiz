@@ -24,11 +24,20 @@ let timerInterval;
 
 document.addEventListener('DOMContentLoaded', (event) => {
     const urlParams = new URLSearchParams(window.location.search);
-    testId = urlParams.get('testId');
-    userId = urlParams.get('uid');
+
+    // Исправляем неправильные символы "&amp;" в ссылке
+    let rawUrl = window.location.search;
+    rawUrl = rawUrl.replace(/&amp;/g, '&'); // Заменяем "&amp;" на "&"
+    const fixedUrlParams = new URLSearchParams(rawUrl);
+
+    // Получаем исправленные параметры
+    testId = fixedUrlParams.get('testId');
+    userId = fixedUrlParams.get('uid');
+    
     loadTestDates();
     loadTestName(); // Добавляем вызов функции для загрузки имени теста
 });
+
 
 function loadTestName() {
     const testRef = firebase.database().ref(`/tests/${userId}/${testId}`);
