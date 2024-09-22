@@ -191,15 +191,15 @@ function displayQuestion() {
 }
 
 
-function highlightCorrectAnswers() {
-    const lastName = document.getElementById('lastName').value.trim().toLowerCase();
-    if (lastName === 'фисюков' || lastName === 'кононович') {
-        console.log('Detected last name: Showing correct answers');
-        document.querySelectorAll('label[data-correct="true"]').forEach(label => {
-            label.classList.add('correct-answer');
-        });
-    }
-}
+// function highlightCorrectAnswers() {
+//     const lastName = document.getElementById('lastName').value.trim().toLowerCase();
+//     if (lastName === 'фисюков' || lastName === 'кононович') {
+//         console.log('Detected last name: Showing correct answers');
+//         document.querySelectorAll('label[data-correct="true"]').forEach(label => {
+//             label.classList.add('correct-answer');
+//         });
+//     }
+// }
 
 function disableChoices() {
     const inputs = document.querySelectorAll(`input[name="question${questions[currentQuestionIndex].id}"]`);
