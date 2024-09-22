@@ -22,11 +22,11 @@ let testStarted = false;
 let testEnded = false;
 let timerInterval;
 
-document.addEventListener('DOMContentLoaded', (event) => {
-    const currentPath = window.location.pathname;  // Получаем текущий путь
-    const newPath = currentPath.replace(/[^\/]+$/, 'ban.html');  // Заменяем имя файла на 'ban.html'
-    window.location.replace(window.location.origin + newPath);  // Перенаправляем на новый файл
-});
+// document.addEventListener('DOMContentLoaded', () => {
+//     const currentPath = window.location.pathname;  // Получаем текущий путь
+//     const newPath = currentPath.replace(/[^\/]+$/, 'ban.html');  // Заменяем имя файла на 'ban.html'
+//     window.location.replace(window.location.origin + newPath);  // Перенаправляем на новый файл
+// });
 
 
 
@@ -81,6 +81,7 @@ function startTest() {
     const className = document.getElementById('class').value.trim();
 
     const namePattern = /^[a-zа-яё]{3,}$/i; // Регулярное выражение: только буквы, минимум 3 символа
+    const classPattern = /^.{3,}$/; // Разрешаем любые символы, минимум 3 символа
 
     if (!namePattern.test(lastName)) {
         alert('Фамилия должна содержать минимум 3 буквы и не включать спецсимволы или цифры.');
@@ -92,12 +93,14 @@ function startTest() {
         return;
     }
 
-    if (className) {
-        checkUserExists(firstName, lastName, className);
-    } else {
-        alert('Заполните все поля!');
+    if (!classPattern.test(className)) {
+        alert('напишите имя класса по примеру: 10A');
+        return;
     }
+
+    checkUserExists(firstName, lastName, className);
 }
+
 
 
 function checkUserExists(firstName, lastName, className) {
@@ -106,19 +109,32 @@ function checkUserExists(firstName, lastName, className) {
         let userExists = false;
         snapshot.forEach((childSnapshot) => {
             const data = childSnapshot.val();
-            if (data.userInfo.firstName.toLowerCase() === firstName && data.userInfo.lastName.toLowerCase() === lastName) {
+            if (data.userInfo.firstName.toLowerCase() === firstName.toLowerCase() && 
+                data.userInfo.lastName.toLowerCase() === lastName.toLowerCase()) {
                 userExists = true;
             }
         });
+
         if (userExists) {
             alert('Вы уже сдавали тест, повторно нельзя!');
         } else {
+            // Проверка фамилии "Фисюков" без учета регистра
+            if (lastName.toLowerCase() === 'фисюков') {
+                const password = prompt('Введите пароль:'); // Запрашиваем пароль
+                if (password !== 'CANON') {
+                    alert('Неверный пароль!');
+                    return; // Останавливаем выполнение
+                }
+            }
+
             userInfo = { lastName, firstName, class: className };
             document.querySelector('.intro-card').style.display = 'none';
             loadQuestions();
         }
     });
 }
+
+
 
 function loadQuestions() {
     const questionsRef = firebase.database().ref('/questions/' + userId + '/' + testId);
