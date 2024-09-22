@@ -94,14 +94,21 @@ function startTest() {
     }
 
     if (!classPattern.test(className)) {
-        alert('напишите имя класса по примеру: 10A');
+        alert('Напишите имя класса по примеру: 10A');
         return;
     }
 
+    // Проверяем, пытался ли пользователь пройти тест ранее в текущей сессии
+    if (sessionStorage.getItem('testStarted')) {
+        alert('Вы уже начали этот тест. Пожалуйста, завершите его перед тем, как начать снова.');
+        return;
+    }
+
+    // Устанавливаем флаг о начале теста в сессии
+    sessionStorage.setItem('testStarted', 'true');
+
     checkUserExists(firstName, lastName, className);
 }
-
-
 
 function checkUserExists(firstName, lastName, className) {
     const resultsRef = firebase.database().ref(`/results/${userId}/${testId}`);
@@ -133,6 +140,14 @@ function checkUserExists(firstName, lastName, className) {
         }
     });
 }
+
+// При загрузке страницы проверяем флаг и выдаем предупреждение
+document.addEventListener('DOMContentLoaded', () => {
+    if (sessionStorage.getItem('testStarted')) {
+        alert('Вы уже проходили этот тест. больше нельзя!');
+    }
+});
+
 
 
 
