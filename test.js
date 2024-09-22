@@ -263,20 +263,19 @@ function disableChoices() {
 }
 
 function requestUserConfirmation() {
-    const enteredLastName = prompt('Введите фамилию что была введена в начале:').trim().toLowerCase();
-    const enteredFirstName = prompt('Введите имя что было введено в начале:').trim().toLowerCase();
+    const enteredLastName = prompt('Введите вашу фамилию что была введена в начале:').trim().toLowerCase();
 
-    // Проверка совпадения фамилии и имени без учета регистра
-    if (enteredLastName === userInfo.lastName.toLowerCase() && 
-        enteredFirstName === userInfo.firstName.toLowerCase()) {
+    // Проверка совпадения фамилии без учета регистра
+    if (enteredLastName === userInfo.lastName.toLowerCase()) {
         
         saveResults(); // Сохраняем результаты
         showResults(); // Показываем результаты
 
     } else {
-        alert('Фамилия или имя не совпадают с теми, что были введены в начале. Вы больше не можете пройти тест еще раз. результаты не были сохранеы. Обратитесь к админу по тг снизу страницы');
+        alert('Фамилия не совпадает с той, что была введена в начале.');
     }
 }
+
 
 function nextQuestion() {
     const question = questions[currentQuestionIndex];
