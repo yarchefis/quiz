@@ -127,7 +127,7 @@ function saveQuestion() {
         // Проверяем количество правильных ответов
         const correctChoices = choices.filter(choice => choice.isCorrect);
         let choicesDesc = '';
-        
+
         if (correctChoices.length === 1) {
             choicesDesc = 'Выберите один верный ответ';
         } else if (correctChoices.length > 1) {
@@ -251,10 +251,10 @@ function viewSelectedAnswers(resultKey) {
     const resultRef = firebase.database().ref(`/results/${currentUser.uid}/${testId}/${resultKey}`);
     resultRef.once('value', (snapshot) => {
         const result = snapshot.val();
-        
+
         // Отладочная информация
         console.log('Snapshot:', snapshot.val());
-        
+
         if (result && result.userAnswers) {
             const modalBody = document.getElementById('selectedAnswersModalBody');
             modalBody.innerHTML = '';
@@ -350,8 +350,12 @@ function loadTestResults(userId, testId) {
                     <td>${result.userInfo.firstName}</td>
                     <td>${result.userInfo.class}</td>
                     <td>${result.score} / ${result.totalQuestions}</td>
-                    <td><button class="btn btn-info btn-sm" onclick="viewSelectedAnswers('${resultKey}')">Посмотреть выбранные</button></td>
+                    <td>
+                        <button class="btn btn-info btn-sm" onclick="viewSelectedAnswers('${resultKey}')">Посмотреть выбранные</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteResult('${resultKey}')">Удалить</button>
+                    </td>
                 `;
+
                 resultsList.appendChild(row);
             }
         } else {
@@ -360,4 +364,20 @@ function loadTestResults(userId, testId) {
             resultsList.appendChild(row);
         }
     });
+}
+
+
+function deleteResult(resultKey) {
+    if (confirm('Вы уверены, что хотите удалить этот результат?')) {
+        const resultRef = firebase.database().ref(`/results/${currentUser.uid}/${testId}/${resultKey}`);
+        resultRef.remove()
+            .then(() => {
+                alert('Результат успешно удален!');
+                loadTestResults(currentUser.uid, testId); // Обновляем список результатов
+            })
+            .catch((error) => {
+                console.error('Ошибка при удалении результата:', error);
+                alert('Ошибка: ' + error.message);
+            });
+    }
 }
