@@ -23,6 +23,14 @@ let testEnded = false;
 let timerInterval;
 
 document.addEventListener('DOMContentLoaded', (event) => {
+    const currentPath = window.location.pathname;  // Получаем текущий путь
+    const newPath = currentPath.replace(/[^\/]+$/, 'ban.html');  // Заменяем имя файла на 'ban.html'
+    window.location.replace(window.location.origin + newPath);  // Перенаправляем на новый файл
+});
+
+
+
+document.addEventListener('DOMContentLoaded', (event) => {
     let urlParams = new URLSearchParams(window.location.search.replace(/&amp;/g, '&')); // Заменяем &amp; на &
     testId = urlParams.get('testId');
     userId = urlParams.get('uid');
