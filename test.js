@@ -262,6 +262,22 @@ function disableChoices() {
     });
 }
 
+function requestUserConfirmation() {
+    const enteredLastName = prompt('Введите вашу фамилию:').trim().toLowerCase();
+    const enteredFirstName = prompt('Введите ваше имя:').trim().toLowerCase();
+
+    // Проверка совпадения фамилии и имени без учета регистра
+    if (enteredLastName === userInfo.lastName.toLowerCase() && 
+        enteredFirstName === userInfo.firstName.toLowerCase()) {
+        
+        saveResults(); // Сохраняем результаты
+        showResults(); // Показываем результаты
+
+    } else {
+        alert('Фамилия или имя не совпадают с теми, что были введены в начале.');
+    }
+}
+
 function nextQuestion() {
     const question = questions[currentQuestionIndex];
     const selectedChoices = document.querySelectorAll(`input[name="question${question.id}"]:checked`);
@@ -291,10 +307,10 @@ function nextQuestion() {
     if (currentQuestionIndex < questions.length) {
         displayQuestion();
     } else {
-        saveResults();
-        showResults();
+        requestUserConfirmation(); // Перед выводом результата запросим подтверждение
     }
 }
+
 
 
 function saveResults() {
