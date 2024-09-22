@@ -23,12 +23,13 @@ let testEnded = false;
 let timerInterval;
 
 document.addEventListener('DOMContentLoaded', (event) => {
-    const urlParams = new URLSearchParams(window.location.search);
+    let urlParams = new URLSearchParams(window.location.search.replace(/&amp;/g, '&')); // Заменяем &amp; на &
     testId = urlParams.get('testId');
     userId = urlParams.get('uid');
     loadTestDates();
     loadTestName(); // Добавляем вызов функции для загрузки имени теста
 });
+
 
 function loadTestName() {
     const testRef = firebase.database().ref(`/tests/${userId}/${testId}`);
