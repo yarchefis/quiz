@@ -23,37 +23,12 @@ let testEnded = false;
 let timerInterval;
 
 document.addEventListener('DOMContentLoaded', (event) => {
-    // Логируем исходный URL
-    let rawUrl = window.location.href;
-    console.log('Original URL:', rawUrl);
-
-    // Проверяем, есть ли в строке "&amp;"
-    if (rawUrl.includes('&amp;')) {
-        console.log('Found &amp; in URL, fixing it.');
-
-        // Заменяем "&amp;" на "&" в полном URL
-        let correctedUrl = rawUrl.replace(/&amp;/g, '&');
-        console.log('Corrected URL:', correctedUrl);
-
-        // Перенаправляем пользователя на исправленный URL
-        window.location.replace(correctedUrl);
-    } else {
-        console.log('No &amp; found, proceeding with normal flow.');
-
-        const urlParams = new URLSearchParams(window.location.search);
-        testId = urlParams.get('testId');
-        userId = urlParams.get('uid');
-
-        console.log('Test ID:', testId);
-        console.log('User ID:', userId);
-
-        loadTestDates();
-        loadTestName();
-    }
+    const urlParams = new URLSearchParams(window.location.search);
+    testId = urlParams.get('testId');
+    userId = urlParams.get('uid');
+    loadTestDates();
+    loadTestName(); // Добавляем вызов функции для загрузки имени теста
 });
-
-
-
 
 function loadTestName() {
     const testRef = firebase.database().ref(`/tests/${userId}/${testId}`);
@@ -96,12 +71,25 @@ function startTest() {
     const firstName = document.getElementById('firstName').value.trim().toLowerCase();
     const className = document.getElementById('class').value.trim();
 
-    if (lastName && firstName && className) {
+    const namePattern = /^[a-zа-яё]{3,}$/i; // Регулярное выражение: только буквы, минимум 3 символа
+
+    if (!namePattern.test(lastName)) {
+        alert('Фамилия должна содержать минимум 3 буквы и не включать спецсимволы или цифры.');
+        return;
+    }
+
+    if (!namePattern.test(firstName)) {
+        alert('Имя должно содержать минимум 3 буквы и не включать спецсимволы или цифры.');
+        return;
+    }
+
+    if (className) {
         checkUserExists(firstName, lastName, className);
     } else {
         alert('Заполните все поля!');
     }
 }
+
 
 function checkUserExists(firstName, lastName, className) {
     const resultsRef = firebase.database().ref(`/results/${userId}/${testId}`);
