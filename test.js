@@ -23,21 +23,36 @@ let testEnded = false;
 let timerInterval;
 
 document.addEventListener('DOMContentLoaded', (event) => {
-    const urlParams = new URLSearchParams(window.location.search);
+    // Логируем исходный URL
+    let rawUrl = window.location.href;
+    console.log('Original URL:', rawUrl);
 
-    // Исправляем неправильные символы "&amp;" в ссылке
-    let rawUrl = window.location.search;
-    rawUrl = rawUrl.replace(/&amp;/g, '&'); // Заменяем "&amp;" на "&"
-    const fixedUrlParams = new URLSearchParams(rawUrl);
-    console.log('done')
+    // Проверяем, есть ли в строке "&amp;"
+    if (rawUrl.includes('&amp;')) {
+        console.log('Found &amp; in URL, fixing it.');
 
-    // Получаем исправленные параметры
-    testId = fixedUrlParams.get('testId');
-    userId = fixedUrlParams.get('uid');
-    
-    loadTestDates();
-    loadTestName(); // Добавляем вызов функции для загрузки имени теста
+        // Заменяем "&amp;" на "&" в полном URL
+        let correctedUrl = rawUrl.replace(/&amp;/g, '&');
+        console.log('Corrected URL:', correctedUrl);
+
+        // Перенаправляем пользователя на исправленный URL
+        window.location.replace(correctedUrl);
+    } else {
+        console.log('No &amp; found, proceeding with normal flow.');
+
+        const urlParams = new URLSearchParams(window.location.search);
+        testId = urlParams.get('testId');
+        userId = urlParams.get('uid');
+
+        console.log('Test ID:', testId);
+        console.log('User ID:', userId);
+
+        loadTestDates();
+        loadTestName();
+    }
 });
+
+
 
 
 function loadTestName() {
