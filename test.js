@@ -104,8 +104,22 @@ function startTest() {
         return;
     }
 
+    // Проверяем локальное хранилище на наличие предыдущего теста
+    const previousTest = localStorage.getItem('testStarted');
+    if (previousTest) {
+        const { timestamp } = JSON.parse(previousTest);
+        const now = Date.now();
+        // Проверяем, прошел ли час с последнего теста
+        if (now - timestamp < 30 * 60 * 1000) { // 1 час в миллисекундах
+            alert('Вы уже проходили этот тест. Пожалуйста, попробуйте позже.');
+            return;
+        }
+    }
+
     // Устанавливаем флаг о начале теста в сессии
     sessionStorage.setItem('testStarted', 'true');
+    // Записываем текущее время в локальное хранилище
+    localStorage.setItem('testStarted', JSON.stringify({ timestamp: Date.now() }));
 
     checkUserExists(firstName, lastName, className);
 }
@@ -144,9 +158,10 @@ function checkUserExists(firstName, lastName, className) {
 // При загрузке страницы проверяем флаг и выдаем предупреждение
 document.addEventListener('DOMContentLoaded', () => {
     if (sessionStorage.getItem('testStarted')) {
-        alert('Вы уже проходили этот тест. больше нельзя!');
+        alert('Вы уже проходили этот тест. Пожалуйста, попробуйте позже.');
     }
 });
+
 
 
 
