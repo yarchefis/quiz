@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     let rawUrl = window.location.search;
     rawUrl = rawUrl.replace(/&amp;/g, '&'); // Заменяем "&amp;" на "&"
     const fixedUrlParams = new URLSearchParams(rawUrl);
+    console.log('done')
 
     // Получаем исправленные параметры
     testId = fixedUrlParams.get('testId');
