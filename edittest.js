@@ -341,10 +341,27 @@ function loadTestResults(userId, testId) {
         let index = 1;
 
         if (results) {
-            // Преобразуем результаты в массив и сортируем по фамилии
             const sortedResults = Object.keys(results)
                 .map(key => ({ key, ...results[key] }))
-                .sort((a, b) => a.userInfo.lastName.localeCompare(b.userInfo.lastName));
+                .sort((a, b) => {
+                    // Сортировка по фамилии
+                    const lastNameCompare = a.userInfo.lastName.localeCompare(b.userInfo.lastName);
+                    if (lastNameCompare !== 0) return lastNameCompare;
+
+                    // Сортировка по классу с отсеиванием ненужных символов
+                    const classA = a.userInfo.class.match(/(\d+)[^0-9]*(.*)/);
+                    const classB = b.userInfo.class.match(/(\d+)[^0-9]*(.*)/);
+
+                    // Сравниваем цифры
+                    const numberCompare = parseInt(classA[1]) - parseInt(classB[1]);
+                    if (numberCompare !== 0) return numberCompare;
+
+                    // Сравниваем буквы, убирая лишние символы
+                    const letterA = classA[2].replace(/[^А-Яа-яA-Za-z]/g, '').trim();
+                    const letterB = classB[2].replace(/[^А-Яа-яA-Za-z]/g, '').trim();
+
+                    return letterA.localeCompare(letterB);
+                });
 
             for (const { key, userInfo, score, totalQuestions } of sortedResults) {
                 const row = document.createElement('tr');
