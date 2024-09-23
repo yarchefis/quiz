@@ -341,18 +341,22 @@ function loadTestResults(userId, testId) {
         let index = 1;
 
         if (results) {
-            for (const resultKey in results) {
-                const result = results[resultKey];
+            // Преобразуем результаты в массив и сортируем по фамилии
+            const sortedResults = Object.keys(results)
+                .map(key => ({ key, ...results[key] }))
+                .sort((a, b) => a.userInfo.lastName.localeCompare(b.userInfo.lastName));
+
+            for (const { key, userInfo, score, totalQuestions } of sortedResults) {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${index++}</td>
-                    <td>${result.userInfo.lastName}</td>
-                    <td>${result.userInfo.firstName}</td>
-                    <td>${result.userInfo.class}</td>
-                    <td>${result.score} / ${result.totalQuestions}</td>
+                    <td>${userInfo.lastName}</td>
+                    <td>${userInfo.firstName}</td>
+                    <td>${userInfo.class}</td>
+                    <td>${score} / ${totalQuestions}</td>
                     <td>
-                        <button class="btn btn-info btn-sm" onclick="viewSelectedAnswers('${resultKey}')">Посмотреть выбранные</button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteResult('${resultKey}')">Удалить</button>
+                        <button class="btn btn-info btn-sm" onclick="viewSelectedAnswers('${key}')">Посмотреть выбранные</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteResult('${key}')">Удалить</button>
                     </td>
                 `;
                 resultsList.appendChild(row);
