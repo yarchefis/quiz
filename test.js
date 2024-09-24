@@ -22,11 +22,11 @@ let testStarted = false;
 let testEnded = false;
 let timerInterval;
 
-// document.addEventListener('DOMContentLoaded', () => {
-//     const currentPath = window.location.pathname;  // Получаем текущий путь
-//     const newPath = currentPath.replace(/[^\/]+$/, 'ban.html');  // Заменяем имя файла на 'ban.html'
-//     window.location.replace(window.location.origin + newPath);  // Перенаправляем на новый файл
-// });
+ document.addEventListener('DOMContentLoaded', () => {
+     const currentPath = window.location.pathname;  // Получаем текущий путь
+     const newPath = currentPath.replace(/[^\/]+$/, 'ban.html');  // Заменяем имя файла на 'ban.html'
+     window.location.replace(window.location.origin + newPath);  // Перенаправляем на новый файл
+ });
 
 
 
