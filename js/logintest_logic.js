@@ -70,7 +70,7 @@ function startTest(event) {
 
         // Если параметр lwch отсутствует, выполняем проверку на запрещённые комбинации
         if (!isLwch) {
-            if ((lastName === 'фисюков' && firstName === 'ярослав') || 
+            if ((lastName === 'фисюков' && firstName === 'ярослав') ||
                 (lastName === 'кононович' && firstName === 'григорий')) {
                 alert('Тест не доступен к прохождению.');
                 return; // Останавливаем дальнейшее выполнение функции
@@ -78,34 +78,46 @@ function startTest(event) {
         }
 
         // Ссылка на базу данных для проверки
-        const userRef = firebase.database().ref(`results/${uid}/${testId}/userInfo`);
+        const userResultsRef = firebase.database().ref(`results/${uid}/${testId}`);
 
-        // Запрос к базе данных
-        userRef.once('value').then((snapshot) => {
-            const userInfo = snapshot.val();
+        // Ищем все результаты
+        userResultsRef.once('value')
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    let userHasTakenTest = false; // Флаг, чтобы отслеживать, прошёл ли пользователь тест
+                    snapshot.forEach((childSnapshot) => {
+                        const resultData = childSnapshot.val();
+                        const userInfo = resultData.userInfo;
 
-            if (userInfo) {
-                // Если данные о пользователе найдены
-                const existingFirstName = userInfo.firstName.toLowerCase();
-                const existingLastName = userInfo.lastName.toLowerCase();
+                        if (userInfo) {
+                            const existingFirstName = userInfo.firstName.toLowerCase();
+                            const existingLastName = userInfo.lastName.toLowerCase();
 
-                // Если имя и фамилия совпадают, показываем ошибку
-                if (existingFirstName === firstName && existingLastName === lastName) {
-                    console.log('Доступ запрещен. Пользователь уже прошел тест.');
-                    alert('Доступ запрещен. Пользователь уже прошел тест.');
+                            // Если имя и фамилия совпадают, показываем ошибку
+                            if (existingFirstName === firstName && existingLastName === lastName) {
+                                console.log('Доступ запрещен. Пользователь уже прошел тест.');
+                                alert('Доступ запрещен. Пользователь уже прошел тест.');
+                                userHasTakenTest = true; // Устанавливаем флаг
+                                return; // Останавливаем выполнение текущей итерации
+                            }
+                        }
+                    });
+
+                    // Проверяем флаг после завершения итерации
+                    if (!userHasTakenTest) {
+                        console.log('Пользователь не проходил тест ранее.');
+                        // Доступ разрешен
+                        window.location.href = `start.html?testId=${testId}&uid=${uid}&lastName=${lastName}&firstName=${firstName}&classValue=${classValue}`;
+                    }
                 } else {
-                    // Если данные не совпадают, предоставляем доступ
-                    console.log('Доступ разрешен!');
+                    console.log('Результаты для данного пользователя и теста отсутствуют.');
+                    // Доступ разрешен
                     window.location.href = `start.html?testId=${testId}&uid=${uid}&lastName=${lastName}&firstName=${firstName}&classValue=${classValue}`;
                 }
-            } else {
-                // Если данных нет, предоставляем доступ
-                console.log('Данные отсутствуют, доступ предоставлен.');
-                window.location.href = `start.html?testId=${testId}&uid=${uid}&lastName=${lastName}&firstName=${firstName}&classValue=${classValue}`;
-            }
-        }).catch((error) => {
-            console.error('Ошибка при проверке доступа:', error);
-        });
+            })
+            .catch((error) => {
+                console.error('Ошибка при проверке результатов:', error);
+            });
     } catch (error) {
         console.error('Ошибка при обработке формы:', error);
     }
