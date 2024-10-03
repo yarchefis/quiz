@@ -243,7 +243,7 @@ function saveTestDates() {
 
 function generateTestLink() {
     const testLink = document.getElementById('testLink');
-    testLink.href = `test.html?testId=${testId}&uid=${currentUser.uid}`;
+    testLink.href = `login_to_test.html?testId=${testId}&uid=${currentUser.uid}`;
     testLink.textContent = testLink.href;
 }
 
