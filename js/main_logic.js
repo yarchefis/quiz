@@ -6,6 +6,15 @@ let questions = []; // Для хранения всех вопросов
 let currentQuestionIndex = 0; // Индекс текущего вопроса
 let intervalId;
 
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+
 function getQueryParams() {
     const queryParams = new URLSearchParams(window.location.search);
     const testId = queryParams.get('testId');
@@ -43,31 +52,47 @@ function loadAllQuestions() {
 
     if (uid && testId) {
         const questionRef = firebase.database().ref(`questions/${uid}/${testId}`);
+        const countRef = firebase.database().ref(`tests/${uid}/${testId}/questionCount`);
 
-        questionRef.once('value')
-            .then((snapshot) => {
-                if (snapshot.exists()) {
-                    questions = snapshot.val(); // Сохраняем все вопросы
-                    console.log(questions) // DANG
-                    showQuestion(); // Показываем первый вопрос
+        // Сначала получаем количество вопросов
+        countRef.once('value')
+            .then((countSnapshot) => {
+                if (countSnapshot.exists()) {
+                    const questionCount = countSnapshot.val();
+                    
+                    // Теперь загружаем вопросы
+                    questionRef.once('value')
+                        .then((snapshot) => {
+                            if (snapshot.exists()) {
+                                // Получаем все вопросы в массив
+                                const allQuestions = snapshot.val();
+                                questions = shuffleArray(Object.values(allQuestions)).slice(0, questionCount); // Перемешиваем и берем количество из questionCount
+                                console.log(questions); // DANG
+                                showQuestion(); // Показываем первый вопрос
+                            } else {
+                                console.error('Вопросы не найдены');
+                            }
+                        })
+                        .catch((error) => {
+                            console.error('Ошибка при загрузке вопросов:', error);
+                        });
                 } else {
-                    console.error('Вопросы не найдены');
+                    console.error('Количество вопросов не найдено');
                 }
             })
             .catch((error) => {
-                console.error('Ошибка при загрузке вопросов:', error);
+                console.error('Ошибка при загрузке questionCount:', error);
             });
-
-
-
     } else {
         console.error('UID или TestID не найдены в sessionStorage');
     }
 }
 
+
+
 function showQuestion() {
     // Проверка на существование следующего вопроса
-    if (currentQuestionIndex < Object.keys(questions).length) {
+    if (currentQuestionIndex < questions.length) {
         const questionId = Object.keys(questions)[currentQuestionIndex];
         const question = questions[questionId];
         const timeInSeconds = question.timeInSeconds;
@@ -78,6 +103,10 @@ function showQuestion() {
 
         // Обновляем варианты ответов
         updateAnswerChoices(choices);
+
+        // Обновляем номер текущего вопроса и общее количество вопросов
+        document.getElementById('question-numbercount').innerText = `Вопрос ${currentQuestionIndex + 1}`; // Номер текущего вопроса
+        document.getElementById('total-questionscount').innerText = `/${questions.length}`; // Общее количество вопросов
 
         // Сбрасываем предыдущий таймер, если он был запущен
         if (intervalId) {

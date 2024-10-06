@@ -114,7 +114,12 @@
             <label for="endDate" class="form-label">Дата когда текст завершится</label>
             <input type="date" class="form-control" id="endDate" required>
         </div>
-        <button type="button" class="btn btn-primary" onclick="saveTestDates()">Сохранить дату</button>
+        <div class="mb-3">
+            <label for="questionCount" class="form-label">Количество вопросов(которые будут выданы)</label>
+            <input type="number" class="form-control" id="questionCount" required min="1">
+        </div>
+        <button type="button" class="btn btn-primary" onclick="saveTestDates()">Сохранить значения</button>
+        
 
         <ul class="nav nav-tabs" id="editTabs" role="tablist">
             <li class="nav-item" role="presentation">

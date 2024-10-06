@@ -214,32 +214,48 @@ function deleteQuestion(questionId) {
 
 function loadTestDates() {
     const testRef = firebase.database().ref(`/tests/${currentUser.uid}/${testId}`);
-    testRef.once('value', (snapshot) => {
-        const test = snapshot.val();
-        if (test) {
-            document.getElementById('startDate').value = test.startDate || '';
-            document.getElementById('endDate').value = test.endDate || '';
-        }
-    });
+
+    testRef.once('value')
+        .then((snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                const startDate = data.startDate || '';
+                const endDate = data.endDate || '';
+                const questionCount = data.questionCount || ''; // Загружаем questionCount
+
+                document.getElementById('startDate').value = startDate;
+                document.getElementById('endDate').value = endDate;
+                document.getElementById('questionCount').value = questionCount; // Устанавливаем значение questionCount
+            } else {
+                console.log('No data available for this test.');
+            }
+        })
+        .catch((error) => {
+            console.error('Error loading test dates:', error);
+        });
 }
+
 
 function saveTestDates() {
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
+    const questionCount = document.getElementById('questionCount').value; // Получаем значение questionCount
 
     const updates = {};
     updates[`/tests/${currentUser.uid}/${testId}/startDate`] = startDate;
     updates[`/tests/${currentUser.uid}/${testId}/endDate`] = endDate;
+    updates[`/tests/${currentUser.uid}/${testId}/questionCount`] = questionCount; // Сохраняем questionCount
 
     firebase.database().ref().update(updates)
         .then(() => {
-            alert('Test dates saved successfully!');
+            alert('Test dates and question count saved successfully!');
         })
         .catch((error) => {
             console.error('Error saving test dates:', error);
             alert('Error: ' + error.message);
         });
 }
+
 
 function generateTestLink() {
     const testLink = document.getElementById('testLink');
