@@ -59,7 +59,7 @@ function loadAllQuestions() {
             .then((countSnapshot) => {
                 if (countSnapshot.exists()) {
                     const questionCount = countSnapshot.val();
-                    
+
                     // Теперь загружаем вопросы
                     questionRef.once('value')
                         .then((snapshot) => {
@@ -173,21 +173,21 @@ function updateAnswerChoices(choices) {
     // Обновляем текст и видимость существующих карточек
     answerCards.forEach((card, index) => {
         const answerIcon = card.querySelector('.answer-icon');
-        
+
         if (index < numberOfChoices) {
             const choice = choices[index];
             const answerTextDiv = card.querySelector('.answer-text');
             answerTextDiv.innerText = choice.text;
             card.dataset.questionId = currentQuestionIndex; // Устанавливаем атрибут questionId
             card.style.visibility = 'visible'; // Показываем карточку
-    
+
             // Сбрасываем состояние чекбокса на "radio_button_unchecked"
             answerIcon.textContent = 'radio_button_unchecked';
         } else {
             card.style.visibility = 'hidden'; // Скрываем лишние карточки
         }
     });
-    
+
 }
 
 
@@ -218,10 +218,40 @@ function startTimer(duration) {
             counterDiv.innerText = '0'; // Обновляем счетчик до 0
             progressBar.style.width = '0%'; // Обнуляем ширину прогресс-бара
             progressBar.setAttribute('aria-valuenow', 0); // Обновляем значение aria
-            alert('Время вышло!'); // Логика окончания времени
+
+            alert('Время вышло! Получаете дополнительные 3 секунды...'); // Уведомление о том, что время вышло
+
+            // Добавляем 3 секунды
+            timer = 3;
+            counterDiv.innerText = timer; // Обновляем счетчик
+            progressBar.style.width = '100%'; // Восстанавливаем ширину прогресс-бара на 100%
+            progressBar.setAttribute('aria-valuenow', 100); // Восстанавливаем значение aria
+
+            // Запускаем новый интервал на 3 секунды
+            intervalId = setInterval(() => {
+                timer--;
+
+                // Обновляем счетчик и прогресс-бар
+                counterDiv.innerText = timer;
+                const progressPercentage = (timer / 3) * 100; // Процент оставшегося времени
+                progressBar.style.width = `${progressPercentage}%`;
+                progressBar.setAttribute('aria-valuenow', progressPercentage); // Обновляем значение aria
+
+                // Проверяем, закончилось ли время
+                if (timer <= 0) {
+                    clearInterval(intervalId); // Останавливаем интервал
+                    counterDiv.innerText = '0'; // Обновляем счетчик до 0
+                    progressBar.style.width = '0%'; // Обнуляем ширину прогресс-бара
+                    progressBar.setAttribute('aria-valuenow', 0); // Обновляем значение aria
+                    const correctAnswersCount = checkAnswer(); // Получаем количество правильных ответов
+                    console.log(`Количество правильных ответов: ${correctAnswersCount}`); // Выводим количество правильных ответов
+                    showNextQuestion(); // Показываем следующий вопрос
+                }
+            }, 1000); // Обновляем каждую секунду
         }
     }, 1000); // Обновляем каждую секунду
 }
+
 
 
 
@@ -229,13 +259,13 @@ let totalCorrectAnswers = 0; // Общий счетчик правильных �
 let userAnswers = {}; // Для хранения ответов пользователя
 
 function checkAnswer() {
-    const currentQuestionId = Object.keys(questions)[currentQuestionIndex]; 
+    const currentQuestionId = Object.keys(questions)[currentQuestionIndex];
     console.log(`Текущий вопрос ID: ${currentQuestionId}`);
 
-    const currentQuestion = questions[currentQuestionId]; 
+    const currentQuestion = questions[currentQuestionId];
     console.log('Текущий вопрос:', currentQuestion);
 
-    const choices = currentQuestion.choices; 
+    const choices = currentQuestion.choices;
     console.log('Варианты ответов:', choices);
 
     let correctChoicesCount = 0; // Количество правильных ответов
@@ -254,11 +284,11 @@ function checkAnswer() {
     // Находим выбранные пользователем ответы
     document.querySelectorAll('.answer-card').forEach((card) => {
         const answerIcon = card.querySelector('.answer-icon');
-        const answerText = card.querySelector('.answer-text').innerText; 
+        const answerText = card.querySelector('.answer-text').innerText;
         console.log(`Проверяем ответ: ${answerText}, состояние: ${answerIcon.textContent}`);
 
         // Если ответ выбран
-        if (answerIcon.textContent === 'radio_button_checked' || answerIcon.textContent === 'check_circle') { 
+        if (answerIcon.textContent === 'radio_button_checked' || answerIcon.textContent === 'check_circle') {
             userChoicesCount++; // Увеличиваем счетчик выбранных ответов
             console.log(`Выбран ответ: ${answerText}`);
             userSelectedAnswers.push(answerText); // Сохраняем выбранный пользователем ответ
@@ -280,7 +310,7 @@ function checkAnswer() {
 
     console.log(`Общее количество правильных ответов: ${totalCorrectAnswers}`);
     console.log('Выбранные ответы пользователем:', userAnswers);
-    return totalCorrectAnswers; 
+    return totalCorrectAnswers;
 }
 
 
