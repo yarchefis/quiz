@@ -67,7 +67,7 @@ function loadAllQuestions() {
                                 // Получаем все вопросы в массив
                                 const allQuestions = snapshot.val();
                                 questions = shuffleArray(Object.values(allQuestions)).slice(0, questionCount); // Перемешиваем и берем количество из questionCount
-                                console.log(questions); // DANG
+                                //console.log(questions); // DANG
                                 showQuestion(); // Показываем первый вопрос
                             } else {
                                 console.error('Вопросы не найдены');
@@ -219,7 +219,6 @@ function startTimer(duration) {
             progressBar.style.width = '0%'; // Обнуляем ширину прогресс-бара
             progressBar.setAttribute('aria-valuenow', 0); // Обновляем значение aria
 
-            alert('Время вышло! Получаете дополнительные 3 секунды...'); // Уведомление о том, что время вышло
 
             // Добавляем 3 секунды
             timer = 3;
@@ -244,7 +243,7 @@ function startTimer(duration) {
                     progressBar.style.width = '0%'; // Обнуляем ширину прогресс-бара
                     progressBar.setAttribute('aria-valuenow', 0); // Обновляем значение aria
                     const correctAnswersCount = checkAnswer(); // Получаем количество правильных ответов
-                    console.log(`Количество правильных ответов: ${correctAnswersCount}`); // Выводим количество правильных ответов
+                    //console.log(`Количество правильных ответов: ${correctAnswersCount}`); // Выводим количество правильных ответов
                     showNextQuestion(); // Показываем следующий вопрос
                 }
             }, 1000); // Обновляем каждую секунду
@@ -260,13 +259,13 @@ let userAnswers = {}; // Для хранения ответов пользова
 
 function checkAnswer() {
     const currentQuestionId = Object.keys(questions)[currentQuestionIndex];
-    console.log(`Текущий вопрос ID: ${currentQuestionId}`);
+    //console.log(`Текущий вопрос ID: ${currentQuestionId}`);
 
     const currentQuestion = questions[currentQuestionId];
-    console.log('Текущий вопрос:', currentQuestion);
+    //console.log('Текущий вопрос:', currentQuestion);
 
     const choices = currentQuestion.choices;
-    console.log('Варианты ответов:', choices);
+    //console.log('Варианты ответов:', choices);
 
     let correctChoicesCount = 0; // Количество правильных ответов
     let userChoicesCount = 0; // Количество выбранных пользователем ответов
@@ -285,12 +284,12 @@ function checkAnswer() {
     document.querySelectorAll('.answer-card').forEach((card) => {
         const answerIcon = card.querySelector('.answer-icon');
         const answerText = card.querySelector('.answer-text').innerText;
-        console.log(`Проверяем ответ: ${answerText}, состояние: ${answerIcon.textContent}`);
+        //console.log(`Проверяем ответ: ${answerText}, состояние: ${answerIcon.textContent}`);
 
         // Если ответ выбран
         if (answerIcon.textContent === 'radio_button_checked' || answerIcon.textContent === 'check_circle') {
             userChoicesCount++; // Увеличиваем счетчик выбранных ответов
-            console.log(`Выбран ответ: ${answerText}`);
+            //console.log(`Выбран ответ: ${answerText}`);
             userSelectedAnswers.push(answerText); // Сохраняем выбранный пользователем ответ
         }
     });
@@ -305,11 +304,11 @@ function checkAnswer() {
     // Если все правильные ответы выбраны и есть хотя бы один правильный
     if (allCorrectSelected && correctChoicesCount > 0) {
         totalCorrectAnswers++; // Увеличиваем общий счетчик правильных ответов
-        console.log(`Баллы увеличены! Текущий счет: ${totalCorrectAnswers}`);
+        //console.log(`Баллы увеличены! Текущий счет: ${totalCorrectAnswers}`);
     }
 
-    console.log(`Общее количество правильных ответов: ${totalCorrectAnswers}`);
-    console.log('Выбранные ответы пользователем:', userAnswers);
+    //console.log(`Общее количество правильных ответов: ${totalCorrectAnswers}`);
+    //console.log('Выбранные ответы пользователем:', userAnswers);
     return totalCorrectAnswers;
 }
 
@@ -327,7 +326,7 @@ function saveResults(userId, testId, userInfo) {
         timestamp: new Date().toISOString() // Время прохождения теста
     };
 
-    console.log('Сохраняем результат:', resultData); // Логируем результат перед сохранением
+    //console.log('Сохраняем результат:', resultData); // Логируем результат перед сохранением
 
     // Используем push для создания уникального идентификатора для результата
     return resultsRef.push(resultData)
@@ -348,7 +347,7 @@ function saveResults(userId, testId, userInfo) {
 window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('nextButton').addEventListener('click', () => {
         const correctAnswersCount = checkAnswer(); // Получаем количество правильных ответов
-        console.log(`Количество правильных ответов: ${correctAnswersCount}`); // Выводим количество правильных ответов
+        //console.log(`Количество правильных ответов: ${correctAnswersCount}`); // Выводим количество правильных ответов
         showNextQuestion(); // Показываем следующий вопрос
     });
 });
