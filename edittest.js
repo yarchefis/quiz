@@ -161,8 +161,8 @@ function saveQuestion() {
     } else if (questionType === 'yesno') {
         // Обработка типа yes/no
         questionData.choices = [
-            { text: 'Yes', isCorrect: document.getElementById('yes').checked },
-            { text: 'No', isCorrect: document.getElementById('no').checked }
+            { text: 'Да', isCorrect: document.getElementById('yes').checked },
+            { text: 'нет', isCorrect: document.getElementById('no').checked }
         ];
         questionData.choicesDesc = 'Выберите "Да" или "Нет"';
     }
