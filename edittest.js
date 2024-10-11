@@ -20,15 +20,33 @@ firebase.auth().onAuthStateChanged((user) => {
         window.location.href = 'index.html';
     } else {
         currentUser = user;
-        document.getElementById('userEmail').textContent = user.email;
+        
+        // Получаем параметры URL
         const urlParams = new URLSearchParams(window.location.search);
         testId = urlParams.get('testId');
+        
+        // Загрузка названия теста по пути tests/uid/testid/name
+        firebase.database().ref(`/tests/${currentUser.uid}/${testId}/name`).once('value')
+            .then((snapshot) => {
+                const testName = snapshot.val();
+                if (testName) {
+                    document.getElementById('testName').textContent = testName; // Вставляем название теста
+                } else {
+                    document.getElementById('testName').textContent = 'Название теста не найдено';
+                }
+            }).catch((error) => {
+                console.error('Ошибка при получении данных теста:', error);
+                document.getElementById('testName').textContent = 'Ошибка загрузки названия теста';
+            });
+
         loadQuestions();
         generateTestLink();
         loadTestResults(currentUser.uid, testId);
         loadTestDates();
     }
 });
+
+
 
 function showQuestionModal(type, questionId = null) {
     document.getElementById('questionForm').reset();
@@ -94,17 +112,21 @@ function saveQuestion() {
     const questionText = document.getElementById('questionText').value;
     const timeInSeconds = document.getElementById('timeInSeconds').value;
     const questionId = document.getElementById('currentQuestionId').value || firebase.database().ref().child('questions').push().key;
-    const questionType = document.getElementById('questionType').value;
+    
+    // Получаем тип вопроса
+    const questionType = document.getElementById('questionType').value || 
+        (document.getElementById('questionChoices').style.display === 'block' ? 'test' : 'yesno');
 
+    // Структура данных вопроса
     let questionData = {
         text: questionText,
         createdAt: new Date().toISOString(),
         type: questionType,
-        timeInSeconds: parseInt(timeInSeconds, 10)
+        timeInSeconds: parseInt(timeInSeconds, 10) || null // Проверка на пустое значение времени
     };
 
+    // Проверяем, если это вопрос типа 'test'
     if (questionType === 'test') {
-        // Проверяем, что есть значения для вариантов ответов
         const choices = [
             {
                 text: document.getElementById('choice1').value,
@@ -124,7 +146,6 @@ function saveQuestion() {
             }
         ].filter(choice => choice.text); // Удаление пустых вариантов
 
-        // Проверяем количество правильных ответов
         const correctChoices = choices.filter(choice => choice.isCorrect);
         let choicesDesc = '';
 
@@ -134,20 +155,22 @@ function saveQuestion() {
             choicesDesc = 'Выберите несколько верных ответов';
         }
 
-        // Добавляем описание в объект данных вопроса
         questionData.choices = choices;
         questionData.choicesDesc = choicesDesc;
 
     } else if (questionType === 'yesno') {
-        // Для типа yesno не добавляем choicesDesc
+        // Обработка типа yes/no
         questionData.choices = [
             { text: 'Yes', isCorrect: document.getElementById('yes').checked },
             { text: 'No', isCorrect: document.getElementById('no').checked }
         ];
+        questionData.choicesDesc = 'Выберите "Да" или "Нет"';
     }
 
+    // Сохранение вопроса
     const updates = {};
     updates['/questions/' + currentUser.uid + '/' + testId + '/' + questionId] = questionData;
+
     firebase.database().ref().update(updates)
         .then(() => {
             alert('Question saved successfully!');
@@ -160,6 +183,7 @@ function saveQuestion() {
             alert('Error: ' + error.message);
         });
 }
+
 
 
 
