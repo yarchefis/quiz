@@ -47,12 +47,27 @@ function addTest() {
     const testName = document.getElementById('testNameInput').value;
     if (testName) {
         const testId = firebase.database().ref().child('tests').push().key;
+
+        // Генерация случайного набора цифр из 8 символов
+        const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
+
         const testData = {
             name: testName,
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            testCode: randomNumber // Добавляем рандомное число в testData
         };
+
         const updates = {};
+        // Добавляем данные теста в путь /tests/{uid}/{testId}
         updates['/tests/' + currentUser.uid + '/' + testId] = testData;
+        
+        // Добавляем данные в путь /codetotest/{testCode}
+        updates['/codetotest/' + randomNumber] = {
+            uid: currentUser.uid,
+            testId: testId
+        };
+
+        // Выполняем обновление базы данных
         firebase.database().ref().update(updates)
             .then(() => {
                 loadTests();
@@ -65,6 +80,8 @@ function addTest() {
             });
     }
 }
+
+
 
 // Load tests function
 function loadTests() {
@@ -133,42 +150,90 @@ function renameTest() {
     if (newTestName && testIdToRename) {
         const updates = {};
         updates['/tests/' + currentUser.uid + '/' + testIdToRename + '/name'] = newTestName;
+
+        // Сначала получаем текущие данные теста
+        const testRef = firebase.database().ref(`/tests/${currentUser.uid}/${testIdToRename}`);
         
-        firebase.database().ref().update(updates)
-            .then(() => {
-                loadTests();
-                const renameTestModal = bootstrap.Modal.getInstance(document.getElementById('renameTestModal'));
-                renameTestModal.hide();
-                showAlertModal('Успех', 'Имя теста успешно изменено');
-            })
-            .catch((error) => {
-                console.error('Ошибка при изменении имени теста:', error);
-                showAlertModal('Ошибка', error.message);
-            });
+        testRef.once('value').then((snapshot) => {
+            if (snapshot.exists()) {
+                const testData = snapshot.val();
+                let testCode = testData.testCode; // Получаем testCode
+
+                if (!testCode) { // Проверяем, существует ли testCode
+                    // Генерируем новый код, если testCode отсутствует
+                    testCode = Math.floor(10000000 + Math.random() * 90000000).toString();
+
+                    // Добавляем код в обновления для теста
+                    updates['/tests/' + currentUser.uid + '/' + testIdToRename + '/testCode'] = testCode;
+                }
+
+                // Проверяем, существует ли код в /codetotest/
+                const codeRef = firebase.database().ref(`/codetotest/${testCode}`);
+                codeRef.once('value').then((codeSnapshot) => {
+                    if (!codeSnapshot.exists()) {
+                        // Если код не существует, добавляем его в /codetotest/
+                        updates['/codetotest/' + testCode] = {
+                            uid: currentUser.uid,
+                            testId: testIdToRename
+                        };
+                    }
+
+                    // Обновляем базу данных
+                    return firebase.database().ref().update(updates);
+                }).then(() => {
+                    loadTests();
+                    const renameTestModal = bootstrap.Modal.getInstance(document.getElementById('renameTestModal'));
+                    renameTestModal.hide();
+                    showAlertModal('Успех', 'Имя теста успешно изменено');
+                }).catch((error) => {
+                    console.error('Ошибка при изменении имени теста:', error);
+                    showAlertModal('Ошибка', error.message);
+                });
+            } else {
+                console.error('Тест не найден для изменения имени.');
+                showAlertModal('Ошибка', 'Тест не найден.');
+            }
+        }).catch((error) => {
+            console.error('Ошибка при получении данных теста:', error);
+        });
     }
 }
 
 
 
+
+
+
 function deleteTest(testId) {
     if (confirm('Вы уверены, что хотите удалить этот тест? Это действие нельзя отменить.')) {
-        // Сначала удаляем тест из ветки tests
+        // Сначала получаем testCode, чтобы знать, что удалять из /codetotest/
         const testRef = firebase.database().ref('/tests/' + currentUser.uid + '/' + testId);
-        testRef.remove()
-            .then(() => {
+        
+        testRef.once('value').then((snapshot) => {
+            const testData = snapshot.val();
+            const testCode = testData ? testData.testCode : null; // Получаем testCode
+            
+            // Удаляем тест из ветки tests
+            return testRef.remove().then(() => {
                 // Затем удаляем все связанные вопросы из ветки questions
                 const questionsRef = firebase.database().ref('/questions/' + currentUser.uid + '/' + testId);
                 return questionsRef.remove();
-            })
-            .then(() => {
+            }).then(() => {
+                // Удаляем testCode из /codetotest/
+                if (testCode) {
+                    const codetotestRef = firebase.database().ref('/codetotest/' + testCode);
+                    return codetotestRef.remove();
+                }
+            }).then(() => {
                 // Обновляем список тестов после удаления
                 loadTests();
                 showAlertModal('Успех', 'Тест и связанные с ним вопросы успешно удалены');
-            })
-            .catch((error) => {
-                console.error('Ошибка при удалении теста и вопросов:', error);
-                showAlertModal('Ошибка', error.message);
             });
+        })
+        .catch((error) => {
+            console.error('Ошибка при удалении теста и вопросов:', error);
+            showAlertModal('Ошибка', error.message);
+        });
     }
 }
 
@@ -183,45 +248,55 @@ function duplicateTest(originalTestId) {
 
         // Создаем новый тест с новым testId
         const newTestId = firebase.database().ref().child('tests').push().key;
+
+        // Генерация нового случайного набора цифр из 8 символов для нового теста
+        const newTestCode = Math.floor(10000000 + Math.random() * 90000000);
+
         const newTestData = {
             ...originalTest, // Копируем данные теста
             name: originalTest.name + ' (Копия)', // Меняем название
-            createdAt: new Date().toISOString()  // Обновляем дату создания
+            createdAt: new Date().toISOString(),  // Обновляем дату создания
+            testCode: newTestCode // Добавляем новый testCode
         };
 
         // Сохраняем новый тест в базе данных
         const updates = {};
         updates['/tests/' + currentUser.uid + '/' + newTestId] = newTestData;
-        firebase.database().ref().update(updates)
-            .then(() => {
-                // Копируем вопросы из оригинального теста
-                const originalQuestionsRef = firebase.database().ref('/questions/' + currentUser.uid + '/' + originalTestId);
-                originalQuestionsRef.once('value', (questionsSnapshot) => {
-                    const questions = questionsSnapshot.val();
-                    if (questions) {
-                        const questionsUpdates = {};
-                        for (const questionId in questions) {
-                            questionsUpdates['/questions/' + currentUser.uid + '/' + newTestId + '/' + questionId] = questions[questionId];
-                        }
-                        // Обновляем базу данных с новыми вопросами
-                        firebase.database().ref().update(questionsUpdates)
-                            .then(() => {
-                                loadTests();
-                                showAlertModal('Успех', 'Тест успешно дублирован');
-                            })
-                            .catch((error) => {
-                                console.error('Ошибка при копировании вопросов:', error);
-                                showAlertModal('Ошибка', error.message);
-                            });
-                    }
+
+        // Копируем вопросы из оригинального теста
+        const originalQuestionsRef = firebase.database().ref('/questions/' + currentUser.uid + '/' + originalTestId);
+        originalQuestionsRef.once('value', (questionsSnapshot) => {
+            const questions = questionsSnapshot.val();
+            if (questions) {
+                const questionsUpdates = {};
+                for (const questionId in questions) {
+                    questionsUpdates['/questions/' + currentUser.uid + '/' + newTestId + '/' + questionId] = questions[questionId];
+                }
+                // Обновляем базу данных с новыми вопросами
+                updates['/questions/' + currentUser.uid + '/' + newTestId] = questionsUpdates;
+            }
+
+            // Добавляем новый testCode в /codetotest/
+            updates['/codetotest/' + newTestCode] = {
+                uid: currentUser.uid,
+                testId: newTestId
+            };
+
+            // Выполняем обновление базы данных
+            firebase.database().ref().update(updates)
+                .then(() => {
+                    loadTests();
+                    showAlertModal('Успех', 'Тест успешно дублирован');
+                })
+                .catch((error) => {
+                    console.error('Ошибка при обновлении базы данных:', error);
+                    showAlertModal('Ошибка', error.message);
                 });
-            })
-            .catch((error) => {
-                console.error('Ошибка при дублировании теста:', error);
-                showAlertModal('Ошибка', error.message);
-            });
+        });
     });
 }
+
+
 
 
 

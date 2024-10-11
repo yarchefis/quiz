@@ -14,6 +14,7 @@ firebase.initializeApp(firebaseConfig);
 
 let currentUser;
 let testId;
+let testCode;
 
 firebase.auth().onAuthStateChanged((user) => {
     if (!user) {
@@ -24,6 +25,20 @@ firebase.auth().onAuthStateChanged((user) => {
         // Получаем параметры URL
         const urlParams = new URLSearchParams(window.location.search);
         testId = urlParams.get('testId');
+        
+        // Загружаем testCode по пути tests/uid/testid/testCode
+        firebase.database().ref(`/tests/${currentUser.uid}/${testId}/testCode`).once('value')
+            .then((snapshot) => {
+                const testCode = snapshot.val();
+                if (testCode) {
+                    console.log("Test Code: ", testCode); // Пример использования testCode
+                } else {
+                    console.log('testCode не найден');
+                }
+            })
+            .catch((error) => {
+                console.error('Ошибка при получении testCode:', error);
+            });
         
         // Загрузка названия теста по пути tests/uid/testid/name
         firebase.database().ref(`/tests/${currentUser.uid}/${testId}/name`).once('value')
@@ -45,6 +60,7 @@ firebase.auth().onAuthStateChanged((user) => {
         loadTestDates();
     }
 });
+
 
 
 
@@ -282,10 +298,25 @@ function saveTestDates() {
 
 
 function generateTestLink() {
-    const testLink = document.getElementById('testLink');
-    testLink.href = `login_to_test.html?testId=${testId}&uid=${currentUser.uid}`;
-    testLink.textContent = testLink.href;
+    firebase.database().ref(`/tests/${currentUser.uid}/${testId}/testCode`).once('value')
+        .then((snapshot) => {
+            const testCode = snapshot.val();
+            if (testCode) {
+                console.log("Test Code: ", testCode); // Пример использования testCode
+
+                // Создаем ссылку только после того, как testCode будет загружен
+                const testLink = document.getElementById('testLink');
+                testLink.href = `login_to_test.html?code=${testCode}`;
+                testLink.textContent = testLink.href;
+            } else {
+                console.log('testCode не найден');
+            }
+        })
+        .catch((error) => {
+            console.error('Ошибка при получении testCode:', error);
+        });
 }
+
 
 function viewSelectedAnswers(resultKey) {
     const resultRef = firebase.database().ref(`/results/${currentUser.uid}/${testId}/${resultKey}`);

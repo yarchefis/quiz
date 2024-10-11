@@ -5,11 +5,14 @@ firebase.initializeApp(firebaseConfig);
 
 // Функция для загрузки данных теста
 function loadTestInfo(uid, testId) {
+    console.log(`Загружаем данные теста для uid: ${uid}, testId: ${testId}`);
+    
     const testRef = firebase.database().ref(`tests/${uid}/${testId}`);
-
+    
     testRef.once('value').then((snapshot) => {
         if (snapshot.exists()) {
             const testData = snapshot.val();
+            console.log('Данные теста найдены:', testData);
 
             const testName = testData.name;
             const startDate = testData.startDate;
@@ -31,21 +34,65 @@ function getQueryParams() {
     const queryParams = new URLSearchParams(window.location.search);
     const testId = queryParams.get('testId');
     const uid = queryParams.get('uid');
-    return { testId, uid };
+    const code = queryParams.get('code'); // Ищем параметр code
+    console.log('Параметры из URL:', { testId, uid, code });
+    return { testId, uid, code };
 }
 
 // Когда страница загружается
 window.addEventListener('load', () => {
     // Парсим параметры из URL
-    const { testId, uid } = getQueryParams();
+    const { testId, uid, code } = getQueryParams();
 
-    // Если параметры testId и uid существуют, загружаем данные теста
-    if (testId && uid) {
+    if (code) {
+        // Логируем начало поиска по коду
+        console.log(`Ищем тест по коду: ${code}`);
+        
+        // Логируем всё содержимое пути /codetotest/
+        firebase.database().ref(`/codetotest/`).once('value')
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    console.log('Все данные в /codetotest/:', snapshot.val());
+                } else {
+                    console.log('/codetotest/ пуст или не существует.');
+                }
+
+                // Ищем конкретный код
+                return firebase.database().ref(`/codetotest/${code}`).once('value');
+            })
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    console.log(`Найденные данные по коду ${code}:`, data);
+                    
+                    const uidFromCode = data.uid;
+                    const testIdFromCode = data.testId;
+
+                    if (uidFromCode && testIdFromCode) {
+                        console.log(`Найден uid: ${uidFromCode}, testId: ${testIdFromCode}. Загружаем данные теста.`);
+                        // Если нашли uid и testId, загружаем информацию о тесте
+                        loadTestInfo(uidFromCode, testIdFromCode);
+                    } else {
+                        console.error(`testId или uid отсутствуют в данных для кода ${code}.`);
+                    }
+                } else {
+                    console.error(`Тест с данным кодом (${code}) не найден в /codetotest/.`);
+                }
+            })
+            .catch((error) => {
+                console.error('Ошибка при поиске теста по коду:', error);
+            });
+    } else if (testId && uid) {
+        console.log(`Ищем тест по testId: ${testId} и uid: ${uid}`);
+        // Если в URL есть testId и uid, загружаем информацию о тесте
         loadTestInfo(uid, testId);
     } else {
-        console.error('testId или uid не найдены в URL.');
+        console.error('testId, uid или code не найдены в URL.');
     }
 });
+
+
+
 
 // Функция для проверки доступа к тесту
 function startTest(event) {
