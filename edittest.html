@@ -88,12 +88,21 @@
             color: #ffffff;
         }
 
-        #questionsList, #resultsTable {
+        #questionsList,
+        #resultsTable {
             display: flex;
             flex-direction: column;
             gap: 10px;
             /* Отступ между вопросами */
+            max-height: calc(100vh - 240px);
+            /* Максимальная высота с учетом других элементов */
+            overflow-y: auto;
+            /* Вертикальная прокрутка */
+            padding: 10px;
+            /* Отступ внутри списка */
+            
         }
+
 
         .question-item {
             background-color: #3D3D3D;
@@ -197,7 +206,6 @@
             color: #ffffff;
             /* Цвет текста метки */
         }
-
     </style>
 </head>
 

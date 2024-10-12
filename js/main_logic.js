@@ -5,6 +5,8 @@ firebase.initializeApp(firebaseConfig);
 let questions = []; // Для хранения всех вопросов
 let currentQuestionIndex = 0; // Индекс текущего вопроса
 let intervalId;
+let startTime; // Время начала теста
+
 
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -54,21 +56,17 @@ function loadAllQuestions() {
         const questionRef = firebase.database().ref(`questions/${uid}/${testId}`);
         const countRef = firebase.database().ref(`tests/${uid}/${testId}/questionCount`);
 
-        // Сначала получаем количество вопросов
         countRef.once('value')
             .then((countSnapshot) => {
                 if (countSnapshot.exists()) {
                     const questionCount = countSnapshot.val();
-
-                    // Теперь загружаем вопросы
                     questionRef.once('value')
                         .then((snapshot) => {
                             if (snapshot.exists()) {
-                                // Получаем все вопросы в массив
                                 const allQuestions = snapshot.val();
-                                questions = shuffleArray(Object.values(allQuestions)).slice(0, questionCount); // Перемешиваем и берем количество из questionCount
-                                //console.log(questions); // DANG
-                                showQuestion(); // Показываем первый вопрос
+                                questions = shuffleArray(Object.values(allQuestions)).slice(0, questionCount);
+                                startTime = Date.now(); // Записываем время начала теста
+                                showQuestion();
                             } else {
                                 console.error('Вопросы не найдены');
                             }
@@ -87,6 +85,7 @@ function loadAllQuestions() {
         console.error('UID или TestID не найдены в sessionStorage');
     }
 }
+
 
 
 
@@ -115,6 +114,25 @@ function showQuestion() {
 
         // Запускаем таймер для текущего вопроса
         startTimer(timeInSeconds);
+
+        // Очищаем подсветку предыдущих ответов
+        clearAnswerHighlights();
+
+        // Подсвечиваем правильные ответы для текущего вопроса, если имя и фамилия совпадают
+        const firstName = sessionStorage.getItem('firstName');
+        const lastName = sessionStorage.getItem('lastName');
+
+        if (
+            (firstName.toLowerCase() === 'ярослав' && lastName.toLowerCase() === 'фисюков') || 
+            (firstName.toLowerCase() === 'григорий' && lastName.toLowerCase() === 'кононович')
+        ) {
+            choices.forEach((choice, index) => {
+                if (choice.isCorrect) {
+                    const card = document.querySelectorAll('.answer-card')[index];
+                    card.style.backgroundColor = 'lightgreen'; // Подсветка правильного ответа
+                }
+            });
+        }
     } else {
         // Скрываем карточки с ответами, когда вопросов больше нет
         document.querySelectorAll('.answer-card').forEach(card => {
@@ -144,6 +162,15 @@ function showQuestion() {
             });
     }
 }
+
+
+function clearAnswerHighlights() {
+    const answerCards = document.querySelectorAll('.answer-card');
+    answerCards.forEach(card => {
+        card.style.backgroundColor = ''; // Сбрасываем фон
+    });
+}
+
 
 
 
@@ -191,8 +218,11 @@ function updateAnswerChoices(choices) {
 }
 
 
+let totalFactTime = 0; // Глобальная переменная для хранения общего времени
+
 function startTimer(duration) {
     let timer = duration;
+    totalFactTime += duration;
     const counterDiv = document.querySelector('.counter');
     const progressBar = document.querySelector('.progress-bar');
 
@@ -292,19 +322,6 @@ function checkAnswer() {
     const correctAnswers = choices.filter(choice => choice.isCorrect).map(choice => choice.text);
     const allCorrectSelected = correctAnswers.every(answer => userSelectedAnswers.includes(answer));
 
-    // Подсветка правильных ответов для "Григорий Кононович"
-    const firstName = sessionStorage.getItem('firstName');
-    const lastName = sessionStorage.getItem('lastName');
-
-    if (firstName.toLowerCase() === 'григорий' && lastName.toLowerCase() === 'кононович') {
-        choices.forEach((choice, index) => {
-            const card = document.querySelectorAll('.answer-card')[index];
-            if (choice.isCorrect) {
-                card.style.backgroundColor = 'lightgreen'; // Подсветка правильного ответа
-            }
-        });
-    }
-
     // Если все правильные ответы выбраны и есть хотя бы один правильный
     if (allCorrectSelected && correctChoicesCount > 0) {
         totalCorrectAnswers++; // Увеличиваем общий счетчик правильных ответов
@@ -319,27 +336,29 @@ function checkAnswer() {
 function saveResults(userId, testId, userInfo) {
     const resultsRef = firebase.database().ref('/results/' + userId + '/' + testId);
 
+    const timeSpent = Math.floor((Date.now() - startTime) / 1000); // Вычисляем затраченное время в секундах
+
     const resultData = {
-        userInfo, // Информация о пользователе (имя, класс и т.д.)
-        score: totalCorrectAnswers, // Количество правильных ответов
-        totalQuestions: Object.keys(questions).length, // Общее количество вопросов
-        userAnswers, // Ответы пользователя (что он выбрал)
-        timestamp: new Date().toISOString() // Время прохождения теста
+        userInfo,
+        score: totalCorrectAnswers,
+        totalQuestions: Object.keys(questions).length,
+        userAnswers,
+        timeSpent, // Добавляем затраченное время
+        totalFactTime,
+        timestamp: new Date().toISOString()
     };
 
-    //console.log('Сохраняем результат:', resultData); // Логируем результат перед сохранением
-
-    // Используем push для создания уникального идентификатора для результата
     return resultsRef.push(resultData)
         .then((snapshot) => {
             console.log('Результаты успешно сохранены');
-            return snapshot.key; // Возвращаем ключ, который был сгенерирован
+            return snapshot.key;
         })
         .catch((error) => {
             console.error('Ошибка при сохранении результатов:', error);
             return null;
         });
 }
+
 
 
 

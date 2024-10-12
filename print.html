@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,25 +10,30 @@
             font-family: Arial, sans-serif;
             margin: 40px;
         }
+
         h1 {
             text-align: center;
             margin-bottom: 40px;
         }
+
         .results {
             margin: 0 auto;
             max-width: 800px;
         }
+
         .result-item {
             font-size: 18px;
             margin: 20px 0;
             padding: 10px;
             border-bottom: 1px solid #ccc;
         }
+
         .result-info {
             font-weight: bold;
             color: #2C3E50;
             display: inline;
         }
+
         .result-score {
             font-size: 18px;
             margin-left: 20px;
@@ -41,6 +47,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.8.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.8.1/firebase-database-compat.js"></script>
 </head>
+
 <body>
     <h1>Test Results</h1>
     <div class="results" id="results"></div>
@@ -108,24 +115,39 @@
         function displayResults(results) {
             const resultsContainer = document.getElementById('results');
             let index = 1;
-            for (const key in results) {
-                const result = results[key];
+
+            // Преобразуем объект results в массив и сортируем по фамилии
+            const sortedResults = Object.values(results).sort((a, b) => {
+                const lastNameA = a.userInfo.lastName.toLowerCase(); // Фамилия первого результата
+                const lastNameB = b.userInfo.lastName.toLowerCase(); // Фамилия второго результата
+                if (lastNameA < lastNameB) return -1; // Сравниваем по алфавиту
+                if (lastNameA > lastNameB) return 1;  // Сравниваем по алфавиту
+                return 0; // Если фамилии равны
+            });
+
+            for (const result of sortedResults) {
                 const userInfo = result.userInfo;  // Информация о пользователе
                 const score = result.score;        // Полученные очки
                 const totalQuestions = result.totalQuestions;  // Всего вопросов
+                const timeSpent = result.timeSpent; // Получаем timeSpent из результата
+                const totalFactTime = result.totalFactTime !== undefined ? result.totalFactTime : '?'; // Получаем totalFactTime с проверкой
 
                 // Формируем строку для каждого результата
                 const resultItemHtml = `
-                    <div class="result-item">
-                        <span class="result-info">${index++}. ${userInfo.lastName} ${userInfo.firstName} ${userInfo.class}</span>
-                        <span class="result-score">Score: ${score}/${totalQuestions}</span>
-                    </div>
-                `;
+            <div class="result-item">
+                <span class="result-info">${index++}. ${userInfo.lastName} ${userInfo.firstName} ${userInfo.class}</span><br>
+                <span class="result-score">Результат: ${score}/${totalQuestions}</span><br>
+                <span>решено за ${timeSpent !== undefined ? timeSpent : '?'} секунд фактическое время: ${totalFactTime}</span><br>
+            </div>
+        `;
 
                 // Добавляем элемент на страницу
                 resultsContainer.innerHTML += resultItemHtml;
             }
         }
+
+
+
 
         // Проверка на наличие code, uid и testId
         if (code) {
@@ -137,4 +159,5 @@
         }
     </script>
 </body>
+
 </html>

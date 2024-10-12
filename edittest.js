@@ -477,18 +477,20 @@ function loadTestResults(userId, testId) {
                     return letterA.localeCompare(letterB);
                 });
 
-            for (const { key, userInfo, score, totalQuestions } of sortedResults) {
-                const resultItem = document.createElement('div');
-                resultItem.className = 'question-item'; // Применяем стиль для вопроса
-                resultItem.innerHTML = `
-                    <span>${index++}. ${userInfo.lastName} ${userInfo.firstName} - ${userInfo.class} (${score} / ${totalQuestions})</span>
-                    <div class="button-group">
-                        <button class="edit-button" onclick="viewSelectedAnswers('${key}')">Посмотреть</button>
-                        <button class="delete-button" onclick="deleteResult('${key}')">Удалить</button>
-                    </div>
-                `;
-                resultsList.appendChild(resultItem);
-            }
+                for (const { key, userInfo, score, totalQuestions, timeSpent, totalFactTime = '?' } of sortedResults) {
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'question-item'; // Применяем стиль для вопроса
+                    resultItem.innerHTML = `
+                        <span>${index++}. ${userInfo.lastName} ${userInfo.firstName} - ${userInfo.class} (${score} / ${totalQuestions}) решено за ${timeSpent !== undefined ? timeSpent : '?'} секунд фактическое время ${totalFactTime}</span>
+                        <div class="button-group">
+                            <button class="edit-button" onclick="viewSelectedAnswers('${key}')">Посмотреть</button>
+                            <button class="delete-button" onclick="deleteResult('${key}')">Удалить</button>
+                        </div>
+                    `;
+                    resultsList.appendChild(resultItem);
+                }
+                
+                
         } else {
             const noResultsItem = document.createElement('div');
             noResultsItem.className = 'question-item';
