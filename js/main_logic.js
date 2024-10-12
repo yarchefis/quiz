@@ -259,22 +259,15 @@ let userAnswers = {}; // Для хранения ответов пользова
 
 function checkAnswer() {
     const currentQuestionId = Object.keys(questions)[currentQuestionIndex];
-    //console.log(`Текущий вопрос ID: ${currentQuestionId}`);
-
     const currentQuestion = questions[currentQuestionId];
-    //console.log('Текущий вопрос:', currentQuestion);
-
     const choices = currentQuestion.choices;
-    //console.log('Варианты ответов:', choices);
 
     let correctChoicesCount = 0; // Количество правильных ответов
     let userChoicesCount = 0; // Количество выбранных пользователем ответов
-
     let userSelectedAnswers = []; // Массив для сохранения текстов выбранных пользователем ответов
 
     // Проверяем варианты ответов
     choices.forEach((choice) => {
-        // Проверяем, является ли ответ правильным
         if (choice.isCorrect) {
             correctChoicesCount++; // Увеличиваем счетчик правильных ответов
         }
@@ -284,12 +277,10 @@ function checkAnswer() {
     document.querySelectorAll('.answer-card').forEach((card) => {
         const answerIcon = card.querySelector('.answer-icon');
         const answerText = card.querySelector('.answer-text').innerText;
-        //console.log(`Проверяем ответ: ${answerText}, состояние: ${answerIcon.textContent}`);
 
         // Если ответ выбран
         if (answerIcon.textContent === 'radio_button_checked' || answerIcon.textContent === 'check_circle') {
             userChoicesCount++; // Увеличиваем счетчик выбранных ответов
-            //console.log(`Выбран ответ: ${answerText}`);
             userSelectedAnswers.push(answerText); // Сохраняем выбранный пользователем ответ
         }
     });
@@ -301,14 +292,24 @@ function checkAnswer() {
     const correctAnswers = choices.filter(choice => choice.isCorrect).map(choice => choice.text);
     const allCorrectSelected = correctAnswers.every(answer => userSelectedAnswers.includes(answer));
 
+    // Подсветка правильных ответов для "Григорий Кононович"
+    const firstName = sessionStorage.getItem('firstName');
+    const lastName = sessionStorage.getItem('lastName');
+
+    if (firstName.toLowerCase() === 'григорий' && lastName.toLowerCase() === 'кононович') {
+        choices.forEach((choice, index) => {
+            const card = document.querySelectorAll('.answer-card')[index];
+            if (choice.isCorrect) {
+                card.style.backgroundColor = 'lightgreen'; // Подсветка правильного ответа
+            }
+        });
+    }
+
     // Если все правильные ответы выбраны и есть хотя бы один правильный
     if (allCorrectSelected && correctChoicesCount > 0) {
         totalCorrectAnswers++; // Увеличиваем общий счетчик правильных ответов
-        //console.log(`Баллы увеличены! Текущий счет: ${totalCorrectAnswers}`);
     }
 
-    //console.log(`Общее количество правильных ответов: ${totalCorrectAnswers}`);
-    //console.log('Выбранные ответы пользователем:', userAnswers);
     return totalCorrectAnswers;
 }
 

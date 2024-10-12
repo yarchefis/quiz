@@ -39,7 +39,10 @@ function getQueryParams() {
     return { testId, uid, code };
 }
 
-// Когда страница загружается
+// Глобальные переменные для хранения uid и testId
+let globalUid = null;
+let globalTestId = null;
+
 window.addEventListener('load', () => {
     // Парсим параметры из URL
     const { testId, uid, code } = getQueryParams();
@@ -65,13 +68,14 @@ window.addEventListener('load', () => {
                     const data = snapshot.val();
                     console.log(`Найденные данные по коду ${code}:`, data);
                     
-                    const uidFromCode = data.uid;
-                    const testIdFromCode = data.testId;
+                    // Сохраняем uid и testId в глобальные переменные
+                    globalUid = data.uid;
+                    globalTestId = data.testId;
 
-                    if (uidFromCode && testIdFromCode) {
-                        console.log(`Найден uid: ${uidFromCode}, testId: ${testIdFromCode}. Загружаем данные теста.`);
+                    if (globalUid && globalTestId) {
+                        console.log(`Найден uid: ${globalUid}, testId: ${globalTestId}. Загружаем данные теста.`);
                         // Если нашли uid и testId, загружаем информацию о тесте
-                        loadTestInfo(uidFromCode, testIdFromCode);
+                        loadTestInfo(globalUid, globalTestId);
                     } else {
                         console.error(`testId или uid отсутствуют в данных для кода ${code}.`);
                     }
@@ -91,10 +95,7 @@ window.addEventListener('load', () => {
     }
 });
 
-
-
-
-// Функция для проверки доступа к тесту
+// Теперь вы можете использовать globalUid и globalTestId в других функциях, например, в startTest
 function startTest(event) {
     event.preventDefault(); // Останавливаем отправку формы
     console.log('Форма отправлена');
@@ -107,13 +108,8 @@ function startTest(event) {
 
         console.log(lastName, firstName, classValue); // Проверка значений
 
-        // Получаем параметры из URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const uid = urlParams.get('uid');
-        const testId = urlParams.get('testId');
-
         // Проверка, есть ли параметр lwch
-        const isLwch = urlParams.has('lwch');  // Проверяем, есть ли параметр lwch
+        const isLwch = new URLSearchParams(window.location.search).has('lwch');
 
         // Если параметр lwch отсутствует, выполняем проверку на запрещённые комбинации
         if (!isLwch) {
@@ -125,7 +121,7 @@ function startTest(event) {
         }
 
         // Ссылка на базу данных для проверки
-        const userResultsRef = firebase.database().ref(`results/${uid}/${testId}`);
+        const userResultsRef = firebase.database().ref(`results/${globalUid}/${globalTestId}`);
 
         // Ищем все результаты
         userResultsRef.once('value')
@@ -154,12 +150,12 @@ function startTest(event) {
                     if (!userHasTakenTest) {
                         console.log('Пользователь не проходил тест ранее.');
                         // Доступ разрешен
-                        window.location.href = `start.html?testId=${testId}&uid=${uid}&lastName=${lastName}&firstName=${firstName}&classValue=${classValue}`;
+                        window.location.href = `start.html?testId=${globalTestId}&uid=${globalUid}&lastName=${lastName}&firstName=${firstName}&classValue=${classValue}`;
                     }
                 } else {
                     console.log('Результаты для данного пользователя и теста отсутствуют.');
                     // Доступ разрешен
-                    window.location.href = `start.html?testId=${testId}&uid=${uid}&lastName=${lastName}&firstName=${firstName}&classValue=${classValue}`;
+                    window.location.href = `start.html?testId=${globalTestId}&uid=${globalUid}&lastName=${lastName}&firstName=${firstName}&classValue=${classValue}`;
                 }
             })
             .catch((error) => {
@@ -169,6 +165,7 @@ function startTest(event) {
         console.error('Ошибка при обработке формы:', error);
     }
 }
+
 
 
 
