@@ -347,7 +347,7 @@ function generateTestLink() {
                     }
                 }
             } else {
-                console.log('Нет тестов для данного пользователя.');
+                console.log('Нет тестов для данного пользователя');
             }
         })
         .catch((error) => {
