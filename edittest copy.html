@@ -12,253 +12,160 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 
-    <style>
-        /* Общие стили для body остаются */
-        body {
-            background-color: #252525;
-            font-family: 'Roboto', sans-serif;
-            color: #ffffff;
-        }
-
-        /* Левая плашка */
-        .side-panel {
-            width: 380px;
-            background-color: #2C2C2C;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px;
-            height: calc(100vh - 40px);
-            box-sizing: border-box;
-            position: relative;
-        }
-
-        /* Ссылка на тест */
-        .test-link {
-            position: absolute;
-            bottom: 15px;
-            left: 15px;
-            right: 15px;
-        }
-
-        .test-link p {
-            color: #ffffff;
-            margin-bottom: 5px;
-        }
-
-        .test-link a {
-            color: #30BAFF;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .test-link a:hover {
-            text-decoration: underline;
-        }
-
-        /* Стили для полей ввода */
-        .form-control {
-            background-color: #3D3D3D;
-            color: #ffffff;
-            /* Цвет текста в поле ввода */
-            border-radius: 50px;
-            border: none;
-            padding: 10px 20px;
-            outline: none;
-            /* Убираем выделение */
-        }
-
-        .form-control:focus {
-            background-color: #3D3D3D;
-            box-shadow: none;
-            border: none;
-            /* Убираем границу при фокусе */
-            color: #ffffff;
-            /* Цвет текста при фокусе */
-        }
-
-        /* Стили для иконки календаря */
-        input[type="date"]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-            /* Убираем внутренние отступы */
-        }
-
-        /* Стили для меток */
-        .form-label {
-            color: #ffffff;
-        }
-
-        #questionsList {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            /* Отступ между вопросами */
-        }
-
-        .question-item {
-            background-color: #3D3D3D;
-            border-radius: 10px;
-
-            width: 100%;
-            /* Занимает всю ширину */
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .question-item span {
-            margin: 10px;
-        }
-
-        .question-item .button-group {
-            display: flex;
-            gap: 0;
-            /* Убираем отступ между кнопками */
-        }
-
-        .button-group button {
-            border: none;
-            color: white;
-            /* Цвет текста кнопки */
-            cursor: pointer;
-            padding: 10px 15px;
-            /* Отступ внутри кнопки */
-        }
-
-        .edit-button {
-            background-color: #CF865E;
-            border-radius: 10px 0 0 10px;
-            /* Закругление только с левой стороны */
-        }
-
-        .delete-button {
-            background-color: #CF5E71;
-            border-radius: 0 10px 10px 0;
-            /* Закругление только с правой стороны */
-        }
-
-        .button-group button:hover {
-            opacity: 0.9;
-            /* Эффект при наведении */
-        }
-
-        /* Установить белый цвет для текста и иконки календаря */
-        input[type="date"] {
-            color: #ffffff;
-            /* Цвет текста */
-        }
-
-        /* Стили для иконки календаря */
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            filter: invert(1);
-            /* Инвертируем цвет иконки */
-        }
-
-        .modal-content {
-            background-color: #565656;
-            /* Цвет фона модального окна */
-            color: #ffffff;
-            /* Цвет текста внутри модального окна */
-        }
-
-        .modal-header {
-            border-bottom: 1px solid #5A5A5A;
-            /* Стилизация границы заголовка модального окна (по желанию) */
-        }
-
-        .modal-footer {
-            border-top: 1px solid #5A5A5A;
-            /* Стилизация границы подвала модального окна (по желанию) */
-        }
-
-        /* Стили для чекбоксов */
-        .form-check-input {
-            background-color: #5e5e5e;
-            /* Цвет фона чекбокса */
-            border: 1px solid #5e5e5e;
-            /* Цвет границы чекбокса */
-        }
-
-        .input-group-text {
-            background-color: #3d3d3d;
-            border: #3d3d3d solid;
-            border-radius: 50px;
-        }
-
-        .form-check-input:checked {
-            background-color: #30BAFF;
-            /* Цвет фона чекбокса при выборе */
-            border: 1px solid #30BAFF;
-            /* Цвет границы чекбокса при выборе */
-        }
-
-        /* Изменяем цвет меток чекбокса */
-        .form-check-label {
-            color: #ffffff;
-            /* Цвет текста метки */
-        }
-
-    </style>
 </head>
 
+<style>
+    body {
+        background-color: #f8f9fa;
+        font-family: 'Roboto', sans-serif;
+        color: #212529;
+    }
+
+    .navbar-brand {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #212529;
+    }
+
+    .navbar {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 10px 0;
+        background-color: #ffffff;
+    }
+
+    .container {
+        margin-top: 30px;
+    }
+
+    .table {
+        background-color: #ffffff;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+    }
+
+    .table th,
+    .table td {
+        border: none;
+        vertical-align: middle;
+        color: #212529;
+    }
+
+    .table-light th {
+        background-color: #e9ecef;
+        color: #495057;
+        font-weight: 600;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-primary {
+        background-color: #212529;
+        border-color: #212529;
+        color: #ffffff;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: #343a40;
+    }
+
+    .btn-danger {
+        background-color: #d32f2f;
+        border-color: #d32f2f;
+        color: #ffffff;
+    }
+
+    .btn-danger:hover {
+        background-color: #b71c1c;
+    }
+
+    .modal-content {
+        border-radius: 8px;
+    }
+
+    .modal-header,
+    .modal-footer {
+        border: none;
+    }
+
+    .modal-footer .btn-primary {
+        background-color: #212529;
+        border-color: #212529;
+    }
+
+    .modal-footer .btn-primary:hover {
+        background-color: #343a40;
+    }
+</style>
+
 <body>
-    <div style="display: flex; height: 100vh;">
-        <div class="side-panel">
-            <!-- Поля ввода -->
-            <div class="mb-3">
-                <label for="startDate" class="form-label">Дата начала проведения</label>
-                <input type="date" class="form-control" id="startDate" required>
-            </div>
-            <div class="mb-3">
-                <label for="endDate" class="form-label">Дата когда тест завершится</label>
-                <input type="date" class="form-control" id="endDate" required>
-            </div>
-            <div class="mb-3">
-                <label for="questionCount" class="form-label">Количество вопросов (которые будут выданы)</label>
-                <input type="number" class="form-control" id="questionCount" required min="1">
-            </div>
 
-            <!-- Закрепленная ссылка внизу -->
-            <div class="test-link">
-                <p><a id="testLink" href="#" onclick="copyTestLink(event)">Нажмите, чтобы скопировать ссылку</a></p>
-            </div>
-            <button type="button" class="btn" onclick="saveTestDates()"
-                style="width: 100%; background-color: #3D3D3D; border-radius: 50px; color: #ffffff; height: 50px;">Сохранить</button>
+    <div class="container mt-5">
+        <h1 class="text-center">Редактировать тест</h1>
+        <p class="text-center"><span id="testName"></span></p>
+
+        <div class="mb-3">
+            <label for="startDate" class="form-label">Дата начала проведения</label>
+            <input type="date" class="form-control" id="startDate" required>
         </div>
+        <div class="mb-3">
+            <label for="endDate" class="form-label">Дата когда текст завершится</label>
+            <input type="date" class="form-control" id="endDate" required>
+        </div>
+        <div class="mb-3">
+            <label for="questionCount" class="form-label">Количество вопросов(которые будут выданы)</label>
+            <input type="number" class="form-control" id="questionCount" required min="1">
+        </div>
+        <button type="button" class="btn btn-primary" onclick="saveTestDates()">Сохранить значения</button>
+        
 
-        <!-- Новый блок, теперь занимает оставшееся пространство -->
-        <div class="main-content"
-            style="flex: 1; background-color: #2C2C2C; margin: 20px; padding: 15px; border-radius: 10px; box-sizing: border-box;">
-            <div class="d-flex justify-content-between align-items-center mt-3">
-                <h2 style="color: #ffffff;">Вопросы</h2>
-                <button class="btn" style="background-color: #3D3D3D; color: #ffffff;"
-                    onclick="showQuestionTypeModal()">Добавить вопрос</button>
+        <ul class="nav nav-tabs" id="editTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="questions-tab" data-bs-toggle="tab" data-bs-target="#questions"
+                    type="button" role="tab" aria-controls="questions" aria-selected="true">Вопросы</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="results-tab" data-bs-toggle="tab" data-bs-target="#results" type="button"
+                    role="tab" aria-controls="results" aria-selected="false">Результаты</button>
+            </li>
+        </ul>
 
+        <div class="tab-content" id="editTabsContent">
+            <div class="tab-pane fade show active" id="questions" role="tabpanel" aria-labelledby="questions-tab">
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <h2>Вопросы</h2>
+                    <button class="btn btn-primary" onclick="showQuestionTypeModal()">Добавить вопрос</button>
+                </div>
+                <table class="table table-bordered mt-3 table-hover">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Вопрос</th>
+                            <th>Действие</th>
+                        </tr>
+                    </thead>
+                    <tbody id="questionsList">
+                        <!-- Questions will be loaded here -->
+                    </tbody>
+                </table>
+                <div class="mt-3">
+                    <h3>Ссылка теста</h3>
+                    <p><a id="testLink" href="#" target="_blank">Ссылка для проведения тестирования</a></p>
+                </div>
             </div>
-
-            <!-- Список вопросов -->
-            <div id="questionsList" class="mt-3">
-                <!-- Вопросы будут загружены здесь -->
+            <div class="tab-pane fade" id="results" role="tabpanel" aria-labelledby="results-tab">
+                <h2 class="mt-3">Результаты</h2>
+                <div id="resultsTable" class="mt-3">
+                    <!-- Results table will be loaded here -->
+                </div>
             </div>
         </div>
     </div>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    <!-- Selected Answers Modal -->
     <div class="modal fade" id="selectedAnswersModal" tabindex="-1" aria-labelledby="selectedAnswersModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -376,6 +283,36 @@
                             <input type="number" class="form-control" id="timeInSeconds" required>
                         </div>
 
+
+                        <br><br>
+                        <p>Конвертер минут в секунды</p>
+
+
+                        <div class="mb-3">
+                            <label for="minutesInput" class="form-label">Минуты</label>
+                            <input type="number" class="form-control" id="minutesInput" placeholder="Введите минуты">
+                        </div>
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-primary" id="convertButton">Конвертировать</button>
+                        </div>
+                        <div class="mb-3">
+                            <label for="convertedSeconds" class="form-label">Конвертированное время (секунды)</label>
+                            <input type="text" class="form-control" id="convertedSeconds" readonly>
+                        </div>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', () => {
+                                document.getElementById('convertButton').addEventListener('click', () => {
+                                    const minutes = parseFloat(document.getElementById('minutesInput').value);
+                                    if (!isNaN(minutes) && minutes >= 0) {
+                                        const seconds = minutes * 60;
+                                        document.getElementById('convertedSeconds').value = seconds;
+                                    } else {
+                                        document.getElementById('convertedSeconds').value = 'Введите корректное число';
+                                    }
+                                });
+                            });
+
+                        </script>
                         <input type="hidden" id="currentQuestionId">
                     </form>
                 </div>
@@ -386,12 +323,10 @@
             </div>
         </div>
     </div>
+
     <script src="edittest.js"></script>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
-
-
 
 </html>

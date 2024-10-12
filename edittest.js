@@ -125,13 +125,19 @@ function handleQuestionTypeSelection() {
 
 
 function saveQuestion() {
-    const questionText = document.getElementById('questionText').value;
+    const questionText = document.getElementById('questionText').value.trim();
     const timeInSeconds = document.getElementById('timeInSeconds').value;
     const questionId = document.getElementById('currentQuestionId').value || firebase.database().ref().child('questions').push().key;
-    
+
     // Получаем тип вопроса
     const questionType = document.getElementById('questionType').value || 
         (document.getElementById('questionChoices').style.display === 'block' ? 'test' : 'yesno');
+
+    // Проверка на заполнение обязательных полей
+    if (!questionText || !timeInSeconds) {
+        alert('Пожалуйста, заполните все обязательные поля.');
+        return;
+    }
 
     // Структура данных вопроса
     let questionData = {
@@ -145,22 +151,28 @@ function saveQuestion() {
     if (questionType === 'test') {
         const choices = [
             {
-                text: document.getElementById('choice1').value,
+                text: document.getElementById('choice1').value.trim(),
                 isCorrect: document.getElementById('isCorrect1').checked
             },
             {
-                text: document.getElementById('choice2').value,
+                text: document.getElementById('choice2').value.trim(),
                 isCorrect: document.getElementById('isCorrect2').checked
             },
             {
-                text: document.getElementById('choice3').value,
+                text: document.getElementById('choice3').value.trim(),
                 isCorrect: document.getElementById('isCorrect3').checked
             },
             {
-                text: document.getElementById('choice4').value,
+                text: document.getElementById('choice4').value.trim(),
                 isCorrect: document.getElementById('isCorrect4').checked
             }
         ].filter(choice => choice.text); // Удаление пустых вариантов
+
+        // Проверка, что хотя бы один вариант ответа отмечен как правильный
+        if (choices.every(choice => !choice.isCorrect)) {
+            alert('Пожалуйста, выберите хотя бы один правильный ответ.');
+            return;
+        }
 
         const correctChoices = choices.filter(choice => choice.isCorrect);
         let choicesDesc = '';
@@ -176,9 +188,18 @@ function saveQuestion() {
 
     } else if (questionType === 'yesno') {
         // Обработка типа yes/no
+        const isYesChecked = document.getElementById('yes').checked;
+        const isNoChecked = document.getElementById('no').checked;
+
+        // Проверка, что хотя бы один из вариантов выбран
+        if (!isYesChecked && !isNoChecked) {
+            alert('Пожалуйста, выберите "Да" или "Нет".');
+            return;
+        }
+
         questionData.choices = [
-            { text: 'Да', isCorrect: document.getElementById('yes').checked },
-            { text: 'нет', isCorrect: document.getElementById('no').checked }
+            { text: 'Да', isCorrect: isYesChecked },
+            { text: 'Нет', isCorrect: isNoChecked }
         ];
         questionData.choicesDesc = 'Выберите "Да" или "Нет"';
     }
@@ -189,16 +210,16 @@ function saveQuestion() {
 
     firebase.database().ref().update(updates)
         .then(() => {
-            alert('Question saved successfully!');
             const modal = bootstrap.Modal.getInstance(document.getElementById('questionModal'));
             modal.hide();
             loadQuestions();
         })
         .catch((error) => {
-            console.error('Error saving question:', error);
-            alert('Error: ' + error.message);
+            console.error('Ошибка при сохранении вопроса:', error);
+            alert('Ошибка: ' + error.message);
         });
 }
+
 
 
 
@@ -209,24 +230,23 @@ function loadQuestions() {
     questionsRef.once('value', (snapshot) => {
         const questions = snapshot.val();
         const questionsList = document.getElementById('questionsList');
-        questionsList.innerHTML = '';
+        questionsList.innerHTML = ''; // Очищаем предыдущие вопросы
         let index = 1;
         for (const questionId in questions) {
             const question = questions[questionId];
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                        <td>${index++}</td>
-                        <td>${question.text}</td>
-                        <td>
-                            <button class="btn btn-warning btn-sm" onclick="handleEditQuestion('${questionId}')">Edit</button>
-                            <button class="btn btn-danger btn-sm" onclick="deleteQuestion('${questionId}')">Delete</button>
-                        </td>
-                    `;
-            questionsList.appendChild(row);
+            const questionItem = document.createElement('div');
+            questionItem.className = 'question-item'; // Применяем стиль для вопроса
+            questionItem.innerHTML = `
+                <span>${question.text}</span>
+                <div class="button-group">
+                    <button class="edit-button" onclick="handleEditQuestion('${questionId}')">Edit</button>
+                    <button class="delete-button" onclick="deleteQuestion('${questionId}')">Delete</button>
+                </div>
+            `;
+            questionsList.appendChild(questionItem);
         }
     });
 }
-
 
 function handleEditQuestion(questionId) {
     const questionRef = firebase.database().ref('/questions/' + currentUser.uid + '/' + testId + '/' + questionId);
@@ -304,10 +324,16 @@ function generateTestLink() {
             if (testCode) {
                 console.log("Test Code: ", testCode); // Пример использования testCode
 
-                // Создаем ссылку только после того, как testCode будет загружен
-                const testLink = document.getElementById('testLink');
-                testLink.href = `login_to_test.html?code=${testCode}`;
-                testLink.textContent = testLink.href;
+                // Получаем домен текущего сайта
+                const domain = window.location.origin;
+
+                // Сохраняем ссылку с доменом
+                const testLink = `${domain}/login_to_test.html?code=${testCode}`;
+                
+                // Обновляем текст ссылки
+                const linkElement = document.getElementById('testLink');
+                linkElement.dataset.link = testLink;  // Сохраняем ссылку в data-атрибут для копирования
+                linkElement.textContent = "Нажмите, чтобы скопировать ссылку";
             } else {
                 console.log('testCode не найден');
             }
@@ -316,6 +342,24 @@ function generateTestLink() {
             console.error('Ошибка при получении testCode:', error);
         });
 }
+
+function copyTestLink(event) {
+    event.preventDefault();  // Предотвращаем переход по ссылке
+
+    const testLink = event.target.dataset.link;  // Получаем ссылку из data-атрибута
+
+    // Создаем временный элемент для копирования
+    const tempInput = document.createElement('input');
+    tempInput.value = testLink;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    document.execCommand('copy');
+    document.body.removeChild(tempInput);
+
+    // Сообщаем пользователю, что ссылка скопирована
+    alert('Ссылка скопирована: ' + testLink);
+}
+
 
 
 function viewSelectedAnswers(resultKey) {
