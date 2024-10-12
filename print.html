@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .results {
+            margin: 0 auto;
+            max-width: 800px;
+        }
+        .result-item {
+            font-size: 18px;
+            margin: 20px 0;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+        .result-info {
+            font-weight: bold;
+            color: #2C3E50;
+            display: inline;
+        }
+        .result-score {
+            font-size: 18px;
+            margin-left: 20px;
+            color: #27AE60;
+            display: inline;
+        }
+    </style>
+
+    <!-- Импорт Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.8.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.8.1/firebase-database-compat.js"></script>
+</head>
+<body>
+    <h1>Test Results</h1>
+    <div class="results" id="results"></div>
+
+    <script>
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyC0HRay6-aZeGMWDacTWZe5UutG9dhPznE",
+            authDomain: "tests-be00f.firebaseapp.com",
+            databaseURL: "https://tests-be00f-default-rtdb.firebaseio.com",
+            projectId: "tests-be00f",
+            storageBucket: "tests-be00f.appspot.com",
+            messagingSenderId: "566141226562",
+            appId: "1:566141226562:web:0a4c9e8866b747be1e67db",
+            measurementId: "G-7F29PR9KR9"
+        };
+
+        // Инициализация Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Получение параметров из URL
+        const urlParams = new URLSearchParams(window.location.search);
+        let uid = urlParams.get('uid');
+        let testId = urlParams.get('testId');
+        const code = urlParams.get('code');
+
+        // Функция для загрузки данных из Firebase и отображения результатов
+        function loadResults(uid, testId) {
+            const resultsRef = database.ref(`/results/${uid}/${testId}`);
+            resultsRef.once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        const results = snapshot.val();
+                        displayResults(results);
+                    } else {
+                        document.getElementById('results').textContent = 'No results found';
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error fetching results:', error);
+                });
+        }
+
+        // Функция для получения uid и testId по code
+        function fetchTestDataByCode(code) {
+            const codeRef = database.ref(`/codetotest/${code}`);
+            codeRef.once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        const data = snapshot.val();
+                        const uid = data.uid;
+                        const testId = data.testId;
+                        loadResults(uid, testId);
+                    } else {
+                        document.getElementById('results').textContent = 'Invalid code';
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error fetching test data by code:', error);
+                });
+        }
+
+        // Функция для отображения результатов
+        function displayResults(results) {
+            const resultsContainer = document.getElementById('results');
+            let index = 1;
+            for (const key in results) {
+                const result = results[key];
+                const userInfo = result.userInfo;  // Информация о пользователе
+                const score = result.score;        // Полученные очки
+                const totalQuestions = result.totalQuestions;  // Всего вопросов
+
+                // Формируем строку для каждого результата
+                const resultItemHtml = `
+                    <div class="result-item">
+                        <span class="result-info">${index++}. ${userInfo.lastName} ${userInfo.firstName} ${userInfo.class}</span>
+                        <span class="result-score">Score: ${score}/${totalQuestions}</span>
+                    </div>
+                `;
+
+                // Добавляем элемент на страницу
+                resultsContainer.innerHTML += resultItemHtml;
+            }
+        }
+
+        // Проверка на наличие code, uid и testId
+        if (code) {
+            fetchTestDataByCode(code);
+        } else if (uid && testId) {
+            loadResults(uid, testId);
+        } else {
+            document.getElementById('results').textContent = 'No valid parameters provided';
+        }
+    </script>
+</body>
+</html>

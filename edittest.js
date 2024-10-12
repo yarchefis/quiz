@@ -239,8 +239,8 @@ function loadQuestions() {
             questionItem.innerHTML = `
                 <span>${question.text}</span>
                 <div class="button-group">
-                    <button class="edit-button" onclick="handleEditQuestion('${questionId}')">Edit</button>
-                    <button class="delete-button" onclick="deleteQuestion('${questionId}')">Delete</button>
+                    <button class="edit-button" onclick="handleEditQuestion('${questionId}')">Изменить</button>
+                    <button class="delete-button" onclick="deleteQuestion('${questionId}')">Удалить</button>
                 </div>
             `;
             questionsList.appendChild(questionItem);
@@ -318,24 +318,36 @@ function saveTestDates() {
 
 
 function generateTestLink() {
-    firebase.database().ref(`/tests/${currentUser.uid}/${testId}/testCode`).once('value')
+    firebase.database().ref(`/tests/${currentUser.uid}`).once('value')
         .then((snapshot) => {
-            const testCode = snapshot.val();
-            if (testCode) {
-                console.log("Test Code: ", testCode); // Пример использования testCode
+            if (snapshot.exists()) {
+                const tests = snapshot.val();
+                const testCode = tests[testId]?.testCode; // Получаем testCode по testId
 
-                // Получаем домен текущего сайта
-                const domain = window.location.origin;
+                // Если testCode существует, формируем ссылку
+                if (testCode) {
+                    console.log("Test Code: ", testCode); // Пример использования testCode
 
-                // Сохраняем ссылку с доменом
-                const testLink = `${domain}/login_to_test.html?code=${testCode}`;
-                
-                // Обновляем текст ссылки
-                const linkElement = document.getElementById('testLink');
-                linkElement.dataset.link = testLink;  // Сохраняем ссылку в data-атрибут для копирования
-                linkElement.textContent = "Нажмите, чтобы скопировать ссылку";
+                    // Получаем домен текущего сайта
+                    const domain = window.location.origin;
+
+                    // Сохраняем ссылку с доменом
+                    const testLink = `${domain}/login_to_test.html?code=${testCode}`;
+                    
+                    // Обновляем текст ссылки
+                    const linkElement = document.getElementById('testLink');
+                    linkElement.dataset.link = testLink;  // Сохраняем ссылку в data-атрибут для копирования
+                    linkElement.textContent = "Нажмите, чтобы скопировать ссылку";
+                } else {
+                    console.log('testCode не найден для testId:', testId);
+                    // Вывод всех доступных кодов
+                    console.log('Доступные коды:');
+                    for (const key in tests) {
+                        console.log(`Test ID: ${key}, Test Code: ${tests[key]?.testCode}`);
+                    }
+                }
             } else {
-                console.log('testCode не найден');
+                console.log('Нет тестов для данного пользователя.');
             }
         })
         .catch((error) => {
@@ -343,21 +355,27 @@ function generateTestLink() {
         });
 }
 
+
 function copyTestLink(event) {
     event.preventDefault();  // Предотвращаем переход по ссылке
 
     const testLink = event.target.dataset.link;  // Получаем ссылку из data-атрибута
 
-    // Создаем временный элемент для копирования
-    const tempInput = document.createElement('input');
-    tempInput.value = testLink;
-    document.body.appendChild(tempInput);
-    tempInput.select();
-    document.execCommand('copy');
-    document.body.removeChild(tempInput);
+    // Проверяем, есть ли ссылка перед копированием
+    if (testLink) {
+        // Создаем временный элемент для копирования
+        const tempInput = document.createElement('input');
+        tempInput.value = testLink;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
 
-    // Сообщаем пользователю, что ссылка скопирована
-    alert('Ссылка скопирована: ' + testLink);
+        // Сообщаем пользователю, что ссылка скопирована
+        alert('Ссылка скопирована: ' + testLink);
+    } else {
+        alert('Ссылка не найдена для копирования.');
+    }
 }
 
 
@@ -432,27 +450,8 @@ function loadTestResults(userId, testId) {
     const resultsRef = firebase.database().ref(`/results/${userId}/${testId}`);
     resultsRef.once('value', (snapshot) => {
         const results = snapshot.val();
-        const resultsTable = document.getElementById('resultsTable');
-        resultsTable.innerHTML = `
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Фамилия</th>
-                        <th>Имя</th>
-                        <th>Класс</th>
-                        <th>Количество выполненных / всего</th>
-                        <th>Действие</th>
-                    </tr>
-                </thead>
-                <tbody id="resultsList">
-                    <!-- Results will be loaded here -->
-                </tbody>
-            </table>
-        `;
-
-        const resultsList = document.getElementById('resultsList');
-        resultsList.innerHTML = '';
+        const resultsList = document.getElementById('resultsTable');
+        resultsList.innerHTML = ''; // Очищаем предыдущие результаты
         let index = 1;
 
         if (results) {
@@ -479,27 +478,26 @@ function loadTestResults(userId, testId) {
                 });
 
             for (const { key, userInfo, score, totalQuestions } of sortedResults) {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${index++}</td>
-                    <td>${userInfo.lastName}</td>
-                    <td>${userInfo.firstName}</td>
-                    <td>${userInfo.class}</td>
-                    <td>${score} / ${totalQuestions}</td>
-                    <td>
-                        <button class="btn btn-info btn-sm" onclick="viewSelectedAnswers('${key}')">Посмотреть выбранные</button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteResult('${key}')">Удалить</button>
-                    </td>
+                const resultItem = document.createElement('div');
+                resultItem.className = 'question-item'; // Применяем стиль для вопроса
+                resultItem.innerHTML = `
+                    <span>${index++}. ${userInfo.lastName} ${userInfo.firstName} - ${userInfo.class} (${score} / ${totalQuestions})</span>
+                    <div class="button-group">
+                        <button class="edit-button" onclick="viewSelectedAnswers('${key}')">Посмотреть</button>
+                        <button class="delete-button" onclick="deleteResult('${key}')">Удалить</button>
+                    </div>
                 `;
-                resultsList.appendChild(row);
+                resultsList.appendChild(resultItem);
             }
         } else {
-            const row = document.createElement('tr');
-            row.innerHTML = `<td colspan="6">No results found</td>`;
-            resultsList.appendChild(row);
+            const noResultsItem = document.createElement('div');
+            noResultsItem.className = 'question-item';
+            noResultsItem.innerHTML = `<span>Нет результатов</span>`;
+            resultsList.appendChild(noResultsItem);
         }
     });
 }
+
 
 function deleteResult(resultKey) {
     if (confirm('Вы уверены, что хотите удалить этот результат?')) {
@@ -514,4 +512,18 @@ function deleteResult(resultKey) {
                 alert('Ошибка: ' + error.message);
             });
     }
+}
+
+
+
+function printRes() {
+    // Получаем testId из параметров URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const testId = urlParams.get('testId');
+
+    // Получаем uid текущего пользователя
+    const uid = currentUser.uid;
+
+    // Перенаправляем на print.html с передачей uid и testId
+    window.location.href = `print.html?uid=${uid}&testId=${testId}`;
 }
