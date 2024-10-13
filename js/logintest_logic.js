@@ -5,14 +5,14 @@ firebase.initializeApp(firebaseConfig);
 
 // Функция для загрузки данных теста
 function loadTestInfo(uid, testId) {
-    console.log(`Загружаем данные теста для uid: ${uid}, testId: ${testId}`);
+    //console.log(`Загружаем данные теста для uid: ${uid}, testId: ${testId}`);
     
     const testRef = firebase.database().ref(`tests/${uid}/${testId}`);
     
     testRef.once('value').then((snapshot) => {
         if (snapshot.exists()) {
             const testData = snapshot.val();
-            console.log('Данные теста найдены:', testData);
+            //console.log('Данные теста найдены:', testData);
 
             const testName = testData.name;
             const startDate = testData.startDate;
@@ -22,7 +22,7 @@ function loadTestInfo(uid, testId) {
             const formattedDates = `Тест доступен с ${startDate} по ${endDate}(00:00)`;
             document.getElementById('testDates').textContent = formattedDates;
         } else {
-            console.log('Данные теста не найдены.');
+            //console.log('Данные теста не найдены.');
         }
     }).catch((error) => {
         console.error('Ошибка при получении данных теста:', error);
@@ -35,7 +35,7 @@ function getQueryParams() {
     const testId = queryParams.get('testId');
     const uid = queryParams.get('uid');
     const code = queryParams.get('code'); // Ищем параметр code
-    console.log('Параметры из URL:', { testId, uid, code });
+    //console.log('Параметры из URL:', { testId, uid, code });
     return { testId, uid, code };
 }
 
@@ -49,15 +49,15 @@ window.addEventListener('load', () => {
 
     if (code) {
         // Логируем начало поиска по коду
-        console.log(`Ищем тест по коду: ${code}`);
+        //console.log(`Ищем тест по коду: ${code}`);
         
         // Логируем всё содержимое пути /codetotest/
         firebase.database().ref(`/codetotest/`).once('value')
             .then((snapshot) => {
                 if (snapshot.exists()) {
-                    console.log('Все данные в /codetotest/:', snapshot.val());
+                    //console.log('Все данные в /codetotest/:', snapshot.val());
                 } else {
-                    console.log('/codetotest/ пуст или не существует.');
+                    //console.log('/codetotest/ пуст или не существует.');
                 }
 
                 // Ищем конкретный код
@@ -66,14 +66,14 @@ window.addEventListener('load', () => {
             .then((snapshot) => {
                 if (snapshot.exists()) {
                     const data = snapshot.val();
-                    console.log(`Найденные данные по коду ${code}:`, data);
+                    //console.log(`Найденные данные по коду ${code}:`, data);
                     
                     // Сохраняем uid и testId в глобальные переменные
                     globalUid = data.uid;
                     globalTestId = data.testId;
 
                     if (globalUid && globalTestId) {
-                        console.log(`Найден uid: ${globalUid}, testId: ${globalTestId}. Загружаем данные теста.`);
+                        //console.log(`Найден uid: ${globalUid}, testId: ${globalTestId}. Загружаем данные теста.`);
                         // Если нашли uid и testId, загружаем информацию о тесте
                         loadTestInfo(globalUid, globalTestId);
                     } else {
@@ -87,7 +87,7 @@ window.addEventListener('load', () => {
                 console.error('Ошибка при поиске теста по коду:', error);
             });
     } else if (testId && uid) {
-        console.log(`Ищем тест по testId: ${testId} и uid: ${uid}`);
+        //console.log(`Ищем тест по testId: ${testId} и uid: ${uid}`);
         // Если в URL есть testId и uid, загружаем информацию о тесте
         loadTestInfo(uid, testId);
     } else {
@@ -98,7 +98,7 @@ window.addEventListener('load', () => {
 // Теперь вы можете использовать globalUid и globalTestId в других функциях, например, в startTest
 function startTest(event) {
     event.preventDefault(); // Останавливаем отправку формы
-    console.log('Форма отправлена');
+    //console.log('Форма отправлена');
 
     try {
         // Получаем значения из полей формы
@@ -106,7 +106,7 @@ function startTest(event) {
         const firstName = document.getElementById('firstName').value.trim().toLowerCase();
         const classValue = document.getElementById('class').value.trim();
 
-        console.log(lastName, firstName, classValue); // Проверка значений
+        //console.log(lastName, firstName, classValue); // Проверка значений
 
         // Проверка, есть ли параметр lwch
         const isLwch = new URLSearchParams(window.location.search).has('lwch');
@@ -138,7 +138,7 @@ function startTest(event) {
 
                             // Если имя и фамилия совпадают, показываем ошибку
                             if (existingFirstName === firstName && existingLastName === lastName) {
-                                console.log('Доступ запрещен. Пользователь уже прошел тест.');
+                                //console.log('Доступ запрещен. Пользователь уже прошел тест.');
                                 alert('Доступ запрещен. Пользователь уже прошел тест.');
                                 userHasTakenTest = true; // Устанавливаем флаг
                                 return; // Останавливаем выполнение текущей итерации
@@ -148,12 +148,12 @@ function startTest(event) {
 
                     // Проверяем флаг после завершения итерации
                     if (!userHasTakenTest) {
-                        console.log('Пользователь не проходил тест ранее.');
+                        //console.log('Пользователь не проходил тест ранее.');
                         // Доступ разрешен
                         window.location.href = `start.html?testId=${globalTestId}&uid=${globalUid}&lastName=${lastName}&firstName=${firstName}&classValue=${classValue}`;
                     }
                 } else {
-                    console.log('Результаты для данного пользователя и теста отсутствуют.');
+                    //console.log('Результаты для данного пользователя и теста отсутствуют.');
                     // Доступ разрешен
                     window.location.href = `start.html?testId=${globalTestId}&uid=${globalUid}&lastName=${lastName}&firstName=${firstName}&classValue=${classValue}`;
                 }

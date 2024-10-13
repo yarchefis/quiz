@@ -98,8 +98,7 @@ function loadTests() {
             const contentDiv = document.createElement('div');
             contentDiv.className = 'flex-grow-1';
             contentDiv.innerHTML = 
-                `<p>${test.name}</p>
-                <p>Создан в: ${new Date(test.createdAt).toLocaleString()}</p>`;
+                `<p>${test.name}</p>`;
 
             const link = document.createElement('a');
             link.href = `edittest.html?testId=${testId}`;
@@ -268,12 +267,11 @@ function duplicateTest(originalTestId) {
         originalQuestionsRef.once('value', (questionsSnapshot) => {
             const questions = questionsSnapshot.val();
             if (questions) {
-                const questionsUpdates = {};
+                // Для каждого вопроса создаем новый уникальный ключ
                 for (const questionId in questions) {
-                    questionsUpdates['/questions/' + currentUser.uid + '/' + newTestId + '/' + questionId] = questions[questionId];
+                    const newQuestionId = firebase.database().ref().child('questions').push().key;
+                    updates['/questions/' + currentUser.uid + '/' + newTestId + '/' + newQuestionId] = questions[questionId];
                 }
-                // Обновляем базу данных с новыми вопросами
-                updates['/questions/' + currentUser.uid + '/' + newTestId] = questionsUpdates;
             }
 
             // Добавляем новый testCode в /codetotest/
@@ -295,6 +293,7 @@ function duplicateTest(originalTestId) {
         });
     });
 }
+
 
 
 

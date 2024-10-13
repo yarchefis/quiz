@@ -18,16 +18,16 @@
     <style>
         /* Основные стили */
         body {
-            background-color: #f8f9fa;
+            background-color: #252525;
             font-family: 'Roboto', sans-serif;
             margin: 0;
             padding: 0;
-            color: #212529;
+            color: #ffffff;
         }
 
         .navbar {
-            background-color: #ffffff;
-            color: #212529;
+            background-color: #2C2C2C;
+            color: #ffffff;
             padding: 1rem;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
@@ -35,13 +35,13 @@
         .navbar .navbar-brand {
             font-size: 1.5rem;
             font-weight: 500;
-            color: #212529;
+            color: #ffffff;
         }
 
         .navbar .user-email {
             font-size: 1rem;
             margin-right: 1rem;
-            color: #212529;
+            color: #ffffff;
         }
 
         .navbar .logout-btn {
@@ -65,39 +65,39 @@
         h2 {
             font-size: 1.75rem;
             font-weight: 500;
-            color: #212529;
+            color: #ffffff;
         }
 
         .btn-primary {
-            background-color: #212529;
-            border-color: #212529;
+            background-color: #3D3D3D;
+            border-color: #3D3D3D;
             color: #ffffff;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
 
         .btn-primary:hover {
-            background-color: #343a40;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+            background-color: #4A4A4A;
+            box-shadow: none;
         }
 
         .test-item {
             margin-bottom: 1rem;
             padding: 1rem;
             border-radius: 8px;
-            background-color: #ffffff;
+            background-color: #2C2C2C;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             transition: background-color 0.3s ease, box-shadow 0.3s ease;
             cursor: pointer;
         }
 
         .test-item:hover {
-            background-color: #f1f3f5;
+            background-color: #3D3D3D;
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
         }
 
         .test-item a {
-            color: #212529;
+            color: #ffffff;
             text-decoration: none;
             display: block;
             width: 100%;
@@ -106,25 +106,29 @@
 
         .test-item p {
             margin: 0;
-            color: #6c757d;
+            color: #ffffff;
         }
 
         .modal-content {
             border-radius: 8px;
+            background-color: #2C2C2C;
+            color: #ffffff;
         }
 
         .modal-header,
         .modal-footer {
             border: none;
+            background-color: #2C2C2C;
         }
 
         .modal-footer .btn-primary {
-            background-color: #212529;
-            border-color: #212529;
+            background-color: #3D3D3D;
+            border-color: #3D3D3D;
         }
 
         .modal-footer .btn-primary:hover {
-            background-color: #343a40;
+            background-color: #4A4A4A;
+            box-shadow: none;
         }
     </style>
 </head>
@@ -132,7 +136,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container-fluid">
-            <span class="navbar-brand">Страница учителя</span>
+            <span class="navbar-brand"></span>
             <div class="dropdown">
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="profileDropdown"
                     data-bs-toggle="dropdown" aria-expanded="false">
@@ -152,7 +156,7 @@
 
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="mb-0">Ваши тесты</h2>
+            <h2 class="mb-0">Все тесты:</h2>
             <button class="btn btn-primary" onclick="showAddTestModal()">Добавить новый тест</button>
         </div>
         <div id="testsContainer">
