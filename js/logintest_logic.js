@@ -95,10 +95,8 @@ window.addEventListener('load', () => {
     }
 });
 
-// Теперь вы можете использовать globalUid и globalTestId в других функциях, например, в startTest
 function startTest(event) {
     event.preventDefault(); // Останавливаем отправку формы
-    //console.log('Форма отправлена');
 
     try {
         // Получаем значения из полей формы
@@ -106,7 +104,17 @@ function startTest(event) {
         const firstName = document.getElementById('firstName').value.trim().toLowerCase();
         const classValue = document.getElementById('class').value.trim();
 
-        //console.log(lastName, firstName, classValue); // Проверка значений
+        // Проверка на русские буквы
+        const russianLettersPattern = /^[а-яё]+$/i;
+        
+        // Логируем введенные значения и результат проверки
+        console.log('Проверка Фамилии:', lastName, russianLettersPattern.test(lastName));
+        console.log('Проверка Имени:', firstName, russianLettersPattern.test(firstName));
+        
+        if (!russianLettersPattern.test(lastName) || !russianLettersPattern.test(firstName)) {
+            alert('Имя и фамилия могут содержать только русские буквы.');
+            return; // Останавливаем дальнейшее выполнение функции
+        }
 
         // Проверка, есть ли параметр lwch
         const isLwch = new URLSearchParams(window.location.search).has('lwch');
@@ -138,7 +146,6 @@ function startTest(event) {
 
                             // Если имя и фамилия совпадают, показываем ошибку
                             if (existingFirstName === firstName && existingLastName === lastName) {
-                                //console.log('Доступ запрещен. Пользователь уже прошел тест.');
                                 alert('Доступ запрещен. Пользователь уже прошел тест.');
                                 userHasTakenTest = true; // Устанавливаем флаг
                                 return; // Останавливаем выполнение текущей итерации
@@ -148,13 +155,9 @@ function startTest(event) {
 
                     // Проверяем флаг после завершения итерации
                     if (!userHasTakenTest) {
-                        //console.log('Пользователь не проходил тест ранее.');
-                        // Доступ разрешен
                         window.location.href = `start.html?testId=${globalTestId}&uid=${globalUid}&lastName=${lastName}&firstName=${firstName}&classValue=${classValue}`;
                     }
                 } else {
-                    //console.log('Результаты для данного пользователя и теста отсутствуют.');
-                    // Доступ разрешен
                     window.location.href = `start.html?testId=${globalTestId}&uid=${globalUid}&lastName=${lastName}&firstName=${firstName}&classValue=${classValue}`;
                 }
             })
@@ -165,6 +168,8 @@ function startTest(event) {
         console.error('Ошибка при обработке формы:', error);
     }
 }
+
+
 
 
 
