@@ -104,27 +104,39 @@ function loadTests() {
             link.href = `edittest.html?testId=${testId}`;
             link.appendChild(contentDiv);
 
+            // Кнопка удаления
             const deleteButton = document.createElement('button');
             deleteButton.className = 'btn btn-danger btn-sm ms-2';
             deleteButton.textContent = 'Удалить';
             deleteButton.onclick = () => deleteTest(testId);
 
+            // Кнопка дублирования
             const duplicateButton = document.createElement('button');
             duplicateButton.className = 'btn btn-primary btn-sm ms-2';
             duplicateButton.textContent = 'Дублировать';
             duplicateButton.onclick = () => duplicateTest(testId, test.name);
 
-            // New Rename Button
+            // Кнопка переименования
             const renameButton = document.createElement('button');
             renameButton.className = 'btn btn-secondary btn-sm ms-2';
             renameButton.textContent = 'Изменить';
             renameButton.onclick = () => showRenameTestModal(testId, test.name);
 
+            // Кнопка результатов
+            const resultsButton = document.createElement('button');
+            resultsButton.className = 'btn btn-info btn-sm ms-2';
+            resultsButton.textContent = 'Результаты';
+            resultsButton.onclick = () => {
+                const uid = currentUser.uid; // Используем uid текущего пользователя
+                window.location.href = `print.html?uid=${uid}&testId=${testId}`;
+            };
+
             const buttonWrapper = document.createElement('div');
             buttonWrapper.className = 'd-flex align-items-center';
             buttonWrapper.appendChild(deleteButton);
             buttonWrapper.appendChild(duplicateButton);
-            buttonWrapper.appendChild(renameButton); // Add Rename Button
+            buttonWrapper.appendChild(renameButton); // Добавляем кнопку "Изменить"
+            buttonWrapper.appendChild(resultsButton); // Добавляем кнопку "Результаты"
 
             testItem.appendChild(link);
             testItem.appendChild(buttonWrapper);
@@ -132,6 +144,7 @@ function loadTests() {
         }
     });
 }
+
 
 
 let testIdToRename = null;
