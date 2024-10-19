@@ -54,6 +54,7 @@ let globalTestId = null;
 if (!/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
     // Если это не мобильное устройство (то есть ПК или другое устройство),
     // то выполняем перенаправление на страницу для ПК
+    console.log("пк");
     window.location.href = "notmobile.html"; 
 } else {
     // Если мобильное устройство, можно выполнить другой код
