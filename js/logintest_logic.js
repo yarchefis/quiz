@@ -43,6 +43,11 @@ function getQueryParams() {
 let globalUid = null;
 let globalTestId = null;
 
+window.onload = function() {
+    window.location.href = 'work.html';
+};
+
+
 window.addEventListener('load', () => {
     // Парсим параметры из URL
     const { testId, uid, code } = getQueryParams();
