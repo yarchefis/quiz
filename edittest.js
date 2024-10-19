@@ -332,7 +332,7 @@ function generateTestLink() {
                     const domain = window.location.origin;
 
                     // Сохраняем ссылку с доменом
-                    const testLink = `${domain}/login_to_test.html?code=${testCode}`;
+                    const testLink = `${domain}/quiz/login_to_test.html?code=${testCode}`;
                     
                     // Обновляем текст ссылки
                     const linkElement = document.getElementById('testLink');
