@@ -27,8 +27,8 @@ function getQueryParams() {
     return { testId, uid, lastName, firstName, classValue };
 }
 
-// Когда страница загружается
-window.addEventListener('load', () => {
+// Когда DOM полностью загружен
+document.addEventListener('DOMContentLoaded', () => {
     // Парсим параметры из URL
     const { testId, uid, lastName, firstName, classValue } = getQueryParams();
 
@@ -47,6 +47,7 @@ window.addEventListener('load', () => {
         console.error('данные не найдены');
     }
 });
+
 
 function loadAllQuestions() {
     const uid = sessionStorage.getItem('uid');
@@ -373,7 +374,20 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // Вызов функции загрузки первого вопроса при загрузке страницы start.html
-window.addEventListener('load', loadAllQuestions);
+window.addEventListener('load', () => {
+    if (document.readyState === 'complete') {
+        // Все ресурсы страницы загружены
+        loadAllQuestions();
+    } else {
+        // Добавляем событие, чтобы дождаться полной загрузки
+        window.addEventListener('readystatechange', () => {
+            if (document.readyState === 'complete') {
+                loadAllQuestions();
+            }
+        });
+    }
+});
+
 
 
 
