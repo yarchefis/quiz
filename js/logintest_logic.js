@@ -44,9 +44,9 @@ let globalUid = null;
 let globalTestId = null;
 
 // ==================================================
- window.onload = function() {
-     window.location.href = 'work.html';
- };
+// window.onload = function() {
+//     window.location.href = 'work.html';
+// };
 // ==================================================
 
 
