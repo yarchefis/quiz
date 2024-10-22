@@ -13,6 +13,14 @@ function getQueryParams() {
 
 // Когда страница загружается
 window.addEventListener('load', () => {
+    // Удаление данных из sessionStorage при загрузке страницы
+    sessionStorage.removeItem('testId');
+    sessionStorage.removeItem('uid');
+    sessionStorage.removeItem('lastName');
+    sessionStorage.removeItem('firstName');
+    sessionStorage.removeItem('classValue');
+    console.log("Все данные удалены из sessionStorage");
+
     // Парсим параметры из URL
     const { testId, uid, resultId } = getQueryParams();
 
@@ -23,7 +31,6 @@ window.addEventListener('load', () => {
         console.error('testId или uid не найдены в URL.');
     }
 });
-
 
 function load(uid, testId, resultId) {
     // Ссылка на данные о результате в Firebase
@@ -44,7 +51,6 @@ function load(uid, testId, resultId) {
                 nameElement.textContent = `${resultData.userInfo.firstName} ${resultData.userInfo.lastName}`;
 
                 // Здесь можно добавить подстановку времени прохождения теста, если оно доступно в resultData
-                // Пример (если в resultData есть время прохождения в минутах и секундах):
                 const minutesElement = document.getElementById('minutes');
                 const secondsElement = document.getElementById('seconds');
                 

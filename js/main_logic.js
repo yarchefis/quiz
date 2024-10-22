@@ -334,11 +334,67 @@ function checkAnswer() {
 
 
 
-function saveResults(userId, testId, userInfo) {
+async function saveResults(userId, testId, userInfo) {
     const resultsRef = firebase.database().ref('/results/' + userId + '/' + testId);
 
     const timeSpent = Math.floor((Date.now() - startTime) / 1000); // Вычисляем затраченное время в секундах
 
+    // Функция для получения IP-адреса
+    async function fetchIPAddress() {
+        try {
+            const response = await fetch('https://api.ipify.org?format=json');
+            const data = await response.json();
+            return data.ip;
+        } catch (error) {
+            console.error("Ошибка при получении IP-адреса:", error);
+            return "Не удалось получить IP";
+        }
+    }
+
+    // Получение системной информации
+    const userAgent = navigator.userAgent;
+
+    let os = "Unknown OS";
+    if (/Windows/i.test(userAgent)) {
+        os = "Windows";
+    } else if (/Mac/i.test(userAgent)) {
+        os = "MacOS";
+    } else if (/Linux/i.test(userAgent)) {
+        os = "Linux";
+    } else if (/Android/i.test(userAgent)) {
+        os = "Android";
+    } else if (/iPhone|iPad|iPod/i.test(userAgent)) {
+        os = "iOS";
+    }
+
+    const versionMatch = userAgent.match(/(Windows NT|Android|Mac OS X|iOS)\s([\d._]+)/);
+    const version = versionMatch ? versionMatch[2].replace(/_/g, '.') : "Unknown version";
+
+    const browserMatch = userAgent.match(/(Chrome|Firefox|Safari|Opera|Edge)[ /](\d+\.\d+)/);
+    const browser = browserMatch ? `${browserMatch[1]} ${browserMatch[2]}` : "Unknown Browser";
+
+    const uniqueId = localStorage.getItem("uniqueId") || 'id_' + Date.now();
+    localStorage.setItem("uniqueId", uniqueId);
+
+    // Получаем IP-адрес
+    const ipAddress = await fetchIPAddress();
+
+    // Подключение FingerprintJS и получение отпечатка
+    const fpPromise = FingerprintJS.load();
+    const fingerprintResult = await fpPromise.then(fp => fp.get());
+    const fingerprint = fingerprintResult.visitorId;
+
+    // Данные пользователя для подпапки userdatakey
+    const userSystemData = {
+        ip: ipAddress,
+        operatingSystem: os,
+        osVersion: version,
+        browser: browser,
+        uniqueId: uniqueId,
+        fingerprint: fingerprint // Добавляем отпечаток
+    };
+
+    // Основные данные результатов теста
     const resultData = {
         userInfo,
         score: totalCorrectAnswers,
@@ -346,7 +402,8 @@ function saveResults(userId, testId, userInfo) {
         userAnswers,
         timeSpent, // Добавляем затраченное время
         totalFactTime,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        userdatakey: userSystemData // Добавляем данные о системе пользователя
     };
 
     return resultsRef.push(resultData)
@@ -359,6 +416,7 @@ function saveResults(userId, testId, userInfo) {
             return null;
         });
 }
+
 
 
 
