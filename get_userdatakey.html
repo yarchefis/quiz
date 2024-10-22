@@ -42,27 +42,20 @@
         const userAgent = navigator.userAgent;
 
         let os = "Unknown OS";
-        let version = "Unknown version";
-
         if (/Windows/i.test(userAgent)) {
             os = "Windows";
-            const versionMatch = userAgent.match(/Windows NT ([\d.]+)/);
-            version = versionMatch ? versionMatch[1] : version;
         } else if (/Mac/i.test(userAgent)) {
             os = "MacOS";
-            const versionMatch = userAgent.match(/Mac OS X ([\d._]+)/);
-            version = versionMatch ? versionMatch[1].replace(/_/g, '.') : version;
         } else if (/Linux/i.test(userAgent)) {
             os = "Linux";
         } else if (/Android/i.test(userAgent)) {
             os = "Android";
-            const versionMatch = userAgent.match(/Android ([\d.]+)/);
-            version = versionMatch ? versionMatch[1] : version;
         } else if (/iPhone|iPad|iPod/i.test(userAgent)) {
             os = "iOS";
-            const versionMatch = userAgent.match(/OS (\d+_\d+)/);
-            version = versionMatch ? versionMatch[1].replace(/_/g, '.') : version;
         }
+
+        const versionMatch = userAgent.match(/(Windows NT|Android|Mac OS X|iOS)\s([\d._]+)/);
+        const version = versionMatch ? versionMatch[2].replace(/_/g, '.') : "Unknown version";
 
         const browserMatch = userAgent.match(/(Chrome|Firefox|Safari|Opera|Edge)[ /](\d+\.\d+)/);
         const browser = browserMatch ? `${browserMatch[1]} ${browserMatch[2]}` : "Unknown Browser";
@@ -90,7 +83,6 @@
 
     displayUserInfo();
 </script>
-
 
 </body>
 </html>
