@@ -65,7 +65,7 @@ function load(uid, testId, resultId) {
                 }
 
             } else {
-                console.error('Результат не найден.');
+                console.error('Результат не найден');
             }
         })
         .catch((error) => {
