@@ -120,6 +120,13 @@
                 });
         }
 
+        // Функция для преобразования timestamp в удобочитаемый формат
+        function formatTimestamp(timestamp) {
+            const date = new Date(timestamp);
+            date.setHours(date.getHours() + 3); // Прибавляем 3 часа
+            return date.toLocaleString(); // Преобразуем в строку с учетом локали
+        }
+
         // Функция для отображения результатов
         function displayResults(results) {
             const resultsContainer = document.getElementById('results');
@@ -141,6 +148,7 @@
                 const timeSpent = result.timeSpent; // Получаем timeSpent из результата
                 const totalFactTime = result.totalFactTime !== undefined ? result.totalFactTime : '?'; // Получаем totalFactTime с проверкой
                 const userdatakey = result.userdatakey; // Папка userdatakey
+                const timestamp = result.timestamp; // Получаем timestamp
 
                 // Формируем строку для каждого результата
                 let resultItemHtml = `
@@ -148,6 +156,7 @@
                 <span class="result-info">${index++}. ${userInfo.lastName} ${userInfo.firstName} ${userInfo.class}</span><br>
                 <span class="result-score">Результат: ${score}/${totalQuestions}</span><br>
                 <span>решено за ${timeSpent !== undefined ? timeSpent : '?'} секунд фактическое время: ${totalFactTime}</span><br>
+                <span>Время прохождения: ${timestamp ? formatTimestamp(timestamp) : '?'}</span><br>
             `;
 
                 // Если существует userdatakey, добавляем его данные
