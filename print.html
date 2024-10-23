@@ -123,7 +123,7 @@
         // Функция для преобразования timestamp в удобочитаемый формат
         function formatTimestamp(timestamp) {
             const date = new Date(timestamp);
-            date.setHours(date.getHours() + 3); // Прибавляем 3 часа
+            date.setHours(date.getHours()); // Прибавляем 3 часа
             return date.toLocaleString(); // Преобразуем в строку с учетом локали
         }
 
