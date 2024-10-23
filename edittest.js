@@ -458,39 +458,23 @@ function loadTestResults(userId, testId) {
             const sortedResults = Object.keys(results)
                 .map(key => ({ key, ...results[key] }))
                 .sort((a, b) => {
-                    // Сортировка по фамилии
-                    const lastNameCompare = a.userInfo.lastName.localeCompare(b.userInfo.lastName);
-                    if (lastNameCompare !== 0) return lastNameCompare;
-
-                    // Сортировка по классу с отсеиванием ненужных символов
-                    const classA = a.userInfo.class.match(/(\d+)[^0-9]*(.*)/);
-                    const classB = b.userInfo.class.match(/(\d+)[^0-9]*(.*)/);
-
-                    // Сравниваем цифры
-                    const numberCompare = parseInt(classA[1]) - parseInt(classB[1]);
-                    if (numberCompare !== 0) return numberCompare;
-
-                    // Сравниваем буквы, убирая лишние символы
-                    const letterA = classA[2].replace(/[^А-Яа-яA-Za-z]/g, '').trim();
-                    const letterB = classB[2].replace(/[^А-Яа-яA-Za-z]/g, '').trim();
-
-                    return letterA.localeCompare(letterB);
+                    // Сортировка только по фамилии
+                    return a.userInfo.lastName.localeCompare(b.userInfo.lastName);
                 });
 
-                for (const { key, userInfo, score, totalQuestions, timeSpent, totalFactTime = '?' } of sortedResults) {
-                    const resultItem = document.createElement('div');
-                    resultItem.className = 'question-item'; // Применяем стиль для вопроса
-                    resultItem.innerHTML = `
-                        <span>${index++}. ${userInfo.lastName} ${userInfo.firstName} - ${userInfo.class} (${score} / ${totalQuestions}) решено за ${timeSpent !== undefined ? timeSpent : '?'} секунд фактическое время ${totalFactTime}</span>
-                        <div class="button-group">
-                            <button class="edit-button" onclick="viewSelectedAnswers('${key}')">Посмотреть</button>
-                            <button class="delete-button" onclick="deleteResult('${key}')">Удалить</button>
-                        </div>
-                    `;
-                    resultsList.appendChild(resultItem);
-                }
-                
-                
+            for (const { key, userInfo, score, totalQuestions, timeSpent, totalFactTime = '?' } of sortedResults) {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'question-item'; // Применяем стиль для вопроса
+                resultItem.innerHTML = `
+                    <span>${index++}. ${userInfo.lastName} ${userInfo.firstName} - ${userInfo.class} (${score} / ${totalQuestions}) решено за ${timeSpent !== undefined ? timeSpent : '?'} секунд фактическое время ${totalFactTime}</span>
+                    <div class="button-group">
+                        <button class="edit-button" onclick="viewSelectedAnswers('${key}')">Посмотреть</button>
+                        <button class="delete-button" onclick="deleteResult('${key}')">Удалить</button>
+                    </div>
+                `;
+                resultsList.appendChild(resultItem);
+            }
+
         } else {
             const noResultsItem = document.createElement('div');
             noResultsItem.className = 'question-item';
@@ -499,6 +483,7 @@ function loadTestResults(userId, testId) {
         }
     });
 }
+
 
 
 function deleteResult(resultKey) {
