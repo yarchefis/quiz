@@ -23,9 +23,11 @@
 
         .result-item {
             font-size: 18px;
-            margin: 20px 0;
+            margin: 20px 0; /* Отступ между карточками */
             padding: 10px;
-            border-bottom: 1px solid #ccc;
+            border: 2px solid #90EE90; /* Нежно-зеленая рамка вокруг всей карточки */
+            border-radius: 5px; /* Скругление углов рамки */
+            background-color: #f9f9f9; /* Цвет фона карточки для контраста */
         }
 
         .result-info {
@@ -39,6 +41,13 @@
             margin-left: 20px;
             color: #27AE60;
             display: inline;
+        }
+
+        .userdatakey {
+            margin-top: 10px; /* Отступ сверху для блока с дополнительной информацией */
+            padding: 10px;
+            border: 1px solid #90EE90; /* Нежно-зеленая рамка для блока с дополнительной информацией */
+            background-color: #f0fff0; /* Светлый фон для блока с дополнительной информацией */
         }
     </style>
 
@@ -131,23 +140,31 @@
                 const totalQuestions = result.totalQuestions;  // Всего вопросов
                 const timeSpent = result.timeSpent; // Получаем timeSpent из результата
                 const totalFactTime = result.totalFactTime !== undefined ? result.totalFactTime : '?'; // Получаем totalFactTime с проверкой
+                const userdatakey = result.userdatakey; // Папка userdatakey
 
                 // Формируем строку для каждого результата
-                const resultItemHtml = `
+                let resultItemHtml = `
             <div class="result-item">
                 <span class="result-info">${index++}. ${userInfo.lastName} ${userInfo.firstName} ${userInfo.class}</span><br>
                 <span class="result-score">Результат: ${score}/${totalQuestions}</span><br>
                 <span>решено за ${timeSpent !== undefined ? timeSpent : '?'} секунд фактическое время: ${totalFactTime}</span><br>
-            </div>
-        `;
+            `;
+
+                // Если существует userdatakey, добавляем его данные
+                if (userdatakey) {
+                    resultItemHtml += '<div class="userdatakey"><strong>Дополнительная информация:</strong><br>';
+                    for (const [key, value] of Object.entries(userdatakey)) {
+                        resultItemHtml += `<span>${key}: ${value}</span><br>`;
+                    }
+                    resultItemHtml += '</div>';
+                }
+
+                resultItemHtml += '</div>'; // Закрываем блок результата
 
                 // Добавляем элемент на страницу
                 resultsContainer.innerHTML += resultItemHtml;
             }
         }
-
-
-
 
         // Проверка на наличие code, uid и testId
         if (code) {
