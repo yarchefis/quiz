@@ -23,11 +23,15 @@
 
         .result-item {
             font-size: 18px;
-            margin: 20px 0; /* Отступ между карточками */
+            margin: 20px 0;
+            /* Отступ между карточками */
             padding: 10px;
-            border: 2px solid #90EE90; /* Нежно-зеленая рамка вокруг всей карточки */
-            border-radius: 5px; /* Скругление углов рамки */
-            background-color: #f9f9f9; /* Цвет фона карточки для контраста */
+            border: 2px solid #90EE90;
+            /* Нежно-зеленая рамка вокруг всей карточки */
+            border-radius: 5px;
+            /* Скругление углов рамки */
+            background-color: #f9f9f9;
+            /* Цвет фона карточки для контраста */
         }
 
         .result-info {
@@ -44,10 +48,13 @@
         }
 
         .userdatakey {
-            margin-top: 10px; /* Отступ сверху для блока с дополнительной информацией */
+            margin-top: 10px;
+            /* Отступ сверху для блока с дополнительной информацией */
             padding: 10px;
-            border: 1px solid #90EE90; /* Нежно-зеленая рамка для блока с дополнительной информацией */
-            background-color: #f0fff0; /* Светлый фон для блока с дополнительной информацией */
+            border: 1px solid #90EE90;
+            /* Нежно-зеленая рамка для блока с дополнительной информацией */
+            background-color: #f0fff0;
+            /* Светлый фон для блока с дополнительной информацией */
         }
     </style>
 
@@ -120,12 +127,13 @@
                 });
         }
 
-        // Функция для преобразования timestamp в удобочитаемый формат
+
         function formatTimestamp(timestamp) {
             const date = new Date(timestamp);
-            date.setHours(date.getHours()); // Прибавляем 3 часа
+            date.setHours(date.getUTCHours() + 3); // Прибавляем 3 часа к времени в UTC
             return date.toLocaleString(); // Преобразуем в строку с учетом локали
         }
+
 
         // Функция для отображения результатов
         function displayResults(results) {
