@@ -24,14 +24,10 @@
         .result-item {
             font-size: 18px;
             margin: 20px 0;
-            /* Отступ между карточками */
             padding: 10px;
             border: 2px solid #90EE90;
-            /* Нежно-зеленая рамка вокруг всей карточки */
             border-radius: 5px;
-            /* Скругление углов рамки */
             background-color: #f9f9f9;
-            /* Цвет фона карточки для контраста */
         }
 
         .result-info {
@@ -49,12 +45,9 @@
 
         .userdatakey {
             margin-top: 10px;
-            /* Отступ сверху для блока с дополнительной информацией */
             padding: 10px;
             border: 1px solid #90EE90;
-            /* Нежно-зеленая рамка для блока с дополнительной информацией */
             background-color: #f0fff0;
-            /* Светлый фон для блока с дополнительной информацией */
         }
     </style>
 
@@ -90,6 +83,7 @@
         let uid = urlParams.get('uid');
         let testId = urlParams.get('testId');
         const code = urlParams.get('code');
+        const showInfo = urlParams.has('info'); // Проверка на наличие параметра 'info'
 
         // Функция для загрузки данных из Firebase и отображения результатов
         function loadResults(uid, testId) {
@@ -127,48 +121,42 @@
                 });
         }
 
-
         function formatTimestamp(timestamp) {
             const date = new Date(timestamp);
             date.setHours(date.getUTCHours() + 3); // Прибавляем 3 часа к времени в UTC
-            return date.toLocaleString(); // Преобразуем в строку с учетом локали
+            return date.toLocaleString();
         }
-
 
         // Функция для отображения результатов
         function displayResults(results) {
             const resultsContainer = document.getElementById('results');
             let index = 1;
 
-            // Преобразуем объект results в массив и сортируем по фамилии
             const sortedResults = Object.values(results).sort((a, b) => {
-                const lastNameA = a.userInfo.lastName.toLowerCase(); // Фамилия первого результата
-                const lastNameB = b.userInfo.lastName.toLowerCase(); // Фамилия второго результата
-                if (lastNameA < lastNameB) return -1; // Сравниваем по алфавиту
-                if (lastNameA > lastNameB) return 1;  // Сравниваем по алфавиту
-                return 0; // Если фамилии равны
+                const lastNameA = a.userInfo.lastName.toLowerCase();
+                const lastNameB = b.userInfo.lastName.toLowerCase();
+                return lastNameA < lastNameB ? -1 : (lastNameA > lastNameB ? 1 : 0);
             });
 
             for (const result of sortedResults) {
-                const userInfo = result.userInfo;  // Информация о пользователе
-                const score = result.score;        // Полученные очки
-                const totalQuestions = result.totalQuestions;  // Всего вопросов
-                const timeSpent = result.timeSpent; // Получаем timeSpent из результата
-                const totalFactTime = result.totalFactTime !== undefined ? result.totalFactTime : '?'; // Получаем totalFactTime с проверкой
-                const userdatakey = result.userdatakey; // Папка userdatakey
-                const timestamp = result.timestamp; // Получаем timestamp
+                const userInfo = result.userInfo;
+                const score = result.score;
+                const totalQuestions = result.totalQuestions;
+                const timeSpent = result.timeSpent;
+                const totalFactTime = result.totalFactTime !== undefined ? result.totalFactTime : '?';
+                const userdatakey = result.userdatakey;
+                const timestamp = result.timestamp;
 
-                // Формируем строку для каждого результата
                 let resultItemHtml = `
-            <div class="result-item">
-                <span class="result-info">${index++}. ${userInfo.lastName} ${userInfo.firstName} ${userInfo.class}</span><br>
-                <span class="result-score">Результат: ${score}/${totalQuestions}</span><br>
-                <span>решено за ${timeSpent !== undefined ? timeSpent : '?'} секунд фактическое время: ${totalFactTime}</span><br>
-                <span>Время прохождения: ${timestamp ? formatTimestamp(timestamp) : '?'}</span><br>
-            `;
+                    <div class="result-item">
+                        <span class="result-info">${index++}. ${userInfo.lastName} ${userInfo.firstName} ${userInfo.class}</span><br>
+                        <span class="result-score">Результат: ${score}/${totalQuestions}</span><br>
+                        <span>решено за ${timeSpent !== undefined ? timeSpent : '?'} секунд фактическое время: ${totalFactTime}</span><br>
+                        <span>Время прохождения: ${timestamp ? formatTimestamp(timestamp) : '?'}</span><br>
+                `;
 
-                // Если существует userdatakey, добавляем его данные
-                if (userdatakey) {
+                // Если параметр 'info' существует в URL и есть дополнительные данные, отображаем блок
+                if (showInfo && userdatakey) {
                     resultItemHtml += '<div class="userdatakey"><strong>Дополнительная информация:</strong><br>';
                     for (const [key, value] of Object.entries(userdatakey)) {
                         resultItemHtml += `<span>${key}: ${value}</span><br>`;
@@ -177,8 +165,6 @@
                 }
 
                 resultItemHtml += '</div>'; // Закрываем блок результата
-
-                // Добавляем элемент на страницу
                 resultsContainer.innerHTML += resultItemHtml;
             }
         }

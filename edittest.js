@@ -385,38 +385,39 @@ function viewSelectedAnswers(resultKey) {
     resultRef.once('value', (snapshot) => {
         const result = snapshot.val();
 
-        // Отладочная информация
         console.log('Snapshot:', snapshot.val());
 
         if (result && result.userAnswers) {
             const modalBody = document.getElementById('selectedAnswersModalBody');
             modalBody.innerHTML = '';
 
-            // Преобразование userAnswers в массив
             const answersArray = Object.entries(result.userAnswers).map(([questionId, selectedChoice]) => ({
                 questionId,
                 selectedChoice
             }));
 
-            // Обработка всех ответов
             Promise.all(answersArray.map(async (answer, index) => {
                 try {
                     const questionRef = firebase.database().ref(`/questions/${currentUser.uid}/${testId}/${answer.questionId}`);
                     const questionSnapshot = await questionRef.once('value');
                     const question = questionSnapshot.val();
 
-                    // Отладочная информация
                     console.log(`Question ${answer.questionId}:`, question);
 
                     if (question) {
                         // Создание элемента с ответом
                         const answerElement = document.createElement('div');
                         answerElement.classList.add('mb-3');
-                        const correctChoice = question.choices ? question.choices.find(choice => choice.isCorrect) : null;
+
+                        // Получение всех правильных вариантов ответов
+                        const correctChoices = question.choices
+                            ? question.choices.filter(choice => choice.isCorrect).map(choice => choice.text)
+                            : [];
+
                         answerElement.innerHTML = `
                             <h5>Вопрос ${index + 1}: ${question.text}</h5>
                             <p>Ваш ответ: ${answer.selectedChoice}</p>
-                            <p>Правильный ответ: ${correctChoice ? correctChoice.text : 'Неизвестно'}</p>
+                            <p>Правильный ответ: ${correctChoices.length > 0 ? correctChoices.join(', ') : 'Неизвестно'}</p>
                         `;
                         modalBody.appendChild(answerElement);
                     } else {
@@ -466,7 +467,7 @@ function loadTestResults(userId, testId) {
                 const resultItem = document.createElement('div');
                 resultItem.className = 'question-item'; // Применяем стиль для вопроса
                 resultItem.innerHTML = `
-                    <span>${index++}. ${userInfo.lastName} ${userInfo.firstName} - ${userInfo.class} (${score} / ${totalQuestions}) решено за ${timeSpent !== undefined ? timeSpent : '?'} секунд фактическое время ${totalFactTime}</span>
+                    <span>${index++}. ${userInfo.lastName} ${userInfo.firstName} - ${userInfo.class} (${score} / ${totalQuestions})</span>
                     <div class="button-group">
                         <button class="edit-button" onclick="viewSelectedAnswers('${key}')">Посмотреть</button>
                         <button class="delete-button" onclick="deleteResult('${key}')">Удалить</button>
