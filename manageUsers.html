@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление пользователями</title>
+    <script src="https://www.gstatic.com/firebasejs/9.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.8.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.8.1/firebase-database-compat.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            padding: 20px;
+        }
+        .card {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .card-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .delete-btn {
+            cursor: pointer;
+            color: red;
+            font-size: 20px;
+        }
+        .card-info {
+            flex-grow: 1;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Управление пользователями</h1>
+    
+    <div class="mb-3">
+        <label for="classSelect" class="form-label">Выберите класс:</label>
+        <select id="classSelect" class="form-select"></select>
+    </div>
+
+    <div id="userCards"></div>
+
+    <h2 class="mt-4">Добавить пользователей</h2>
+    <div class="mb-3">
+        <textarea id="usersInput" class="form-control" rows="5" placeholder="Введите фамилии и имена, разделенные переводами строк..."></textarea>
+        <button id="addUsersButton" class="btn btn-primary mt-2">Добавить</button>
+    </div>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyC0HRay6-aZeGMWDacTWZe5UutG9dhPznE",
+        authDomain: "tests-be00f.firebaseapp.com",
+        databaseURL: "https://tests-be00f-default-rtdb.firebaseio.com",
+        projectId: "tests-be00f",
+        storageBucket: "tests-be00f.appspot.com",
+        messagingSenderId: "566141226562",
+        appId: "1:566141226562:web:0a4c9e8866b747be1e67db",
+        measurementId: "G-7F29PR9KR9"
+    };
+
+    // Инициализация Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Проверка авторизации
+    firebase.auth().onAuthStateChanged((user) => {
+        if (!user) {
+            window.location.href = 'index.html';
+        } else {
+            loadClasses();
+            loadUsers();
+        }
+    });
+
+    // Список классов
+    const classes = [
+        '11 гр1', '11 гр2', '11 гр3',
+        '10 гр1', '10 гр2', '10 гр3',
+        '9а', '9б', '9в', '9д', '9п',
+        '8а', '8б', '8в', '8п'
+    ];
+
+    // Заполняем селектор классами
+    function loadClasses() {
+        const classSelect = document.getElementById('classSelect');
+        classes.forEach(className => {
+            const option = document.createElement('option');
+            option.value = className;
+            option.textContent = className;
+            classSelect.appendChild(option);
+        });
+    }
+
+    // Загружаем пользователей из Firebase
+    function loadUsers() {
+        const className = document.getElementById('classSelect').value;
+        const userCards = document.getElementById('userCards');
+
+        userCards.innerHTML = ''; // Очищаем предыдущие карточки
+
+        firebase.database().ref(`userdata/${className}`).once('value')
+            .then(snapshot => {
+                if (snapshot.exists()) {
+                    const users = snapshot.val();
+                    const userArray = [];
+
+                    // Переводим объект в массив для сортировки
+                    for (const userId in users) {
+                        userArray.push({ id: userId, ...users[userId] });
+                    }
+
+                    // Сортируем пользователей по фамилии
+                    userArray.sort((a, b) => a.lastName.localeCompare(b.lastName));
+
+                    userArray.forEach(user => {
+                        const card = document.createElement('div');
+                        card.className = 'card';
+                        card.innerHTML = `
+                            <div class="card-content">
+                                <div class="card-info">
+                                    <strong>${user.lastName} ${user.firstName}</strong>
+                                </div>
+                                <i class="fas fa-trash-alt delete-btn" data-userid="${user.id}"></i>
+                            </div>
+                        `;
+                        userCards.appendChild(card);
+                    });
+
+                    // Добавляем обработчик события для удаления
+                    document.querySelectorAll('.delete-btn').forEach(btn => {
+                        btn.addEventListener('click', deleteUser);
+                    });
+                }
+            });
+    }
+
+    // Удаление пользователя из Firebase
+    function deleteUser(event) {
+        const userId = event.target.getAttribute('data-userid');
+        const className = document.getElementById('classSelect').value;
+
+        firebase.database().ref(`userdata/${className}/${userId}`).remove()
+            .then(() => {
+                loadUsers(); // Обновляем список пользователей
+            })
+            .catch(error => {
+                console.error('Ошибка при удалении пользователя:', error);
+            });
+    }
+
+    // Добавление пользователей из текстового поля в Firebase
+    document.getElementById('addUsersButton').addEventListener('click', () => {
+        const className = document.getElementById('classSelect').value;
+        const usersInput = document.getElementById('usersInput').value.trim();
+        
+        if (!usersInput) {
+            alert('Пожалуйста, заполните поле ввода пользователей.');
+            return;
+        }
+
+        // Разделяем строки по переводу строки и добавляем пользователей
+        const users = usersInput.split('\n');
+
+        // Создаем папку для класса, если ее нет
+        const userRef = firebase.database().ref(`userdata/${className}`);
+        userRef.once('value').then(snapshot => {
+            if (!snapshot.exists()) {
+                userRef.set({}); // Создаем папку для класса
+            }
+
+            // Добавляем каждого пользователя
+            users.forEach(userString => {
+                const [lastName, firstName] = userString.split(' ').map(name => name.trim());
+                if (lastName && firstName) {
+                    const newUserRef = userRef.push();
+                    newUserRef.set({ lastName, firstName });
+                }
+            });
+
+            // Очищаем текстовое поле после добавления
+            document.getElementById('usersInput').value = '';
+            // Обновляем карточки пользователей
+            loadUsers();
+        });
+    });
+
+    // Обновляем карточки при изменении выбора класса
+    document.getElementById('classSelect').addEventListener('change', loadUsers);
+</script>
+
+</body>
+</html>
