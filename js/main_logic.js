@@ -65,7 +65,8 @@ function loadAllQuestions() {
                         .then((snapshot) => {
                             if (snapshot.exists()) {
                                 const allQuestions = snapshot.val();
-                                questions = shuffleArray(Object.values(allQuestions)).slice(0, questionCount);
+                                questions = shuffleArray(Object.entries(allQuestions)).slice(0, questionCount);
+
                                 startTime = Date.now(); // Записываем время начала теста
                                 showQuestion();
                             } else {
@@ -93,8 +94,8 @@ function loadAllQuestions() {
 function showQuestion() {
     // Проверка на существование следующего вопроса
     if (currentQuestionIndex < questions.length) {
-        const questionId = Object.keys(questions)[currentQuestionIndex];
-        const question = questions[questionId];
+        const [questionId, question] = questions[currentQuestionIndex];
+
         const timeInSeconds = question.timeInSeconds;
         const choices = question.choices || [];
 
@@ -289,8 +290,8 @@ let totalCorrectAnswers = 0; // Общий счетчик правильных �
 let userAnswers = {}; // Для хранения ответов пользователя
 
 function checkAnswer() {
-    const currentQuestionId = Object.keys(questions)[currentQuestionIndex];
-    const currentQuestion = questions[currentQuestionId];
+    const [currentQuestionId, currentQuestion] = questions[currentQuestionIndex];
+
     const choices = currentQuestion.choices;
 
     let correctChoicesCount = 0; // Количество правильных ответов
@@ -316,8 +317,8 @@ function checkAnswer() {
         }
     });
 
-    // Сохраняем ответы пользователя для текущего вопроса
-    userAnswers[currentQuestionId] = userSelectedAnswers.length > 0 ? userSelectedAnswers : 'Не выбран';
+    // Сохраняем ответы пользователя для текущего вопроса, используя ID вопроса
+    userAnswers[currentQuestionId] = userSelectedAnswers.length > 0 ? userSelectedAnswers : ['Не выбран'];
 
     // Проверяем, правильно ли выбраны все варианты
     const correctAnswers = choices.filter(choice => choice.isCorrect).map(choice => choice.text);
@@ -330,6 +331,7 @@ function checkAnswer() {
 
     return totalCorrectAnswers;
 }
+
 
 
 
