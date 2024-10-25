@@ -3,6 +3,31 @@ import firebaseConfig from './firebaseConfig.js';
 
 firebase.initializeApp(firebaseConfig);
 
+function checkTestAvailability(startDate, endDate) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const now = new Date();
+
+    // Проверка даты начала и окончания теста
+    if (now < start) {
+        // Если дата начала еще не наступила
+        document.body.innerHTML = `
+            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; font-size: 24px; text-align: center;">
+                <p>Прохождение теста еще не началось.</p>
+                <a href="https://t.me/quiz_helperBot" class="btn btn-primary" style="margin-top: 20px;">Помощь &gt;&gt;</a>
+            </div>`;
+    } else if (now >= end || (now.toDateString() === end.toDateString() && now.getHours() >= 0 && now.getMinutes() >= 0)) {
+        // Если тест уже закончился
+        document.body.innerHTML = `
+            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; font-size: 24px; text-align: center;">
+                <p>Тест уже закончился.</p>
+                <a href="https://t.me/quiz_helperBot" class="btn btn-primary" style="margin-top: 20px;">Помощь &gt;&gt;</a>
+            </div>`;
+    }
+}
+
+
+
 // Функция для загрузки данных теста
 function loadTestInfo(uid, testId) {
     const testRef = firebase.database().ref(`tests/${uid}/${testId}`);
@@ -10,14 +35,14 @@ function loadTestInfo(uid, testId) {
     testRef.once('value').then((snapshot) => {
         if (snapshot.exists()) {
             const testData = snapshot.val();
-
-            const testName = testData.name;
             const startDate = testData.startDate;
             const endDate = testData.endDate;
-
-            document.getElementById('testname').textContent = testName;
-            const formattedDates = `Тест доступен с ${startDate} по ${endDate}(00:00)`;
-            document.getElementById('testDates').textContent = formattedDates;
+            
+            document.getElementById('testname').textContent = testData.name;
+            document.getElementById('testDates').textContent = `Тест доступен с ${startDate} по ${endDate}(00:00)`;
+    
+            // Проверяем доступность теста по датам
+            checkTestAvailability(startDate, endDate);
         }
     }).catch((error) => {
         console.error('Ошибка при получении данных теста:', error);
