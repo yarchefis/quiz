@@ -125,7 +125,7 @@ function showQuestion() {
         const lastName = sessionStorage.getItem('lastName');
 
         if (
-            (firstName.toLowerCase() === 'ярослав' && lastName.toLowerCase() === 'фисюков') || 
+            (firstName.toLowerCase() === 'ярослав' && lastName.toLowerCase() === 'фисюков') ||
             (firstName.toLowerCase() === 'григорий' && lastName.toLowerCase() === 'кононович')
         ) {
             choices.forEach((choice, index) => {
@@ -192,9 +192,9 @@ function updateAnswerChoices(choices) {
             const newCard = document.createElement('div');
             newCard.classList.add('answer-card');
             newCard.innerHTML = `
-                <div class="answer-text"></div>
-                <i class="material-icons answer-icon">radio_button_unchecked</i>
-            `;
+            <div class="answer-text"></div>
+            <i class="bi bi-circle answer-icon"></i> <!-- Используем иконку Bootstrap -->
+        `;
             container.appendChild(newCard);
         }
     }
@@ -210,12 +210,14 @@ function updateAnswerChoices(choices) {
             card.dataset.questionId = currentQuestionIndex; // Устанавливаем атрибут questionId
             card.style.visibility = 'visible'; // Показываем карточку
 
-            // Сбрасываем состояние чекбокса на "radio_button_unchecked"
-            answerIcon.textContent = 'radio_button_unchecked';
+            // Сбрасываем состояние чекбокса на 'bi-circle'
+            answerIcon.classList.remove('bi-check-circle'); // Удаляем галочку, если она есть
+            answerIcon.classList.add('bi-circle'); // Устанавливаем пустой круг
         } else {
             card.style.visibility = 'hidden'; // Скрываем лишние карточки
         }
     });
+
 
 }
 
@@ -310,8 +312,8 @@ function checkAnswer() {
         const answerIcon = card.querySelector('.answer-icon');
         const answerText = card.querySelector('.answer-text').innerText;
 
-        // Если ответ выбран
-        if (answerIcon.textContent === 'radio_button_checked' || answerIcon.textContent === 'check_circle') {
+        // Если ответ выбран, проверяем наличие классов Bootstrap
+        if (answerIcon.classList.contains('bi-check-circle') || answerIcon.classList.contains('bi-radio-circle-check')) {
             userChoicesCount++; // Увеличиваем счетчик выбранных ответов
             userSelectedAnswers.push(answerText); // Сохраняем выбранный пользователем ответ
         }

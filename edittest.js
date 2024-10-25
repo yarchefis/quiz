@@ -492,7 +492,6 @@ function deleteResult(resultKey) {
         const resultRef = firebase.database().ref(`/results/${currentUser.uid}/${testId}/${resultKey}`);
         resultRef.remove()
             .then(() => {
-                alert('Результат успешно удален!');
                 loadTestResults(currentUser.uid, testId); // Обновляем список результатов
             })
             .catch((error) => {
