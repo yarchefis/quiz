@@ -127,6 +127,17 @@
             return date.toLocaleString();
         }
 
+        function getScoreColor(assessment) {
+            switch (assessment) {
+                case 5: return "green";       // Цвет для 5
+                case 4: return "limegreen";   // Цвет для 4
+                case 3: return "orange";      // Цвет для 3
+                case 2: return "red";         // Цвет для 2
+                default: return "black";      // Цвет по умолчанию
+            }
+        }
+
+
         // Функция для отображения результатов
         function displayResults(results) {
             const resultsContainer = document.getElementById('results');
@@ -146,16 +157,18 @@
                 const totalFactTime = result.totalFactTime !== undefined ? result.totalFactTime : '?';
                 const userdatakey = result.userdatakey;
                 const timestamp = result.timestamp;
+                const assessment = result.assessment;
+
+                const scoreColor = getScoreColor(assessment);
 
                 let resultItemHtml = `
-                    <div class="result-item">
-                        <span class="result-info">${index++}. ${userInfo.lastName} ${userInfo.firstName} ${userInfo.class}</span><br>
-                        <span class="result-score">Результат: ${score}/${totalQuestions}</span><br>
-                        <span>решено за ${timeSpent !== undefined ? timeSpent : '?'} секунд фактическое время: ${totalFactTime}</span><br>
-                        <span>Время прохождения: ${timestamp ? formatTimestamp(timestamp) : '?'}</span><br>
-                `;
+            <div class="result-item">
+                <span class="result-info">${index++}. ${userInfo.lastName} ${userInfo.firstName} ${userInfo.class}</span><br>
+                <span class="result-score" style="color: ${scoreColor};">Результат: ${score}/${totalQuestions} оценка ${assessment}</span><br>
+                <span>решено за ${timeSpent !== undefined ? timeSpent : '?'} секунд фактическое время: ${totalFactTime}</span><br>
+                <span>Время прохождения: ${timestamp ? formatTimestamp(timestamp) : '?'}</span><br>
+        `;
 
-                // Если параметр 'info' существует в URL и есть дополнительные данные, отображаем блок
                 if (showInfo && userdatakey) {
                     resultItemHtml += '<div class="userdatakey"><strong>Дополнительная информация:</strong><br>';
                     for (const [key, value] of Object.entries(userdatakey)) {
@@ -168,6 +181,7 @@
                 resultsContainer.innerHTML += resultItemHtml;
             }
         }
+
 
         // Проверка на наличие code, uid и testId
         if (code) {
