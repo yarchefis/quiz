@@ -33,28 +33,54 @@ window.addEventListener('load', () => {
 });
 
 function load(uid, testId, resultId) {
-    // Ссылка на данные о результате в Firebase
     const resultRef = firebase.database().ref(`/results/${uid}/${testId}/${resultId}`);
 
-    // Чтение данных из Firebase
     resultRef.once('value')
         .then((snapshot) => {
             if (snapshot.exists()) {
-                const resultData = snapshot.val(); // Получаем данные результата
+                const resultData = snapshot.val();
 
                 // Подставляем баллы
                 const scoreElement = document.getElementById('score');
-                scoreElement.textContent = `${resultData.score}/${resultData.totalQuestions}`;
+                scoreElement.textContent = `${resultData.assessment}`;
 
                 // Подставляем имя и фамилию
                 const nameElement = document.getElementById('userName');
                 nameElement.textContent = `${resultData.userInfo.firstName} ${resultData.userInfo.lastName}`;
 
-                // Здесь можно добавить подстановку времени прохождения теста, если оно доступно в resultData
+                // Изменение текста поздравления в зависимости от оценки
+                const congrElement = document.getElementById('congr');
+                let congrMessage;
+                const resultBox = document.querySelector('.result-box');
+
+                switch (resultData.assessment) {
+                    case 5:
+                        congrMessage = "Отличный результат! Вы на высоте!";
+                        resultBox.style.backgroundColor = "rgba(80, 200, 120, 0.9)";
+                        break;
+                    case 4:
+                        congrMessage = "Хороший результат! Продолжайте в том же духе!";
+                        resultBox.style.backgroundColor = "rgba(80, 200, 120, 0.9)";
+                        break;
+                    case 3:
+                        congrMessage = "Неплохо, но есть куда расти!";
+                        resultBox.style.backgroundColor = "rgba(255, 165, 0, 0.9)"; // Оранжевый для оценки 3
+                        break;
+                    case 2:
+                        congrMessage = "Не расстраивайтесь, в следующий раз будет лучше!";
+                        resultBox.style.backgroundColor = "rgba(255, 99, 71, 0.9)"; // Красный для оценки 2
+                        break;
+                    default:
+                        congrMessage = "Результат не определён.";
+                        resultBox.style.backgroundColor = "rgba(211, 211, 211, 0.9)"; // Серый по умолчанию
+                        break;
+                }
+                congrElement.textContent = congrMessage;
+
+                // Подставляем время прохождения теста
                 const minutesElement = document.getElementById('minutes');
                 const secondsElement = document.getElementById('seconds');
                 
-                // Предположим, что данные о времени в секундах хранятся в resultData.timeSpent
                 if (resultData.timeSpent) {
                     const minutes = Math.floor(resultData.timeSpent / 60);
                     const seconds = resultData.timeSpent % 60;
@@ -63,7 +89,6 @@ function load(uid, testId, resultId) {
                 } else {
                     console.log('Данные о времени отсутствуют.');
                 }
-
             } else {
                 console.error('Результат не найден');
             }

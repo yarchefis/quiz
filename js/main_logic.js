@@ -102,7 +102,6 @@ function showQuestion() {
         // Обновляем текст вопроса
         document.getElementById('question_text').innerText = question.text;
 
-        console.log(choices)
         // Обновляем варианты ответов
         updateAnswerChoices(choices);
 
@@ -298,12 +297,10 @@ let userAnswers = {}; // Для хранения ответов пользова
 
 function checkAnswer() {
     const [currentQuestionId, currentQuestion] = questions[currentQuestionIndex];
-    console.log(currentQuestion, "проверка");
 
     // Проверяем, является ли currentQuestion массивом
     if (Array.isArray(currentQuestion.choices)) {
         const choices = currentQuestion.choices;
-        console.log(choices, "варианты ответов");
 
         // Проверяем, определены ли choices и являются ли они массивом
         if (!Array.isArray(choices)) {
@@ -331,7 +328,7 @@ function checkAnswer() {
             if (answerIcon.classList.contains('bi-check-circle') || answerIcon.classList.contains('bi-radio-circle-check')) {
                 userChoicesCount++; // Увеличиваем счетчик выбранных ответов
                 userSelectedAnswers.push(answerText); // Сохраняем выбранный пользователем ответ
-                console.log(userSelectedAnswers, "это мы добавили и вывели")
+
             }
         });
 
@@ -349,21 +346,17 @@ function checkAnswer() {
     } else {
         // Обработка вопроса типа filltext
         const { missingWord, textWithGap } = currentQuestion;
-        console.log(missingWord, "пропущенное слово");
-        console.log(textWithGap, "текст с пропусками");
+
 
         // Находим введенное пользователем слово
         const userInput = document.querySelector('.filltext-input').value.trim();
-        console.log(userInput, "ввод пользователя");
+
 
         userAnswers[currentQuestionId] = userInput;
 
         // Проверяем, совпадает ли введенное слово с пропущенным
         if (userInput === missingWord) {
-            console.log('Правильный ответ!');
             totalCorrectAnswers++; // Увеличиваем общий счетчик правильных ответов
-        } else {
-            console.log('Неправильный ответ. Ожидалось:', missingWord);
         }
     }
 
@@ -379,9 +372,8 @@ function checkAnswer() {
 async function saveResults(userId, testId, userInfo) {
     const resultsRef = firebase.database().ref('/results/' + userId + '/' + testId);
 
-    const timeSpent = Math.floor((Date.now() - startTime) / 1000); // Вычисляем затраченное время в секундах
+    const timeSpent = Math.floor((Date.now() - startTime) / 1000);
 
-    // Функция для получения IP-адреса
     async function fetchIPAddress() {
         try {
             const response = await fetch('https://api.ipify.org?format=json');
@@ -393,7 +385,6 @@ async function saveResults(userId, testId, userInfo) {
         }
     }
 
-    // Получение системной информации
     const userAgent = navigator.userAgent;
 
     let os = "Unknown OS";
@@ -418,34 +409,50 @@ async function saveResults(userId, testId, userInfo) {
     const uniqueId = localStorage.getItem("uniqueId") || 'id_' + Date.now();
     localStorage.setItem("uniqueId", uniqueId);
 
-    // Получаем IP-адрес
     const ipAddress = await fetchIPAddress();
 
-    // Подключение FingerprintJS и получение отпечатка
     const fpPromise = FingerprintJS.load();
     const fingerprintResult = await fpPromise.then(fp => fp.get());
     const fingerprint = fingerprintResult.visitorId;
 
-    // Данные пользователя для подпапки userdatakey
     const userSystemData = {
         ip: ipAddress,
         operatingSystem: os,
         osVersion: version,
         browser: browser,
         uniqueId: uniqueId,
-        fingerprint: fingerprint // Добавляем отпечаток
+        fingerprint: fingerprint
     };
 
-    // Основные данные результатов теста
+    const totalCorrectAnswers_save = totalCorrectAnswers; // x1
+    const totalQuestions_save = Object.keys(questions).length; // x2
+    
+    function calculateGrade(x1, x2) {
+        const percentage = (x1 / x2) * 100;
+        if (percentage >= 90) {
+            return 5;
+        } else if (percentage >= 70) {
+            return 4;
+        } else if (percentage >= 50) { // Теперь 3, если 50% и больше
+            return 3;
+        } else {
+            return 2; // Меньше 50% теперь оценивается на 2
+        }
+    }
+    
+
+    const assessment = calculateGrade(totalCorrectAnswers_save, totalQuestions_save);
+
     const resultData = {
         userInfo,
         score: totalCorrectAnswers,
-        totalQuestions: Object.keys(questions).length,
+        totalQuestions: Object.keys(questions).length, // Сохраняем общее количество вопросов
         userAnswers,
-        timeSpent, // Добавляем затраченное время
+        timeSpent,
         totalFactTime,
         timestamp: new Date().toISOString(),
-        userdatakey: userSystemData // Добавляем данные о системе пользователя
+        userdatakey: userSystemData,
+        assessment // Добавляем оценку
     };
 
     return resultsRef.push(resultData)

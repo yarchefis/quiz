@@ -513,16 +513,30 @@ function loadTestResults(userId, testId) {
                     return a.userInfo.lastName.localeCompare(b.userInfo.lastName);
                 });
 
-            for (const { key, userInfo, score, totalQuestions, timeSpent, totalFactTime = '?' } of sortedResults) {
+            for (const { key, userInfo, score, totalQuestions, assessment, timeSpent, totalFactTime = '?' } of sortedResults) {
                 const resultItem = document.createElement('div');
                 resultItem.className = 'question-item'; // Применяем стиль для вопроса
                 resultItem.innerHTML = `
-                    <span>${index++}. ${userInfo.lastName} ${userInfo.firstName} - ${userInfo.class} (${score} / ${totalQuestions})</span>
+                    <span>${index++}. ${userInfo.lastName} ${userInfo.firstName} - ${userInfo.class} ${score} / ${totalQuestions}
+                        <span style="color: ${getAssessmentColor(assessment)};">${assessment}</span>
+                    </span>
                     <div class="button-group">
                         <button class="edit-button" onclick="viewSelectedAnswers('${key}')">Посмотреть</button>
                         <button class="delete-button" onclick="deleteResult('${key}')">Удалить</button>
                     </div>
                 `;
+
+                // Функция, возвращающая цвет на основе оценки
+                function getAssessmentColor(assessment) {
+                    switch (assessment) {
+                        case 5: return "green";       // Цвет для 5
+                        case 4: return "limegreen";   // Цвет для 4
+                        case 3: return "orange";      // Цвет для 3
+                        case 2: return "red";         // Цвет для 2
+                        default: return "black";      // Цвет по умолчанию
+                    }
+                }
+
                 resultsList.appendChild(resultItem);
             }
 
