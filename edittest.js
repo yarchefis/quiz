@@ -21,11 +21,11 @@ firebase.auth().onAuthStateChanged((user) => {
         window.location.href = 'index.html';
     } else {
         currentUser = user;
-        
+
         // Получаем параметры URL
         const urlParams = new URLSearchParams(window.location.search);
         testId = urlParams.get('testId');
-        
+
         // Загружаем testCode по пути tests/uid/testid/testCode
         firebase.database().ref(`/tests/${currentUser.uid}/${testId}/testCode`).once('value')
             .then((snapshot) => {
@@ -39,7 +39,7 @@ firebase.auth().onAuthStateChanged((user) => {
             .catch((error) => {
                 console.error('Ошибка при получении testCode:', error);
             });
-        
+
         // Загрузка названия теста по пути tests/uid/testid/name
         firebase.database().ref(`/tests/${currentUser.uid}/${testId}/name`).once('value')
             .then((snapshot) => {
@@ -65,16 +65,22 @@ firebase.auth().onAuthStateChanged((user) => {
 
 
 function showQuestionModal(type, questionId = null) {
+    // Сброс формы и идентификатора вопроса
     document.getElementById('questionForm').reset();
     document.getElementById('currentQuestionId').value = questionId;
 
+    // Скрываем все блоки с ответами по умолчанию
     document.getElementById('questionChoices').style.display = 'none';
     document.getElementById('yesnoChoices').style.display = 'none';
+    document.getElementById('filltextChoices').style.display = 'none';
 
+    // Показываем блоки в зависимости от типа вопроса
     if (type === 'test') {
         document.getElementById('questionChoices').style.display = 'block';
     } else if (type === 'yesno') {
         document.getElementById('yesnoChoices').style.display = 'block';
+    } else if (type === 'filltext') {
+        document.getElementById('filltextChoices').style.display = 'block';
     }
 
     if (questionId) {
@@ -84,6 +90,7 @@ function showQuestionModal(type, questionId = null) {
             document.getElementById('questionText').value = question.text;
 
             if (type === 'test') {
+                console.log("ВЫБРАН ТЕСТ")
                 // Заполнение вариантов ответа
                 question.choices.forEach((choice, index) => {
                     if (index < 4) { // Предполагается максимум 4 варианта ответа
@@ -92,10 +99,18 @@ function showQuestionModal(type, questionId = null) {
                     }
                 });
             } else if (type === 'yesno') {
+                console.log("ВЫБРАН ДА НЕТ")
                 // Заполнение вариантов ответа для типа yesno
                 document.getElementById('yes').checked = question.choices[0].isCorrect;
                 document.getElementById('no').checked = !question.choices[0].isCorrect;
+            } else if (type === 'filltext') {
+                console.log("ВЫБРАН ФИЛЛ")
+                // Заполнение полей для типа filltext
+                document.getElementById('missingWord').value = question.missingWord || '';
+                document.getElementById('textWithGap').value = question.textWithGap || '';
             }
+
+            // Заполнение времени
             document.getElementById('timeInSeconds').value = question.timeInSeconds || '';
         });
     }
@@ -103,6 +118,7 @@ function showQuestionModal(type, questionId = null) {
     const modal = new bootstrap.Modal(document.getElementById('questionModal'));
     modal.show();
 }
+
 
 
 
@@ -130,8 +146,24 @@ function saveQuestion() {
     const questionId = document.getElementById('currentQuestionId').value || firebase.database().ref().child('questions').push().key;
 
     // Получаем тип вопроса
-    const questionType = document.getElementById('questionType').value || 
-        (document.getElementById('questionChoices').style.display === 'block' ? 'test' : 'yesno');
+    let questionType = document.getElementById('questionType').value;
+
+    // Логируем, что мы получили тип вопроса
+    console.log("Тип вопроса до проверки:", questionType);
+
+    // Проверка отображения выбора
+    if (document.getElementById('questionChoices').style.display === 'block') {
+        questionType = 'test';
+    } else if (document.getElementById('yes').checked || document.getElementById('no').checked) {
+        questionType = 'yesno';
+    } else if (document.getElementById('missingWord').value.trim() && document.getElementById('textWithGap').value.trim()) {
+        questionType = 'filltext';
+    } else {
+        console.error("Неизвестный тип вопроса:", questionType);
+    }
+
+    // Логируем тип вопроса после проверки
+    console.log("Тип вопроса после проверки:", questionType);
 
     // Проверка на заполнение обязательных полей
     if (!questionText || !timeInSeconds) {
@@ -147,8 +179,9 @@ function saveQuestion() {
         timeInSeconds: parseInt(timeInSeconds, 10) || null // Проверка на пустое значение времени
     };
 
-    // Проверяем, если это вопрос типа 'test'
+    // Обработка вопроса в зависимости от его типа
     if (questionType === 'test') {
+        console.log("СОХРАНЕН ТЕСТ");
         const choices = [
             {
                 text: document.getElementById('choice1').value.trim(),
@@ -168,12 +201,6 @@ function saveQuestion() {
             }
         ].filter(choice => choice.text); // Удаление пустых вариантов
 
-        // Проверка, что хотя бы один вариант ответа отмечен как правильный
-        if (choices.every(choice => !choice.isCorrect)) {
-            alert('Пожалуйста, выберите хотя бы один правильный ответ.');
-            return;
-        }
-
         const correctChoices = choices.filter(choice => choice.isCorrect);
         let choicesDesc = '';
 
@@ -187,7 +214,7 @@ function saveQuestion() {
         questionData.choicesDesc = choicesDesc;
 
     } else if (questionType === 'yesno') {
-        // Обработка типа yes/no
+        console.log("СОХРАНЕН ДА НЕТ");
         const isYesChecked = document.getElementById('yes').checked;
         const isNoChecked = document.getElementById('no').checked;
 
@@ -202,23 +229,46 @@ function saveQuestion() {
             { text: 'Нет', isCorrect: isNoChecked }
         ];
         questionData.choicesDesc = 'Выберите "Да" или "Нет"';
+
+    } else if (questionType === 'filltext') {
+        console.log("СОХРАНЕН ФИЛЛ");
+        const missingWord = document.getElementById('missingWord').value.trim();
+        const textWithGap = document.getElementById('textWithGap').value.trim();
+
+        // Проверка на заполнение обязательных полей
+        if (!missingWord || !textWithGap) {
+            alert('Пожалуйста, заполните все поля для вопроса типа "filltext".');
+            return;
+        }
+
+        questionData.missingWord = missingWord;
+        questionData.textWithGap = textWithGap;
     }
+
+    // Логируем данные вопроса перед сохранением
+    console.log("Данные вопроса перед сохранением:", questionData);
 
     // Сохранение вопроса
     const updates = {};
-    updates['/questions/' + currentUser.uid + '/' + testId + '/' + questionId] = questionData;
+    updates[`/questions/${currentUser.uid}/${testId}/${questionId}/`] = questionData; // Правильный путь
 
     firebase.database().ref().update(updates)
         .then(() => {
             const modal = bootstrap.Modal.getInstance(document.getElementById('questionModal'));
             modal.hide();
             loadQuestions();
+
+            // Логируем тип вопроса и ID
+            console.log(`Сохранен вопрос типа: ${questionType} с ID: ${questionId}`);
         })
         .catch((error) => {
             console.error('Ошибка при сохранении вопроса:', error);
             alert('Ошибка: ' + error.message);
         });
 }
+
+
+
 
 
 
@@ -333,7 +383,7 @@ function generateTestLink() {
 
                     // Сохраняем ссылку с доменом
                     const testLink = `${domain}/quiz/login_to_test.html?code=${testCode}`;
-                    
+
                     // Обновляем текст ссылки
                     const linkElement = document.getElementById('testLink');
                     linkElement.dataset.link = testLink;  // Сохраняем ссылку в data-атрибут для копирования

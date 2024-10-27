@@ -97,11 +97,12 @@ function showQuestion() {
         const [questionId, question] = questions[currentQuestionIndex];
 
         const timeInSeconds = question.timeInSeconds;
-        const choices = question.choices || [];
+        const choices = question.choices || question;
 
         // Обновляем текст вопроса
         document.getElementById('question_text').innerText = question.text;
 
+        console.log(choices)
         // Обновляем варианты ответов
         updateAnswerChoices(choices);
 
@@ -182,44 +183,48 @@ function showNextQuestion() {
 }
 
 function updateAnswerChoices(choices) {
-    const answerCards = document.querySelectorAll('.answer-card');
-    const numberOfChoices = choices.length;
+    const container = document.querySelector('.answer-container'); // Родительский контейнер для ответов
+    container.innerHTML = ''; // Очищаем контейнер перед добавлением новых карточек
 
-    // Если карточек меньше, чем вариантов ответа, создаем новые карточки
-    if (numberOfChoices > answerCards.length) {
-        const container = document.querySelector('.answer-container'); // Родительский контейнер для ответов
-        for (let i = answerCards.length; i < numberOfChoices; i++) {
+    // Проверяем, является ли тип равным filltext
+    if (choices.type === 'filltext') {
+        const textWithGap = choices.textWithGap; // Получаем текст с пропуском
+        container.innerHTML = `
+            <div class="filltext-question">${textWithGap}</div>
+            <input type="text" class="filltext-input" placeholder="Введите ваше слово" />
+        `;
+    } else {
+        // Если это не filltext, создаем карточки для каждого варианта ответа
+        const numberOfChoices = choices.length;
+
+        for (let i = 0; i < numberOfChoices; i++) {
+            const choice = choices[i];
             const newCard = document.createElement('div');
             newCard.classList.add('answer-card');
+            newCard.onclick = () => toggleAnswer(newCard); // Установка обработчика клика
+
             newCard.innerHTML = `
-            <div class="answer-text"></div>
-            <i class="bi bi-circle answer-icon"></i> <!-- Используем иконку Bootstrap -->
-        `;
+                <div class="answer-text">${choice.text}</div>
+                <i class="bi bi-circle answer-icon"></i>
+            `;
+            
+            // Добавляем карточку в контейнер
             container.appendChild(newCard);
         }
     }
 
-    // Обновляем текст и видимость существующих карточек
+    // Обновляем видимость карточек, если их больше, чем вариантов ответа
+    const answerCards = document.querySelectorAll('.answer-card');
     answerCards.forEach((card, index) => {
-        const answerIcon = card.querySelector('.answer-icon');
-
-        if (index < numberOfChoices) {
-            const choice = choices[index];
-            const answerTextDiv = card.querySelector('.answer-text');
-            answerTextDiv.innerText = choice.text;
-            card.dataset.questionId = currentQuestionIndex; // Устанавливаем атрибут questionId
-            card.style.visibility = 'visible'; // Показываем карточку
-
-            // Сбрасываем состояние чекбокса на 'bi-circle'
-            answerIcon.classList.remove('bi-check-circle'); // Удаляем галочку, если она есть
-            answerIcon.classList.add('bi-circle'); // Устанавливаем пустой круг
-        } else {
+        if (index >= choices.length) {
             card.style.visibility = 'hidden'; // Скрываем лишние карточки
+        } else {
+            card.style.visibility = 'visible'; // Показываем карточку
         }
     });
-
-
 }
+
+
 
 
 let totalFactTime = 0; // Глобальная переменная для хранения общего времени
@@ -293,46 +298,79 @@ let userAnswers = {}; // Для хранения ответов пользова
 
 function checkAnswer() {
     const [currentQuestionId, currentQuestion] = questions[currentQuestionIndex];
+    console.log(currentQuestion, "проверка");
 
-    const choices = currentQuestion.choices;
+    // Проверяем, является ли currentQuestion массивом
+    if (Array.isArray(currentQuestion.choices)) {
+        const choices = currentQuestion.choices;
+        console.log(choices, "варианты ответов");
 
-    let correctChoicesCount = 0; // Количество правильных ответов
-    let userChoicesCount = 0; // Количество выбранных пользователем ответов
-    let userSelectedAnswers = []; // Массив для сохранения текстов выбранных пользователем ответов
-
-    // Проверяем варианты ответов
-    choices.forEach((choice) => {
-        if (choice.isCorrect) {
-            correctChoicesCount++; // Увеличиваем счетчик правильных ответов
+        // Проверяем, определены ли choices и являются ли они массивом
+        if (!Array.isArray(choices)) {
+            console.error('choices не являются массивом или не определены:', choices);
+            return totalCorrectAnswers; // Возвращаем текущее количество правильных ответов
         }
-    });
 
-    // Находим выбранные пользователем ответы
-    document.querySelectorAll('.answer-card').forEach((card) => {
-        const answerIcon = card.querySelector('.answer-icon');
-        const answerText = card.querySelector('.answer-text').innerText;
+        let correctChoicesCount = 0; // Количество правильных ответов
+        let userChoicesCount = 0; // Количество выбранных пользователем ответов
+        let userSelectedAnswers = []; // Массив для сохранения текстов выбранных пользователем ответов
 
-        // Если ответ выбран, проверяем наличие классов Bootstrap
-        if (answerIcon.classList.contains('bi-check-circle') || answerIcon.classList.contains('bi-radio-circle-check')) {
-            userChoicesCount++; // Увеличиваем счетчик выбранных ответов
-            userSelectedAnswers.push(answerText); // Сохраняем выбранный пользователем ответ
+        // Проверяем варианты ответов
+        choices.forEach((choice) => {
+            if (choice.isCorrect) {
+                correctChoicesCount++; // Увеличиваем счетчик правильных ответов
+            }
+        });
+
+        // Находим выбранные пользователем ответы
+        document.querySelectorAll('.answer-card').forEach((card) => {
+            const answerIcon = card.querySelector('.answer-icon');
+            const answerText = card.querySelector('.answer-text').innerText;
+
+            // Если ответ выбран, проверяем наличие классов Bootstrap
+            if (answerIcon.classList.contains('bi-check-circle') || answerIcon.classList.contains('bi-radio-circle-check')) {
+                userChoicesCount++; // Увеличиваем счетчик выбранных ответов
+                userSelectedAnswers.push(answerText); // Сохраняем выбранный пользователем ответ
+                console.log(userSelectedAnswers, "это мы добавили и вывели")
+            }
+        });
+
+        // Сохраняем ответы пользователя для текущего вопроса, используя ID вопроса
+        userAnswers[currentQuestionId] = userSelectedAnswers.length > 0 ? userSelectedAnswers : ['Не выбран'];
+
+        // Проверяем, правильно ли выбраны все варианты
+        const correctAnswers = choices.filter(choice => choice.isCorrect).map(choice => choice.text);
+        const allCorrectSelected = correctAnswers.every(answer => userSelectedAnswers.includes(answer));
+
+        // Если все правильные ответы выбраны и есть хотя бы один правильный
+        if (allCorrectSelected && correctChoicesCount > 0) {
+            totalCorrectAnswers++; // Увеличиваем общий счетчик правильных ответов
         }
-    });
+    } else {
+        // Обработка вопроса типа filltext
+        const { missingWord, textWithGap } = currentQuestion;
+        console.log(missingWord, "пропущенное слово");
+        console.log(textWithGap, "текст с пропусками");
 
-    // Сохраняем ответы пользователя для текущего вопроса, используя ID вопроса
-    userAnswers[currentQuestionId] = userSelectedAnswers.length > 0 ? userSelectedAnswers : ['Не выбран'];
+        // Находим введенное пользователем слово
+        const userInput = document.querySelector('.filltext-input').value.trim();
+        console.log(userInput, "ввод пользователя");
 
-    // Проверяем, правильно ли выбраны все варианты
-    const correctAnswers = choices.filter(choice => choice.isCorrect).map(choice => choice.text);
-    const allCorrectSelected = correctAnswers.every(answer => userSelectedAnswers.includes(answer));
+        userAnswers[currentQuestionId] = userInput;
 
-    // Если все правильные ответы выбраны и есть хотя бы один правильный
-    if (allCorrectSelected && correctChoicesCount > 0) {
-        totalCorrectAnswers++; // Увеличиваем общий счетчик правильных ответов
+        // Проверяем, совпадает ли введенное слово с пропущенным
+        if (userInput === missingWord) {
+            console.log('Правильный ответ!');
+            totalCorrectAnswers++; // Увеличиваем общий счетчик правильных ответов
+        } else {
+            console.log('Неправильный ответ. Ожидалось:', missingWord);
+        }
     }
 
     return totalCorrectAnswers;
 }
+
+
 
 
 

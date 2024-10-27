@@ -100,7 +100,7 @@
             /* Вертикальная прокрутка */
             padding: 10px;
             /* Отступ внутри списка */
-            
+
         }
 
 
@@ -333,6 +333,8 @@
                             <select class="form-control" id="questionType" required>
                                 <option value="test">Выбор варианта/ов</option>
                                 <option value="yesno">выбор да/нет</option>
+                                <option value="filltext">Вставить пропущенное слово</option>
+                                <!-- Добавлено новое значение -->
                             </select>
                         </div>
                         <button type="button" class="btn btn-primary"
@@ -342,6 +344,7 @@
             </div>
         </div>
     </div>
+
 
     <!-- Question Modal -->
     <div class="modal fade" id="questionModal" tabindex="-1" aria-labelledby="questionModalLabel" aria-hidden="true">
@@ -354,7 +357,7 @@
                 <div class="modal-body">
                     <form id="questionForm">
                         <div class="mb-3">
-                            <label for="questionText" class="form-label">Вопрос</label>
+                            <label for="questionText" class="form-label">Вопрос или задача что сделать</label>
                             <input type="text" class="form-control" id="questionText" required>
                         </div>
                         <div id="questionChoices">
@@ -409,7 +412,22 @@
                                     <label class="form-check-label" for="no">Нет</label>
                                 </div>
                             </div>
+                        
                         </div>
+
+                        <div id="filltextChoices" style="display: none;">
+                            <!-- Поля для типа вопроса "Вставить пропущенное слово" -->
+                            <div class="mb-3">
+                                <label for="missingWord" class="form-label">Пропущенное слово</label>
+                                <input type="text" class="form-control" id="missingWord" placeholder="Введите пропущенное слово" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="textWithGap" class="form-label">Текст с пропуском</label>
+                                <textarea class="form-control" id="textWithGap" rows="3" placeholder="Введите текст с пропущенным словом" required></textarea>
+                            </div>
+                        </div>
+
+
                         <div class="mb-3">
                             <label for="timeInSeconds" class="form-label">Время (секунды)</label>
                             <input type="number" class="form-control" id="timeInSeconds" required>
