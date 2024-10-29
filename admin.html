@@ -159,12 +159,29 @@
             <h2 class="mb-0">Все тесты:</h2>
             <button class="btn btn-primary" onclick="showAddTestModal()">Добавить новый тест</button>
         </div>
-        <div id="testsContainer">
-            <!-- Tests will be loaded here -->
+        <div id="classButtons">
+            <button onclick="loadTests('all')">все</button>
+            <button onclick="loadTests('11гр1')">11 гр1</button>
+            <button onclick="loadTests('11гр2')">11 гр2</button>
+            <button onclick="loadTests('11гр3')">11 гр3</button>
+            <button onclick="loadTests('10гр1')">10 гр1</button>
+            <button onclick="loadTests('10гр2')">10 гр2</button>
+            <button onclick="loadTests('10гр3')">10 гр3</button>
+            <button onclick="loadTests('9а')">9а</button>
+            <button onclick="loadTests('9б')">9б</button>
+            <button onclick="loadTests('9в')">9в</button>
+            <button onclick="loadTests('9д')">9д</button>
+            <button onclick="loadTests('9п')">9п</button>
+            <button onclick="loadTests('8а')">8а</button>
+            <button onclick="loadTests('8б')">8б</button>
+            <button onclick="loadTests('8в')">8в</button>
+            <button onclick="loadTests('8п')">8п</button>
         </div>
+
+        <div id="testsContainer"></div>
+
     </div>
 
-    <!-- Add Test Modal -->
     <div class="modal fade" id="addTestModal" tabindex="-1" aria-labelledby="addTestModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -177,6 +194,26 @@
                         <label for="testNameInput" class="form-label">Имя теста</label>
                         <input type="text" class="form-control" id="testNameInput" placeholder="Enter test name">
                     </div>
+                    <div class="mb-3">
+                        <label for="classSelect" class="form-label">Выберите класс</label>
+                        <select class="form-control" id="classSelect">
+                            <option value="11гр1">11 гр1</option>
+                            <option value="11гр2">11 гр2</option>
+                            <option value="11гр3">11 гр3</option>
+                            <option value="10гр1">10 гр1</option>
+                            <option value="10гр2">10 гр2</option>
+                            <option value="10гр3">10 гр3</option>
+                            <option value="9а">9а</option>
+                            <option value="9б">9б</option>
+                            <option value="9в">9в</option>
+                            <option value="9д">9д</option>
+                            <option value="9п">9п</option>
+                            <option value="8а">8а</option>
+                            <option value="8б">8б</option>
+                            <option value="8в">8в</option>
+                            <option value="8п">8п</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
@@ -186,19 +223,41 @@
         </div>
     </div>
 
+
     <!-- Rename Test Modal -->
+
     <div class="modal fade" id="renameTestModal" tabindex="-1" aria-labelledby="renameTestModalLabel"
         aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="renameTestModalLabel">Изменить имя теста</h5>
+                    <h5 class="modal-title" id="renameTestModalLabel">Изменить имя и класс теста</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="renameTestInput" class="form-label">Новое имя теста</label>
                         <input type="text" class="form-control" id="renameTestInput" placeholder="Введите новое имя">
+                    </div>
+                    <div class="mb-3">
+                        <label for="classSelectRename" class="form-label">Выберите класс</label>
+                        <select class="form-control" id="classSelectRename">
+                            <option value="11гр1">11 гр1</option>
+                            <option value="11гр2">11 гр2</option>
+                            <option value="11гр3">11 гр3</option>
+                            <option value="10гр1">10 гр1</option>
+                            <option value="10гр2">10 гр2</option>
+                            <option value="10гр3">10 гр3</option>
+                            <option value="9а">9а</option>
+                            <option value="9б">9б</option>
+                            <option value="9в">9в</option>
+                            <option value="9д">9д</option>
+                            <option value="9п">9п</option>
+                            <option value="8а">8а</option>
+                            <option value="8б">8б</option>
+                            <option value="8в">8в</option>
+                            <option value="8п">8п</option>
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">

@@ -45,32 +45,33 @@ function showAddTestModal() {
 // Add test function
 function addTest() {
     const testName = document.getElementById('testNameInput').value;
-    if (testName) {
-        const testId = firebase.database().ref().child('tests').push().key;
+    const classId = document.getElementById('classSelect').value;
 
-        // Генерация случайного набора цифр из 8 символов
+    if (testName && classId) {
+        const testId = firebase.database().ref().child('tests').push().key;
         const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
 
         const testData = {
             name: testName,
             createdAt: new Date().toISOString(),
-            testCode: randomNumber // Добавляем рандомное число в testData
+            testCode: randomNumber,
+            class: classId // Сохраняем класс как отдельное поле
         };
 
         const updates = {};
-        // Добавляем данные теста в путь /tests/{uid}/{testId}
-        updates['/tests/' + currentUser.uid + '/' + testId] = testData;
-        
-        // Добавляем данные в путь /codetotest/{testCode}
-        updates['/codetotest/' + randomNumber] = {
+        // Сохраняем тест в привычном пути /tests/{uid}/{testId}
+        updates[`/tests/${currentUser.uid}/${testId}`] = testData;
+
+        // Добавляем данные в путь /codetotest/{testCode} для быстрого доступа
+        updates[`/codetotest/${randomNumber}`] = {
             uid: currentUser.uid,
-            testId: testId
+            testId: testId,
+            classId: classId // Также сохраняем класс
         };
 
-        // Выполняем обновление базы данных
         firebase.database().ref().update(updates)
             .then(() => {
-                loadTests();
+                loadTests(classId); // Загружаем тесты для выбранного класса
                 const addTestModal = bootstrap.Modal.getInstance(document.getElementById('addTestModal'));
                 addTestModal.hide();
             })
@@ -83,120 +84,151 @@ function addTest() {
 
 
 
-// Load tests function
-function loadTests() {
+
+
+function loadTests(classId) {
     const testsRef = firebase.database().ref('/tests/' + currentUser.uid);
+
     testsRef.once('value', (snapshot) => {
         const tests = snapshot.val();
         const testsContainer = document.getElementById('testsContainer');
         testsContainer.innerHTML = '';
-        for (const testId in tests) {
-            const test = tests[testId];
-            const testItem = document.createElement('div');
-            testItem.className = 'test-item d-flex justify-content-between align-items-center';
 
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'flex-grow-1';
-            contentDiv.innerHTML = 
-                `<p>${test.name}</p>`;
+        if (tests) {
+            const classes = [
+                '11гр1', '11гр2', '11гр3',
+                '10гр1', '10гр2', '10гр3',
+                '9а', '9б', '9в', '9д', '9п',
+                '8а', '8б', '8в', '8п'
+            ];
 
-            const link = document.createElement('a');
-            link.href = `edittest.html?testId=${testId}`;
-            link.appendChild(contentDiv);
+            // Определяем порядок сортировки классов
+            const classOrder = {};
+            classes.forEach((className, index) => {
+                classOrder[className] = index;
+            });
 
-            // Кнопка удаления
-            const deleteButton = document.createElement('button');
-            deleteButton.className = 'btn btn-danger btn-sm ms-2';
-            deleteButton.textContent = 'Удалить';
-            deleteButton.onclick = () => deleteTest(testId);
+            // Фильтруем тесты по классу, если classId передан и не равен 'all'
+            const filteredTests = classId && classId !== 'all' ? 
+                Object.entries(tests).filter(([testId, test]) => test.class === classId) :
+                Object.entries(tests).sort(([testIdA, testA], [testIdB, testB]) => {
+                    const classAOrder = classOrder[testA.class] || Infinity; // По умолчанию ставим Infinity, если класс не найден
+                    const classBOrder = classOrder[testB.class] || Infinity;
+                    return classAOrder - classBOrder; // Сортировка от высшего к низшему
+                });
 
-            // Кнопка дублирования
-            const duplicateButton = document.createElement('button');
-            duplicateButton.className = 'btn btn-primary btn-sm ms-2';
-            duplicateButton.textContent = 'Дублировать';
-            duplicateButton.onclick = () => duplicateTest(testId, test.name);
+            if (filteredTests.length > 0) {
+                filteredTests.forEach(([testId, test]) => {
+                    const testItem = document.createElement('div');
+                    testItem.className = 'test-item d-flex justify-content-between align-items-center';
 
-            // Кнопка переименования
-            const renameButton = document.createElement('button');
-            renameButton.className = 'btn btn-secondary btn-sm ms-2';
-            renameButton.textContent = 'Изменить';
-            renameButton.onclick = () => showRenameTestModal(testId, test.name);
+                    const contentDiv = document.createElement('div');
+                    contentDiv.className = 'flex-grow-1';
+                    contentDiv.innerHTML = `<p>${test.name}</p>`;
 
-            // Кнопка результатов
-            const resultsButton = document.createElement('button');
-            resultsButton.className = 'btn btn-info btn-sm ms-2';
-            resultsButton.textContent = 'Результаты';
-            resultsButton.onclick = () => {
-                const uid = currentUser.uid; // Используем uid текущего пользователя
-                window.location.href = `print.html?uid=${uid}&testId=${testId}`;
-            };
+                    const link = document.createElement('a');
+                    link.href = `edittest.html?testId=${testId}`;
+                    link.appendChild(contentDiv);
 
-            const buttonWrapper = document.createElement('div');
-            buttonWrapper.className = 'd-flex align-items-center';
-            buttonWrapper.appendChild(deleteButton);
-            buttonWrapper.appendChild(duplicateButton);
-            buttonWrapper.appendChild(renameButton); // Добавляем кнопку "Изменить"
-            buttonWrapper.appendChild(resultsButton); // Добавляем кнопку "Результаты"
+                    // Кнопка удаления
+                    const deleteButton = document.createElement('button');
+                    deleteButton.className = 'btn btn-danger btn-sm ms-2';
+                    deleteButton.textContent = 'Удалить';
+                    deleteButton.onclick = () => deleteTest(testId, test.class);
 
-            testItem.appendChild(link);
-            testItem.appendChild(buttonWrapper);
-            testsContainer.appendChild(testItem);
+                    // Кнопка дублирования
+                    const duplicateButton = document.createElement('button');
+                    duplicateButton.className = 'btn btn-primary btn-sm ms-2';
+                    duplicateButton.textContent = 'Дублировать';
+                    duplicateButton.onclick = () => duplicateTest(testId, test.name, test.class);
+
+                    // Кнопка переименования
+                    const renameButton = document.createElement('button');
+                    renameButton.className = 'btn btn-secondary btn-sm ms-2';
+                    renameButton.textContent = 'Изменить';
+                    renameButton.onclick = () => showRenameTestModal(testId, test.name, test.class);
+
+                    // Кнопка результатов
+                    const resultsButton = document.createElement('button');
+                    resultsButton.className = 'btn btn-info btn-sm ms-2';
+                    resultsButton.textContent = 'Результаты';
+                    resultsButton.onclick = () => {
+                        const uid = currentUser.uid;
+                        window.location.href = `print.html?uid=${uid}&testId=${testId}`;
+                    };
+
+                    const buttonWrapper = document.createElement('div');
+                    buttonWrapper.className = 'd-flex align-items-center';
+                    buttonWrapper.appendChild(deleteButton);
+                    buttonWrapper.appendChild(duplicateButton);
+                    buttonWrapper.appendChild(renameButton);
+                    buttonWrapper.appendChild(resultsButton);
+
+                    testItem.appendChild(link);
+                    testItem.appendChild(buttonWrapper);
+                    testsContainer.appendChild(testItem);
+                });
+            } else {
+                testsContainer.innerHTML = '<p>Тесты для данного класса отсутствуют.</p>';
+            }
+        } else {
+            testsContainer.innerHTML = '<p>Тесты отсутствуют.</p>';
         }
     });
 }
 
 
 
+
+
+
+
 let testIdToRename = null;
 
-function showRenameTestModal(testId, currentName) {
+function showRenameTestModal(testId, currentName, currentClass) {
     testIdToRename = testId;
-    document.getElementById('renameTestInput').value = currentName; // Set current name as the placeholder
+    document.getElementById('renameTestInput').value = currentName;
+    document.getElementById('classSelectRename').value = currentClass || ''; // Устанавливаем текущий класс
     const renameTestModal = new bootstrap.Modal(document.getElementById('renameTestModal'));
     renameTestModal.show();
 }
 
 function renameTest() {
     const newTestName = document.getElementById('renameTestInput').value;
+    const newClass = document.getElementById('classSelectRename').value;
 
     if (newTestName && testIdToRename) {
         const updates = {};
-        updates['/tests/' + currentUser.uid + '/' + testIdToRename + '/name'] = newTestName;
+        updates[`/tests/${currentUser.uid}/${testIdToRename}/name`] = newTestName;
+        updates[`/tests/${currentUser.uid}/${testIdToRename}/class`] = newClass;
 
-        // Сначала получаем текущие данные теста
         const testRef = firebase.database().ref(`/tests/${currentUser.uid}/${testIdToRename}`);
-        
+
         testRef.once('value').then((snapshot) => {
             if (snapshot.exists()) {
                 const testData = snapshot.val();
-                let testCode = testData.testCode; // Получаем testCode
+                let testCode = testData.testCode;
 
-                if (!testCode) { // Проверяем, существует ли testCode
-                    // Генерируем новый код, если testCode отсутствует
+                if (!testCode) {
                     testCode = Math.floor(10000000 + Math.random() * 90000000).toString();
-
-                    // Добавляем код в обновления для теста
-                    updates['/tests/' + currentUser.uid + '/' + testIdToRename + '/testCode'] = testCode;
+                    updates[`/tests/${currentUser.uid}/${testIdToRename}/testCode`] = testCode;
                 }
 
-                // Проверяем, существует ли код в /codetotest/
                 const codeRef = firebase.database().ref(`/codetotest/${testCode}`);
                 codeRef.once('value').then((codeSnapshot) => {
                     if (!codeSnapshot.exists()) {
-                        // Если код не существует, добавляем его в /codetotest/
-                        updates['/codetotest/' + testCode] = {
+                        updates[`/codetotest/${testCode}`] = {
                             uid: currentUser.uid,
                             testId: testIdToRename
                         };
                     }
 
-                    // Обновляем базу данных
                     return firebase.database().ref().update(updates);
                 }).then(() => {
-                    loadTests();
+                    loadTests(newClass); // Обновляем тесты для нового выбранного класса
                     const renameTestModal = bootstrap.Modal.getInstance(document.getElementById('renameTestModal'));
                     renameTestModal.hide();
-                    showAlertModal('Успех', 'Имя теста успешно изменено');
+                    showAlertModal('Успех', 'Имя и класс теста успешно изменены');
                 }).catch((error) => {
                     console.error('Ошибка при изменении имени теста:', error);
                     showAlertModal('Ошибка', error.message);
