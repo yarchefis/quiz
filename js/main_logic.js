@@ -66,6 +66,7 @@ function loadAllQuestions() {
                             if (snapshot.exists()) {
                                 const allQuestions = snapshot.val();
                                 questions = shuffleArray(Object.entries(allQuestions)).slice(0, questionCount);
+                                //console.log(questions)
 
                                 startTime = Date.now(); // Записываем время начала теста
                                 showQuestion();
@@ -465,6 +466,8 @@ async function saveResults(userId, testId, userInfo) {
             return null;
         });
 }
+
+
 
 
 

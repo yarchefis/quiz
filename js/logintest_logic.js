@@ -37,10 +37,12 @@ function loadTestInfo(uid, testId) {
             const testData = snapshot.val();
             const startDate = testData.startDate;
             const endDate = testData.endDate;
-            
+
             document.getElementById('testname').textContent = testData.name;
-            document.getElementById('testDates').textContent = `Тест доступен с ${startDate} по ${endDate}(00:00)`;
-    
+            document.getElementById('startDate').textContent = startDate;
+            document.getElementById('endDate').textContent = `${endDate}(00:00)`;
+            document.getElementById('testDatesBlock').style.display = 'block'; // Показать блок с датами
+
             // Проверяем доступность теста по датам
             checkTestAvailability(startDate, endDate);
         }
@@ -48,6 +50,7 @@ function loadTestInfo(uid, testId) {
         console.error('Ошибка при получении данных теста:', error);
     });
 }
+
 
 // Функция для парсинга параметров URL
 function getQueryParams() {
