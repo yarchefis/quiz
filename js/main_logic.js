@@ -25,6 +25,7 @@ function getQueryParams() {
     const firstName = queryParams.get('firstName');
     const classValue = queryParams.get('classValue');
     return { testId, uid, lastName, firstName, classValue };
+    console.log(testId, uid, lastName, firstName, classValue)
 }
 
 // Когда DOM полностью загружен

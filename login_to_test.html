@@ -16,252 +16,147 @@
     <!-- Подключаем шрифт Material Symbols -->
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-
     <style>
         body {
             background-color: #001e3b;
             color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            /* Align items at the top */
-            align-items: center;
             margin: 0;
-            padding: 35px 0;
-            max-height: 100vh;
-            /* Maximum height */
-            overflow-y: auto;
-            /* Allow vertical scrolling */
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
 
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            max-width: 1200px;
+            width: 100%;
+            padding: 20px;
+            gap: 20px;
+        }
 
-        .container {
-            max-width: 500px;
-            /* Максимальная ширина контейнера */
-            padding: 25px 30px;
-            /* Увеличиваем отступы по бокам на мобильных устройствах */
-            border-radius: 15px;
-            /* Закругление углов контейнера */
+        .info-container,
+        .form-container {
             background-color: rgba(0, 30, 59, 0.8);
-            /* Прозрачный фон для контейнера */
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .info-container,
+        .form-container {
+            width: 100%;
+            /* Контейнеры занимают всю ширину экрана */
+            flex: none;
+            /* Избавляемся от флексовой зависимости */
+        }
+
+        .info-container {
+            flex: 1;
+            color: #a3a3a3;
+        }
+
+        .form-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
 
         h1 {
+            color: #ffffff;
+            font-size: 2rem;
             margin-bottom: 20px;
-            /* Отступ снизу заголовка */
-            font-size: 5vw;
-            /* Адаптивный размер шрифта */
-            text-align: center;
-            /* Центрирование заголовка */
         }
 
-        @media (min-width: 577px) {
-            h1 {
-                font-size: 25px;
-                /* Фиксированный размер шрифта на ПК */
-            }
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-            /* Отступ между полями формы */
+        p {
+            margin-bottom: 10px;
+            line-height: 1.6;
         }
 
         .form-control {
             background-color: rgba(255, 255, 255, 0.2);
-            /* Прозрачный фон для полей ввода */
             border: none;
-            /* Убираем стандартный бордер */
             border-bottom: 2px solid rgba(255, 255, 255, 0.5);
-            /* Нижний бордер */
             color: white;
-            /* Цвет текста в полях ввода */
         }
 
         .form-control::placeholder {
             color: rgba(255, 255, 255, 0.5);
-            /* Цвет текста подсказки */
         }
 
         .start-button {
             background-color: rgb(84, 130, 255);
-            /* Новый цвет кнопки */
-            color: white;
             border: none;
-            /* Убираем стандартный бордер */
+            color: white;
             border-radius: 50px;
-            /* Закругленные края кнопки */
-            height: 60px;
-            /* Высота кнопки */
-            width: 100%;
-            /* Ширина кнопки на всю ширину контейнера */
-            font-size: 24px;
-            /* Размер шрифта для текста кнопки */
-            margin-top: 50px;
-            /* Отступ сверху для кнопки */
+            padding: 15px;
+            font-size: 18px;
         }
 
         .help-link_bot {
             margin-top: 20px;
-            /* Отступ сверху для ссылки */
             color: rgba(255, 255, 255, 0.8);
-            /* Цвет ссылки */
-            text-align: center;
-            /* Центрирование ссылки */
             text-decoration: none;
-            /* Убираем подчеркивание */
         }
 
-        .help-container {
-            margin-top: auto;
-            /* Перемещаем вниз */
-            padding: 20px 0;
-            /* Отступы сверху и снизу */
-        }
-
-        .input-label {
-            font-weight: bold;
-            /* Жирный шрифт для подсказок */
-            margin-bottom: 5px;
-            /* Отступ снизу от подсказки */
-        }
-
-        .modal-content {
-            background-color: rgba(0, 30, 59, 0.9);
-            /* Темно-синий фон */
-            color: white;
-            /* Белый текст */
-            border: none;
-            /* Убираем стандартный бордер */
-            border-radius: 10px;
-            /* Закругленные края окна */
-        }
-
-        .modal-header,
-        .modal-footer {
-            border: none;
-            /* Убираем стандартные линии */
-        }
-
-        .modal-footer .btn-secondary {
-            background-color: rgb(84, 130, 255);
-            /* Цвет кнопки "Готово" */
-            border: none;
-        }
-
-        .modal-footer .btn-secondary:hover {
-            background-color: #557ac7;
-            /* Более темный цвет при наведении */
-        }
-
-        .modal-body .btn-primary {
-            background-color: rgb(84, 130, 255);
-            /* Цвет кнопки "Telegram" */
-            border: none;
-        }
-
-        .modal-body .btn-primary:hover {
-            background-color: #557ac7;
-            /* Более темный цвет при наведении */
-        }
-
-        .test-dates-block {
-            background-color: #f0f8ff;
-            border: 1px solid #88a8ee;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 15px 0;
-            text-align: center;
-        }
+        @media (min-width: 768px) {
+            .main-container {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: stretch;
+            }
 
 
-        .test-dates-period {
-            font-size: 16px;
-            color: #555;
-            margin: 0;
-        }
-
-        .start-date,
-        .end-date {
-            font-weight: bold;
-            color: #88a8ee;
         }
     </style>
 </head>
 
 <body>
-
-    <div class="container">
-        <h1 id="testname" style="font-weight: 700; color: #88a8ee;">Загрузка...</h1> <!-- Заголовок теста -->
-        <div id="testDatesBlock" class="test-dates-block" style="display: none;">
-            <p class="test-dates-period">
-                <span class="start-date" id="startDate"></span> — <span class="end-date" id="endDate"></span>
-                <p style="color: #000000; font-size: 14px; margin-bottom: 0;">По дате окончания советую ориентироватся на начале дня когда будет урок. Результаты фиксируются около 5-6 утра.</p>
-            </p>
-        </div>
-        <!--<div class="alert alert-warning text-center" role="alert" id="browserWarning">
-            <strong>Предупреждение:</strong> Прохождение теста в браузере Яндекс может работать некорректно. Рекомендуем
-            использовать Chrome или Firefox.
-        </divё>-->
-
-
-        <div class="form-group">
-            <label for="lastName" class="input-label">Фамилия:</label>
-            <input type="text" autocomplete="off" id="lastName" class="form-control" minlength="3"
-                pattern="[A-Za-zА-Яа-яЁё]{3,}">
-            <div id="lastNameError" class="text-danger" style="display: none;">Тест не доступен к прохождению. Обновите
-                страницу чтобы повторить.</div>
+    <div class="main-container">
+        <!-- Блок информации -->
+        <div class="info-container">
+            <h3 style="color: white;">Добро пожаловать!</h3>
+            <p>Прежде чем начать:</p>
+            <ul>
+                <li>используйте chrome или firefox для корректной работы.</li>
+                <li>Отключите блокировщики рекламы(AddBlock и др) для корректной работы библиотек.</li>
+                <li>Заполните форму входа, чтобы приступить к тестированию.</li>
+            </ul>
+            <p>Если у вас возникли вопросы, напишите в Telegram:</p>
+            <a href="https://t.me/quiz_helperBot" class="help-link_bot">Помощь >>></a>
         </div>
 
-        <div class="form-group">
-            <label for="firstName" class="input-label">Имя:</label>
-            <input type="text" autocomplete="off" id="firstName" class="form-control" minlength="3"
-                pattern="[A-Za-zА-Яа-яЁё]{3,}">
-        </div>
-        <div class="form-group">
-            <label for="class" class="input-label">Класс:</label>
-            <input type="text" autocomplete="off" id="class" class="form-control" maxlength="6"
-            pattern="[A-Za-zА-Яа-яЁё0-9]{1,3}" placeholder="Заполнится автоматически">
-        </div>
-        <button type="button" id="startTestButton" class="start-button">Начать</button>
+        <!-- Блок формы входа -->
+        <div class="form-container">
+            <h3 id="testname">Загрузка...</h3>
+            <div id="testDatesBlock" class="test-dates-block" style="display: none;">
+                <p class="test-dates-period">
+                    <span class="start-date" id="startDate"></span> — <span class="end-date" id="endDate"></span>
+                </p>
+            </div>
 
-
-    </div>
-
-    <div class="help-container">
-        <a href="https://t.me/quiz_helperBot" class="help-link_bot">Помощь >>></a>
-    </div>
-
-    <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <a href="https://t.me/quiz_helperBot" class="btn btn-primary">Написать в Telegram</a>
-                </div>
-                <div class="modal-body">
-                    <p>Ответы на вопросы:</p>
-                    <ul>
-                        <li><b>Есть ответы? - НЕТ</b></li>
-                        <li><b>Можно ли исправить бал? - НЕТ(переписывать с разрешения учителя)</b></li>
-                        <li><b>Тест вылетел? Пишите в Telegram по кнопке ниже.</b></li>
-                        <li><b>Сторонние ошибки на сайте? Пишите в Telegram по кнопке ниже.</b></li>
-                        <li><b>Время выполнения теста истекло? Скопируйте ссылку как текст.</b></li>
-                        <li><b>Волнуетесь, что результат не сохранился? Пишите в Telegram по кнопке ниже.</b></li>
-                        <li><b>Вы не проходили тест, но пишет, что пройдено? Пишите в Telegram со всеми
-                                доказательствами.</b></li>
-                        <li><b>Остальные вопросы: пишите в Telegram по кнопке ниже.</b></li>
-                    </ul>
-                    <div class="text-center">
-                        <a href="https://t.me/quiz_helperBot" class="btn btn-primary">Написать в Telegram</a>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" id="closeModalButton">Готово</button>
+            <div class="form-group">
+                <input type="text" id="lastName" autocomplete="off" placeholder="Фамилия" class="form-control" minlength="3" pattern="[A-Za-zА-Яа-яЁё]{3,}">
+                <div id="lastNameError" class="text-danger" style="display: none;">Тест недоступен. Перезагрузите
+                    страницу.
                 </div>
             </div>
+            <div class="form-group">
+                <input type="text" autocomplete="off" id="firstName" placeholder="Имя" class="form-control" minlength="3" pattern="[A-Za-zА-Яа-яЁё]{3,}">
+            </div>
+            <div class="form-group">
+                <!-- <label for="class">Класс:</label> -->
+                <input type="hidden" id="class" class="form-control" maxlength="6" pattern="[A-Za-zА-Яа-яЁё0-9]{1,3}"
+                    placeholder="Заполнится автоматически">
+            </div>
+            <button type="button" id="startTestButton" class="start-button">Начать</button>
         </div>
     </div>
-
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="js/logintest_logic.js"></script>

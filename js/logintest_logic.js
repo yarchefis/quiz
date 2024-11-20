@@ -20,7 +20,7 @@ function checkTestAvailability(startDate, endDate) {
         // Если тест уже закончился
         document.body.innerHTML = `
             <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; font-size: 24px; text-align: center;">
-                <p>Тест уже закончился.</p>
+                <p>Время прохождения теста завершилось.</p>
                 <a href="https://t.me/quiz_helperBot" class="btn btn-primary" style="margin-top: 20px;">Помощь &gt;&gt;</a>
             </div>`;
     }
@@ -48,6 +48,7 @@ function loadTestInfo(uid, testId) {
         }
     }).catch((error) => {
         console.error('Ошибка при получении данных теста:', error);
+
     });
 }
 
@@ -85,6 +86,12 @@ window.addEventListener('load', () => {
                     }
                 } else {
                     console.error(`Тест с данным кодом (${code}) не найден в /codetotest/.`);
+                    document.body.innerHTML = `
+            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; font-size: 24px; text-align: center;">
+                <p>Не удалось проверить данные.<br>Проверьте ссылку, возможно в ней ошибка</p>
+                <a href="https://t.me/quiz_helperBot" class="btn btn-primary" style="margin-top: 20px;">Помощь &gt;&gt;</a>
+            </div>`;
+
                 }
             })
             .catch((error) => {
