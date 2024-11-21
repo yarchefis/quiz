@@ -413,9 +413,14 @@ async function saveResults(userId, testId, userInfo) {
 
     const ipAddress = await fetchIPAddress();
 
-    const fpPromise = FingerprintJS.load();
-    const fingerprintResult = await fpPromise.then(fp => fp.get());
-    const fingerprint = fingerprintResult.visitorId;
+    let fingerprint = "Fingerprint недоступен"; // Значение по умолчанию
+    try {
+        const fpPromise = FingerprintJS.load();
+        const fingerprintResult = await fpPromise.then(fp => fp.get());
+        fingerprint = fingerprintResult.visitorId;
+    } catch (error) {
+        console.error("Ошибка при загрузке FingerprintJS:", error);
+    }
 
     const userSystemData = {
         ip: ipAddress,
