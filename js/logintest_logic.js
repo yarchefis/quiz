@@ -127,7 +127,7 @@ function startTest(event) {
         if (!isLwch) {
             if ((lastName === 'фисюков') ||
                 (lastName === 'кононович' && firstName === 'григорий')) {
-                alert('Тест не доступен к прохождению.');
+                alert('ошибка');
                 return;
             }
         }
