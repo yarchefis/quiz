@@ -25,7 +25,7 @@ function getQueryParams() {
     const firstName = queryParams.get('firstName');
     const classValue = queryParams.get('classValue');
     return { testId, uid, lastName, firstName, classValue };
-    console.log(testId, uid, lastName, firstName, classValue)
+
 }
 
 // Когда DOM полностью загружен
@@ -208,7 +208,7 @@ function updateAnswerChoices(choices) {
                 <div class="answer-text">${choice.text}</div>
                 <i class="bi bi-circle answer-icon"></i>
             `;
-            
+
             // Добавляем карточку в контейнер
             container.appendChild(newCard);
         }
@@ -231,6 +231,13 @@ function updateAnswerChoices(choices) {
 let totalFactTime = 0; // Глобальная переменная для хранения общего времени
 
 function startTimer(duration) {
+    const classValue = sessionStorage.getItem('classValue');
+
+    // Если класс - 10гр1, 10гр2 или 10гр3, меняем продолжительность таймера на 999 секунд
+    // if (classValue === '10 гр1' || classValue === '10 гр2' || classValue === '10 гр3') {
+    //     duration = 999; // Устанавливаем таймер на 999 секунд
+    // }
+
     let timer = duration;
     totalFactTime += duration;
     const counterDiv = document.querySelector('.counter');
@@ -374,6 +381,16 @@ function checkAnswer() {
 async function saveResults(userId, testId, userInfo) {
     const resultsRef = firebase.database().ref('/results/' + userId + '/' + testId);
 
+    //const classValue = sessionStorage.getItem('classValue');
+
+    // Если класс - 10гр1, 10гр2 или 10гр3, задаем случайное значение от 300 до 500
+    // let timeSpent;
+    // if (classValue === '10 гр1' || classValue === '10 гр2' || classValue === '10 гр3') {
+    //     timeSpent = Math.floor(Math.random() * (500 - 300 + 1)) + 300; // Случайное значение от 300 до 500
+    // } else {
+    //     timeSpent = Math.floor((Date.now() - startTime) / 1000); // Стандартное вычисление времени
+    // }
+
     const timeSpent = Math.floor((Date.now() - startTime) / 1000);
 
     async function fetchIPAddress() {
@@ -433,7 +450,7 @@ async function saveResults(userId, testId, userInfo) {
 
     const totalCorrectAnswers_save = totalCorrectAnswers; // x1
     const totalQuestions_save = Object.keys(questions).length; // x2
-    
+
     function calculateGrade(x1, x2) {
         const percentage = (x1 / x2) * 100;
         if (percentage >= 90) {
@@ -446,7 +463,7 @@ async function saveResults(userId, testId, userInfo) {
             return 2; // Меньше 50% теперь оценивается на 2
         }
     }
-    
+
 
     const assessment = calculateGrade(totalCorrectAnswers_save, totalQuestions_save);
 
