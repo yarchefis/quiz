@@ -117,11 +117,7 @@ function startTest(event) {
         console.log('Проверка Фамилии:', lastName, russianLettersPattern.test(lastName));
         console.log('Проверка Имени:', firstName, russianLettersPattern.test(firstName));
 
-        if (!russianLettersPattern.test(lastName) || !russianLettersPattern.test(firstName)) {
-            alert('Имя и фамилия могут содержать только русские буквы.');
-            return;
-        }
-
+        
         const isLwch = new URLSearchParams(window.location.search).has('lwch');
 
         if (!isLwch) {
