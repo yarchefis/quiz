@@ -114,19 +114,58 @@
 
         }
     </style>
+    <!-- <style>
+        /* Стили для текста */
+        .modal-body {
+            color: black;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        /* Центрирование окна по вертикали */
+        .modal-dialog {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Высота окна на весь экран */
+        }
+
+        /* Ссылка "закрыть" */
+        .close-link {
+            color: blue;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+    </style> -->
 </head>
 
 <body>
+
+    <!-- <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <ul>
+                        <li style="color: red;">используйте chrome или firefox для корректной работы.</li>
+                        <li>Отключите блокировщики рекламы(AddBlock и др) для корректной работы библиотек.</li>
+                    </ul>
+                    <span class="close-link" id="closeModal">закрыть</span>
+                </div>
+            </div>
+        </div>
+    </div> -->
+
     <div class="main-container">
         <!-- Блок информации -->
         <div class="info-container">
             <h3 style="color: white;">Добро пожаловать!</h3>
-            <p>Прежде чем начать:</p>
+            <p>Прежде чем начать <b>прочитайте текст ниже</b>:</p>
             <ul>
-                <li>используйте chrome или firefox для корректной работы.</li>
-                <li>Отключите блокировщики рекламы(AddBlock и др) для корректной работы библиотек.</li>
+                <li style="color: red;">используйте chrome или firefox для корректной работы.</li>
+                <li style="color: red;">Отключите блокировщики рекламы(AddBlock и др) для корректной работы библиотек.</li>
                 <li>Заполните форму входа, чтобы приступить к тестированию.</li>
             </ul>
+            <p style="color: rgba(255, 196, 0, 0.973);">Я ВСЕХ ПРЕДУПРЕДИЛ</p>
             <p>Если у вас возникли вопросы, напишите в Telegram:</p>
             <a href="https://t.me/quiz_helperBot" class="help-link_bot">Помощь >>></a>
         </div>

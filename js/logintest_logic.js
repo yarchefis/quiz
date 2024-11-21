@@ -334,7 +334,15 @@ window.addEventListener('DOMContentLoaded', () => {
 
 
 
+// document.addEventListener('DOMContentLoaded', function () {
+//     const myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
+//     myModal.show();
 
+//     // Закрытие модального окна по нажатию на "закрыть"
+//     document.getElementById('closeModal').addEventListener('click', function () {
+//         myModal.hide();
+//     });
+// });
 
 
 document.querySelector('.help-link').addEventListener('click', function (e) {
