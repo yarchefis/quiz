@@ -103,6 +103,11 @@ function showQuestion() {
 
         // Обновляем текст вопроса
         document.getElementById('question_text').innerText = question.text;
+        if (question.choicesDesc) {
+            document.getElementById('question_desc').innerText = question.choicesDesc;
+        } else {
+            document.getElementById('question_desc').innerText = ''; // Очищаем, если описания нет
+        }
 
         // Обновляем варианты ответов
         updateAnswerChoices(choices);
@@ -176,7 +181,7 @@ function clearAnswerHighlights() {
 }
 
 
-
+//choicesDesc
 
 function showNextQuestion() {
     currentQuestionIndex++; // Увеличиваем индекс вопроса
@@ -231,7 +236,7 @@ function updateAnswerChoices(choices) {
 let totalFactTime = 0; // Глобальная переменная для хранения общего времени
 
 function startTimer(duration) {
-    const classValue = sessionStorage.getItem('classValue');
+    //const classValue = sessionStorage.getItem('classValue');
 
     // Если класс - 10гр1, 10гр2 или 10гр3, меняем продолжительность таймера на 999 секунд
     // if (classValue === '10 гр1' || classValue === '10 гр2' || classValue === '10 гр3') {

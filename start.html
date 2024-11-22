@@ -144,6 +144,29 @@
             }
         }
 
+        .question-desc {
+            font-size: 5vw;
+            /* Размер шрифта для вопроса на мобильных устройствах */
+            font-weight: bold;
+            /* Жирный текст для вопроса */
+            color: gray;
+            /* Белый цвет текста */
+            margin-top: 20px;
+            /* Отступ сверху */
+            max-width: 500px;
+            /* Максимальная ширина текста */
+            line-height: 1.2;
+            /* Межстрочный интервал для лучшего восприятия */
+        }
+
+        /* Для ПК устанавливаем фиксированный размер шрифта */
+        @media (min-width: 577px) {
+            .question-desc {
+                font-size: 25px;
+                /* Фиксированный размер шрифта на ПК */
+            }
+        }
+
         .next-button {
             background-color: rgb(84, 130, 255);
             /* Новый цвет кнопки */
@@ -236,29 +259,8 @@
             <span id="total-questionscount" class="total-questions">/...</span>
         </div>
         <div class="dotted-line"></div> <!-- Пунктирная линия с меньшими и менее частыми точками -->
-        <div id="question_text" class="question-content">
-
-        </div>
-
-
-
-        <!-- Варианты ответов
-        <div class="answer-card" onclick="toggleAnswer(this)">
-            <div class="answer-text"></div>
-            <i class="bi bi-circle answer-icon"></i>
-        </div>
-        <div class="answer-card" onclick="toggleAnswer(this)">
-            <div class="answer-text"></div>
-            <i class="bi bi-circle answer-icon"></i>
-        </div>
-        <div class="answer-card" onclick="toggleAnswer(this)">
-            <div class="answer-text"></div>
-            <i class="bi bi-circle answer-icon"></i>
-        </div>
-        <div class="answer-card" onclick="toggleAnswer(this)">
-            <div class="answer-text"></div>
-            <i class="bi bi-circle answer-icon"></i>
-        </div> -->
+        <div id="question_desc" class="question-desc"></div>
+        <div id="question_text" class="question-content"></div>
 
         <div class="answer-container"></div>
 
