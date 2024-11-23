@@ -458,16 +458,16 @@ async function saveResults(userId, testId, userInfo) {
 
     function calculateGrade(x1, x2) {
         const percentage = (x1 / x2) * 100;
-        if (percentage >= 90) {
+        if (percentage >= 80) {
             return 5;
-        } else if (percentage >= 70) {
+        } else if (percentage >= 60) {
             return 4;
-        } else if (percentage >= 50) { // Теперь 3, если 50% и больше
+        } else if (percentage >= 40) {
             return 3;
         } else {
-            return 2; // Меньше 50% теперь оценивается на 2
+            return 2;
         }
-    }
+    }    
 
 
     const assessment = calculateGrade(totalCorrectAnswers_save, totalQuestions_save);
