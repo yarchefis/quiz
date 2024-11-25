@@ -240,7 +240,7 @@ function startTimer(duration) {
 
     //Если класс - 10гр1, 10гр2 или 10гр3, меняем продолжительность таймера на 100 секунд
     if (classValue === '10 гр1' || classValue === '10 гр2' || classValue === '10 гр3') {
-        duration = 100; // Устанавливаем таймер на 999 секунд
+        duration = 200; // Устанавливаем таймер на 999 секунд
     }
 
     let timer = duration;
