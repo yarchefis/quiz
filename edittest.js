@@ -464,11 +464,15 @@ function viewSelectedAnswers(resultKey) {
                             ? question.choices.filter(choice => choice.isCorrect).map(choice => choice.text)
                             : [];
 
+                        const missingWord = question.missingWord || null;
+
                         answerElement.innerHTML = `
-                            <h5>Вопрос ${index + 1}: ${question.text}</h5>
-                            <p>Ваш ответ: ${answer.selectedChoice}</p>
-                            <p>Правильный ответ: ${correctChoices.length > 0 ? correctChoices.join(', ') : 'Неизвестно'}</p>
-                        `;
+            <h5>Вопрос ${index + 1}: ${question.text}</h5>
+            <p>Ваш ответ: ${answer.selectedChoice}</p>
+            <p>Правильный ответ: 
+                ${correctChoices.length > 0 ? correctChoices.join(', ') : (missingWord || 'Неизвестно')}
+            </p>
+        `;
                         modalBody.appendChild(answerElement);
                     } else {
                         console.warn(`Question with ID ${answer.questionId} not found.`);
