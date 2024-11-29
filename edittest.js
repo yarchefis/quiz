@@ -277,26 +277,47 @@ function saveQuestion() {
 
 function loadQuestions() {
     const questionsRef = firebase.database().ref('/questions/' + currentUser.uid + '/' + testId);
-    questionsRef.once('value', (snapshot) => {
+    
+    // Используем сортировку по полю createdAt (предположим, что это поле есть)
+    questionsRef.orderByChild('createdAt').once('value', (snapshot) => {
         const questions = snapshot.val();
+        console.log("Данные для вопросов:", questions);
+        
         const questionsList = document.getElementById('questionsList');
         questionsList.innerHTML = ''; // Очищаем предыдущие вопросы
+        
         let index = 1;
         for (const questionId in questions) {
             const question = questions[questionId];
             const questionItem = document.createElement('div');
             questionItem.className = 'question-item'; // Применяем стиль для вопроса
             questionItem.innerHTML = `
-                <span>${question.text}</span>
+                <span>${index}. ${question.text}<br><br>Тип: ${getQuestionType(question.type)}</span>
+                
                 <div class="button-group">
                     <button class="edit-button" onclick="handleEditQuestion('${questionId}')">Изменить</button>
                     <button class="delete-button" onclick="deleteQuestion('${questionId}')">Удалить</button>
                 </div>
             `;
             questionsList.appendChild(questionItem);
+            index++; // Увеличиваем индекс для следующего вопроса
         }
     });
 }
+
+function getQuestionType(type) {
+    if (type === 'test') {
+        return 'выбор';
+    } else if (type === 'filltext') {
+        return 'ввод';
+    } else if (type === 'yesno') {
+        return 'да/нет';
+    } else {
+        return 'неизвестный тип';
+    }
+}
+
+
 
 function handleEditQuestion(questionId) {
     const questionRef = firebase.database().ref('/questions/' + currentUser.uid + '/' + testId + '/' + questionId);
@@ -312,7 +333,6 @@ function deleteQuestion(questionId) {
     if (confirm('Are you sure you want to delete this question?')) {
         firebase.database().ref('/questions/' + currentUser.uid + '/' + testId + '/' + questionId).remove()
             .then(() => {
-                alert('Question deleted successfully!');
                 loadQuestions();
             })
             .catch((error) => {
