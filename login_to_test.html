@@ -27,17 +27,17 @@
 
         /* Настройка "ползунка" (т.е. части, которую можно двигать) */
         ::-webkit-scrollbar-thumb {
-            background-color: rgba(255, 255, 255, 0.5);
+            background-color: #FF6347;
             /* Цвет "ползунка" */
             border-radius: 5px;
             /* Скругление углов */
-            border: 2px solid rgba(0, 30, 59, 0.8);
+            border: 2px solid rgba(0, 0, 0, 0.8);
             /* Граница вокруг "ползунка" */
         }
 
         /* Настройка трека полосы прокрутки (фона полосы) */
         ::-webkit-scrollbar-track {
-            background-color: rgba(0, 30, 59, 0.8);
+            background-color: #1D1D1D;
             /* Цвет фона полосы прокрутки */
             border-radius: 5px;
             /* Скругление углов фона */
@@ -55,13 +55,13 @@
 
         /* При наведении на ползунок */
         ::-webkit-scrollbar-thumb:hover {
-            background-color: rgba(255, 255, 255, 0.8);
+            background-color: rgba(0, 255, 255, 0.9);
             /* Цвет ползунка при наведении */
         }
 
         body {
-            background-color: #001e3b;
-            color: white;
+            background-color: #111111;
+            color: #D4D4D4;
             margin: 0;
             padding: 0;
             display: flex;
@@ -83,10 +83,10 @@
 
         .info-container,
         .form-container {
-            background-color: rgba(0, 30, 59, 0.8);
-            border-radius: 15px;
+            background-color: #2A2A2A;
+            border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.8);
         }
 
         .info-container,
@@ -99,7 +99,7 @@
 
         .info-container {
             flex: 1;
-            color: #a3a3a3;
+            color: #A6A6A6;
         }
 
         .form-container {
@@ -110,7 +110,7 @@
         }
 
         h1 {
-            color: #ffffff;
+            color: #FFDB58;
             font-size: 2rem;
             margin-bottom: 20px;
         }
@@ -121,18 +121,18 @@
         }
 
         .form-control {
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: rgba(255, 255, 255, 0.1);
             border: none;
             border-bottom: 2px solid rgba(255, 255, 255, 0.5);
-            color: white;
+            color: #D4D4D4;
         }
 
         .form-control::placeholder {
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(255, 255, 255, 0.6);
         }
 
         .start-button {
-            background-color: rgb(84, 130, 255);
+            background-color: #FF6347;
             border: none;
             color: white;
             border-radius: 50px;
@@ -142,7 +142,7 @@
 
         .help-link_bot {
             margin-top: 20px;
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(0, 255, 255, 0.8);
             text-decoration: none;
         }
 
@@ -152,57 +152,54 @@
                 justify-content: space-between;
                 align-items: stretch;
             }
-
-
         }
     </style>
+
+
     <style>
+        /* Настройка оверлея попапа */
         .popup-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(1, 21, 41, 0.979);
+            background-color: #111111b7;
+            /* Обновленный цвет фона */
             display: flex;
             justify-content: center;
             align-items: center;
-            /* Центрируем по вертикали */
             z-index: 1000;
         }
 
+        /* Настройка контента попапа */
         .popup-content {
-            background-color: rgba(0, 30, 59, 0.95);
-            border-radius: 15px;
+            background-color: #2A2A2A;
+            border-radius: 20px;
             padding: 20px 40px;
             text-align: center;
-            color: white;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            color: #D4D4D4;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.8);
             max-width: 600px;
-            /* Ограничиваем ширину */
             width: 90%;
-            /* Чтобы блок занимал 90% ширины на мобильных */
             max-height: 90vh;
-            /* Ограничиваем высоту до 90% экрана */
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            /* Распределяем контент */
         }
 
+        /* Текст в попапе */
         .popup-text {
             overflow-y: auto;
-            /* Включаем прокрутку по вертикали */
             max-height: calc(90vh - 120px);
-            /* Ограничиваем высоту для текста с учетом кнопки */
             margin-bottom: 20px;
-            /* Отступ снизу */
             padding-right: 10px;
-            /* Отступ справа для прокрутки */
+            color: #A6A6A6;
         }
 
+        /* Кнопка в попапе */
         .popup-button {
-            background-color: rgb(84, 130, 255);
+            background-color: #FF6347;
             color: white;
             border: none;
             border-radius: 5px;
@@ -210,7 +207,13 @@
             font-size: 16px;
             cursor: pointer;
         }
+
+        /* Эффект на кнопку при наведении */
+        .popup-button:hover {
+            background-color: #FF4500;
+        }
     </style>
+
 </head>
 
 <body>
@@ -245,18 +248,20 @@
                 <input type="text" id="lastName" autocomplete="off" placeholder="Фамилия" class="form-control"
                     minlength="3">
                 <div id=" lastNameError" class="text-danger" style="display: none;">Тест недоступен. Перезагрузите
-                страницу.
+                    страницу.
+                </div>
             </div>
-        </div>
-        <div class="form-group">
-            <input type="text" autocomplete="off" id="firstName" placeholder="Имя" class="form-control" minlength="3"">
+            <div class="form-group">
+                <input type="text" autocomplete="off" id="firstName" placeholder="Имя" class="form-control"
+                    minlength="3"">
             </div>
             <div class=" form-group">
-            <!-- <label for="class">Класс:</label> -->
-            <input type="hidden" id="class" class="form-control" maxlength="6" placeholder="Заполнится автоматически">
+                <!-- <label for="class">Класс:</label> -->
+                <input type="hidden" id="class" class="form-control" maxlength="6"
+                    placeholder="Заполнится автоматически">
+            </div>
+            <button type="button" id="startTestButton" class="start-button">Начать</button>
         </div>
-        <button type="button" id="startTestButton" class="start-button">Начать</button>
-    </div>
     </div>
 
     <div id="popup" class="popup-overlay">
@@ -264,23 +269,31 @@
             <h2>Прочти перед работой, Пожалуйста</h2>
             <div class="popup-text">
                 <p>Перед тем как начать, настоятельно рекомендую прочитать весь этот текст до конца. Возможно, он
-                    покажется тебе длинным, но он точно <b style="color: #e42c2c;">сэкономит тебе время и нервы.</b> Поверь, я хочу, чтобы ты прошёл тест
+                    покажется тебе длинным, но он точно <b style="color: #e42c2c;">сэкономит тебе время и нервы.</b>
+                    Поверь, я хочу, чтобы ты прошёл тест
                     максимально спокойно и без лишних проблем.</p>
                 <ul>
-                    <li><b style="color: #e76b6b;">Выбор браузера:</b> Убедись, что ты используешь Chrome или Firefox. Эти браузеры проверены и
-                        работают стабильно. Другие браузеры тоже могут сработать, но если вдруг что-то пойдёт не так, <b style="color: #D97B7B;">я
-                        за это ответственности не несу.</b></li>
-                    <li><b style="color: #e76b6b;">Где проходить тест:</b> Лучше всего это делать дома, где есть стабильный и быстрый интернет.
+                    <li><b style="color: #e76b6b;">Выбор браузера:</b> Убедись, что ты используешь Chrome или Firefox.
+                        Эти браузеры проверены и
+                        работают стабильно. Другие браузеры тоже могут сработать, но если вдруг что-то пойдёт не так, <b
+                            style="color: #D97B7B;">я
+                            за это ответственности не несу.</b></li>
+                    <li><b style="color: #e76b6b;">Где проходить тест:</b> Лучше всего это делать дома, где есть
+                        стабильный и быстрый интернет.
                         Если ты попытаешься пройти его где-нибудь в автобусе или в месте с плохим покрытием, вероятность
                         технических проблем возрастает в разы. Ты же не хочешь тратить свои нервы на то, чтобы заново
                         начинать всё?</li>
-                    <li><b style="color: #e76b6b;">Обстановка:</b> Пожалуйста, подойди к тесту серьёзно. Сядь за стол, отключи
-                        всё, что может отвлекать. Перед началом повтори материал, настройся на спокойную и уверенную работу.
+                    <li><b style="color: #e76b6b;">Обстановка:</b> Пожалуйста, подойди к тесту серьёзно. Сядь за стол,
+                        отключи
+                        всё, что может отвлекать. Перед началом повтори материал, настройся на спокойную и уверенную
+                        работу.
                     </li>
-                    <li><b style="font-weight: bold; color: #e76b6b;">Почему не грузит:</b> Если страница совсем не открывается или ничего не грузится, напомню: база
+                    <li><b style="font-weight: bold; color: #e76b6b;">Почему не грузит:</b> Если страница совсем не
+                        открывается или ничего не грузится, напомню: база
                         данных хранится у Google, а сервер — у крупной компании. Эти системы проверены и работают даже в
-                        самых удалённых уголках мира, например, в Гренландии или Новой Зеландии. Если не работает — <b style="color: #D97B7B;">это
-                        не моя зона ответственности. (пункт 1)</b></li>
+                        самых удалённых уголках мира, например, в Гренландии или Новой Зеландии. Если не работает — <b
+                            style="color: #D97B7B;">это
+                            не моя зона ответственности. (пункт 1)</b></li>
                 </ul>
                 <p>Я надеюсь, что ты воспринял это сообщение с пониманием. Удачи тебе в прохождении теста! Давай
                     работать
@@ -289,7 +302,7 @@
             <button id="continueButton" class="popup-button">Продолжить</button>
         </div>
     </div>
-    
+
 
 
 

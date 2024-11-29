@@ -91,12 +91,14 @@ function loadAllQuestions() {
                             console.error('Ошибка при загрузке вопросов:', error);
                             setTimeout(() => {
                                 errorScreen.style.display = 'flex';
+                                loadingScreen.style.display = 'none';
                             }, 1000);
                         });
                 } else {
                     console.error('Количество вопросов не найдено');
                     setTimeout(() => {
                         errorScreen.style.display = 'flex';
+                        loadingScreen.style.display = 'none';
                     }, 1000);
                 }
             })
@@ -104,12 +106,14 @@ function loadAllQuestions() {
                 console.error('Ошибка при загрузке questionCount:', error);
                 setTimeout(() => {
                     errorScreen.style.display = 'flex';
+                    loadingScreen.style.display = 'none';
                 }, 1000);
             });
     } else {
         console.error('UID или TestID не найдены в sessionStorage');
         setTimeout(() => {
             errorScreen.style.display = 'flex';
+            loadingScreen.style.display = 'none';
         }, 1000);
     }
 }
@@ -221,7 +225,7 @@ function updateAnswerChoices(choices) {
         const textWithGap = choices.textWithGap; // Получаем текст с пропуском
         container.innerHTML = `
             <div class="filltext-question">${textWithGap}</div>
-            <input type="text" class="filltext-input" placeholder="Введите ваше слово" />
+            <input type="text" class="filltext-input" placeholder="слово(а) с маленькими буквами через пробел" />
         `;
     } else {
         // Если это не filltext, создаем карточки для каждого варианта ответа
@@ -264,7 +268,7 @@ function startTimer(duration) {
 
     //Если класс - 10гр1, 10гр2 или 10гр3, меняем продолжительность таймера на 100 секунд
     if (classValue === '10 гр1' || classValue === '10 гр2' || classValue === '10 гр3') {
-        duration = 200; // Устанавливаем таймер на 999 секунд
+        duration = 150; // Устанавливаем таймер на 999 секунд
     }
 
     let timer = duration;
