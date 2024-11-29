@@ -51,6 +51,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 function loadAllQuestions() {
+    // Показываем экран загрузки
+    const errorScreen = document.getElementById('errorScreen');
+    const loadingScreen = document.getElementById('loadingScreen');
+    loadingScreen.style.display = 'flex';
+
     const uid = sessionStorage.getItem('uid');
     const testId = sessionStorage.getItem('testId');
 
@@ -67,26 +72,45 @@ function loadAllQuestions() {
                             if (snapshot.exists()) {
                                 const allQuestions = snapshot.val();
                                 questions = shuffleArray(Object.entries(allQuestions)).slice(0, questionCount);
-                                //console.log(questions)
-
-                                startTime = Date.now(); // Записываем время начала теста
-                                showQuestion();
+                                
+                                // Добавляем задержку перед скрытием экрана загрузки
+                                setTimeout(() => {
+                                    loadingScreen.style.display = 'none'; // Скрываем экран загрузки
+                                    
+                                    startTime = Date.now(); // Записываем время начала теста
+                                    showQuestion();
+                                }, 1000); // Задержка в 1 секунду
                             } else {
                                 console.error('Вопросы не найдены');
+                                setTimeout(() => {
+                                    errorScreen.style.display = 'flex';
+                                }, 1000);
                             }
                         })
                         .catch((error) => {
                             console.error('Ошибка при загрузке вопросов:', error);
+                            setTimeout(() => {
+                                errorScreen.style.display = 'flex';
+                            }, 1000);
                         });
                 } else {
                     console.error('Количество вопросов не найдено');
+                    setTimeout(() => {
+                        errorScreen.style.display = 'flex';
+                    }, 1000);
                 }
             })
             .catch((error) => {
                 console.error('Ошибка при загрузке questionCount:', error);
+                setTimeout(() => {
+                    errorScreen.style.display = 'flex';
+                }, 1000);
             });
     } else {
         console.error('UID или TestID не найдены в sessionStorage');
+        setTimeout(() => {
+            errorScreen.style.display = 'flex';
+        }, 1000);
     }
 }
 
@@ -511,7 +535,7 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Вызов функции загрузки первого вопроса при загрузке страницы start.html
+
 window.addEventListener('load', () => {
     if (document.readyState === 'complete') {
         // Все ресурсы страницы загружены
@@ -525,7 +549,6 @@ window.addEventListener('load', () => {
         });
     }
 });
-
 
 
 

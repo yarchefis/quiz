@@ -17,6 +17,48 @@
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <style>
+        /* Настройка общей полосы прокрутки */
+        ::-webkit-scrollbar {
+            width: 10px;
+            /* Ширина вертикальной полосы прокрутки */
+            height: 10px;
+            /* Высота горизонтальной полосы прокрутки */
+        }
+
+        /* Настройка "ползунка" (т.е. части, которую можно двигать) */
+        ::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.5);
+            /* Цвет "ползунка" */
+            border-radius: 5px;
+            /* Скругление углов */
+            border: 2px solid rgba(0, 30, 59, 0.8);
+            /* Граница вокруг "ползунка" */
+        }
+
+        /* Настройка трека полосы прокрутки (фона полосы) */
+        ::-webkit-scrollbar-track {
+            background-color: rgba(0, 30, 59, 0.8);
+            /* Цвет фона полосы прокрутки */
+            border-radius: 5px;
+            /* Скругление углов фона */
+        }
+
+        /* Кастомизация вертикальной полосы прокрутки */
+        ::-webkit-scrollbar:vertical {
+            width: 12px;
+        }
+
+        /* Кастомизация горизонтальной полосы прокрутки */
+        ::-webkit-scrollbar:horizontal {
+            height: 12px;
+        }
+
+        /* При наведении на ползунок */
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+            /* Цвет ползунка при наведении */
+        }
+
         body {
             background-color: #001e3b;
             color: white;
@@ -114,46 +156,65 @@
 
         }
     </style>
-    <!-- <style>
-        /* Стили для текста */
-        .modal-body {
-            color: black;
-            text-align: center;
-            font-size: 18px;
-        }
-
-        /* Центрирование окна по вертикали */
-        .modal-dialog {
+    <style>
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(1, 21, 41, 0.979);
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh; /* Высота окна на весь экран */
+            /* Центрируем по вертикали */
+            z-index: 1000;
         }
 
-        /* Ссылка "закрыть" */
-        .close-link {
-            color: blue;
-            text-decoration: underline;
+        .popup-content {
+            background-color: rgba(0, 30, 59, 0.95);
+            border-radius: 15px;
+            padding: 20px 40px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            max-width: 600px;
+            /* Ограничиваем ширину */
+            width: 90%;
+            /* Чтобы блок занимал 90% ширины на мобильных */
+            max-height: 90vh;
+            /* Ограничиваем высоту до 90% экрана */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            /* Распределяем контент */
+        }
+
+        .popup-text {
+            overflow-y: auto;
+            /* Включаем прокрутку по вертикали */
+            max-height: calc(90vh - 120px);
+            /* Ограничиваем высоту для текста с учетом кнопки */
+            margin-bottom: 20px;
+            /* Отступ снизу */
+            padding-right: 10px;
+            /* Отступ справа для прокрутки */
+        }
+
+        .popup-button {
+            background-color: rgb(84, 130, 255);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
             cursor: pointer;
         }
-    </style> -->
+    </style>
 </head>
 
 <body>
 
-    <!-- <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-body">
-                    <ul>
-                        <li style="color: red;">используйте chrome или firefox для корректной работы.</li>
-                        <li>Отключите блокировщики рекламы(AddBlock и др) для корректной работы библиотек.</li>
-                    </ul>
-                    <span class="close-link" id="closeModal">закрыть</span>
-                </div>
-            </div>
-        </div>
-    </div> -->
 
     <div class="main-container">
         <!-- Блок информации -->
@@ -162,7 +223,8 @@
             <p>Прежде чем начать <b>прочитайте текст ниже</b>:</p>
             <ul>
                 <li style="color: red;">используйте chrome или firefox для корректной работы.</li>
-                <li style="color: red;">Отключите блокировщики рекламы(AddBlock и др) для корректной работы библиотек.</li>
+                <li style="color: red;">Отключите блокировщики рекламы(AddBlock и др) для корректной работы библиотек.
+                </li>
                 <li>Заполните форму входа, чтобы приступить к тестированию.</li>
             </ul>
             <p style="color: rgba(255, 196, 0, 0.973);">Я ВСЕХ ПРЕДУПРЕДИЛ</p>
@@ -180,22 +242,69 @@
             </div>
 
             <div class="form-group">
-                <input type="text" id="lastName" autocomplete="off" placeholder="Фамилия" class="form-control" minlength="3"">
-                <div id="lastNameError" class="text-danger" style="display: none;">Тест недоступен. Перезагрузите
-                    страницу.
-                </div>
+                <input type="text" id="lastName" autocomplete="off" placeholder="Фамилия" class="form-control"
+                    minlength="3">
+                <div id=" lastNameError" class="text-danger" style="display: none;">Тест недоступен. Перезагрузите
+                страницу.
             </div>
-            <div class="form-group">
-                <input type="text" autocomplete="off" id="firstName" placeholder="Имя" class="form-control" minlength="3"">
+        </div>
+        <div class="form-group">
+            <input type="text" autocomplete="off" id="firstName" placeholder="Имя" class="form-control" minlength="3"">
             </div>
-            <div class="form-group">
-                <!-- <label for="class">Класс:</label> -->
-                <input type="hidden" id="class" class="form-control" maxlength="6"
-                    placeholder="Заполнится автоматически">
+            <div class=" form-group">
+            <!-- <label for="class">Класс:</label> -->
+            <input type="hidden" id="class" class="form-control" maxlength="6" placeholder="Заполнится автоматически">
+        </div>
+        <button type="button" id="startTestButton" class="start-button">Начать</button>
+    </div>
+    </div>
+
+    <div id="popup" class="popup-overlay">
+        <div class="popup-content">
+            <h2>Прочти перед работой, Пожалуйста</h2>
+            <div class="popup-text">
+                <p>Перед тем как начать, настоятельно рекомендую прочитать весь этот текст до конца. Возможно, он
+                    покажется тебе длинным, но он точно <b style="color: #e42c2c;">сэкономит тебе время и нервы.</b> Поверь, я хочу, чтобы ты прошёл тест
+                    максимально спокойно и без лишних проблем.</p>
+                <ul>
+                    <li><b style="color: #e76b6b;">Выбор браузера:</b> Убедись, что ты используешь Chrome или Firefox. Эти браузеры проверены и
+                        работают стабильно. Другие браузеры тоже могут сработать, но если вдруг что-то пойдёт не так, <b style="color: #D97B7B;">я
+                        за это ответственности не несу.</b></li>
+                    <li><b style="color: #e76b6b;">Где проходить тест:</b> Лучше всего это делать дома, где есть стабильный и быстрый интернет.
+                        Если ты попытаешься пройти его где-нибудь в автобусе или в месте с плохим покрытием, вероятность
+                        технических проблем возрастает в разы. Ты же не хочешь тратить свои нервы на то, чтобы заново
+                        начинать всё?</li>
+                    <li><b style="color: #e76b6b;">Обстановка:</b> Пожалуйста, подойди к тесту серьёзно. Сядь за стол, отключи
+                        всё, что может отвлекать. Перед началом повтори материал, настройся на спокойную и уверенную работу.
+                    </li>
+                    <li><b style="font-weight: bold; color: #e76b6b;">Почему не грузит:</b> Если страница совсем не открывается или ничего не грузится, напомню: база
+                        данных хранится у Google, а сервер — у крупной компании. Эти системы проверены и работают даже в
+                        самых удалённых уголках мира, например, в Гренландии или Новой Зеландии. Если не работает — <b style="color: #D97B7B;">это
+                        не моя зона ответственности. (пункт 1)</b></li>
+                </ul>
+                <p>Я надеюсь, что ты воспринял это сообщение с пониманием. Удачи тебе в прохождении теста! Давай
+                    работать
+                    эффективно и спокойно. <b style="color: #D97B7B;">Я предупредил!</b></p>
             </div>
-            <button type="button" id="startTestButton" class="start-button">Начать</button>
+            <button id="continueButton" class="popup-button">Продолжить</button>
         </div>
     </div>
+    
+
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const popup = document.getElementById('popup');
+            const continueButton = document.getElementById('continueButton');
+
+            continueButton.addEventListener('click', () => {
+                popup.style.display = 'none';
+            });
+        });
+    </script>
+
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="js/logintest_logic.js"></script>
