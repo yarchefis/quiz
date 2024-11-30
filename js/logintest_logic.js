@@ -1,5 +1,5 @@
 // Инициализация Firebase
-import firebaseConfig from './firebaseConfig.js';
+import firebaseConfig from './core/services/credentials/v1/config/firebaseConfig.js';
 
 firebase.initializeApp(firebaseConfig);
 
@@ -347,16 +347,3 @@ window.addEventListener('DOMContentLoaded', () => {
 // });
 
 
-document.querySelector('.help-link').addEventListener('click', function (e) {
-    e.preventDefault();
-    const modal = new bootstrap.Modal(document.getElementById('helpModal'), {
-        backdrop: 'static',
-        keyboard: false
-    });
-    modal.show();
-});
-
-document.getElementById('closeModalButton').addEventListener('click', function () {
-    const modal = bootstrap.Modal.getInstance(document.getElementById('helpModal'));
-    modal.hide();
-});
