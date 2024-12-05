@@ -304,11 +304,11 @@ window.addEventListener('DOMContentLoaded', () => {
                     const classInput = document.getElementById('class');
                     if (classInput) {
                         classInput.value = user.className; // Вставляем класс найденного пользователя
-                        setTimeout(() => {
-                            if (user.className === '10 гр1' || user.className === '10 гр2' || user.className === '10 гр3') {
-                                alert("привет 10й класс)) Я решил вам подарок сделать небольшой, я думаю заметите изменения на странице далее. чтож... удачи!")
-                            }
-                        }, 200);
+                        // setTimeout(() => {
+                        //     if (user.className === '10 гр1' || user.className === '10 гр2' || user.className === '10 гр3') {
+                        //         alert("привет 10й класс)) Я решил вам подарок сделать небольшой, я думаю заметите изменения на странице далее. чтож... удачи!")
+                        //     }
+                        // }, 200);
                         
                     }
                     firstNameInput.classList.add('bg-success'); // Задаем зеленый фон

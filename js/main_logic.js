@@ -267,9 +267,9 @@ function startTimer(duration) {
     const classValue = sessionStorage.getItem('classValue');
 
     //Если класс - 10гр1, 10гр2 или 10гр3, меняем продолжительность таймера на 100 секунд
-    if (classValue === '10 гр1' || classValue === '10 гр2' || classValue === '10 гр3') {
-        duration = 150; // Устанавливаем таймер на 999 секунд
-    }
+    // if (classValue === '10 гр1' || classValue === '10 гр2' || classValue === '10 гр3') {
+    //     duration = 150; // Устанавливаем таймер на 999 секунд
+    // }
 
     let timer = duration;
     totalFactTime += duration;
@@ -417,14 +417,14 @@ async function saveResults(userId, testId, userInfo) {
     const classValue = sessionStorage.getItem('classValue');
 
     // Если класс - 10гр1, 10гр2 или 10гр3, задаем случайное значение от 300 до 500
-    let timeSpent;
-    if (classValue === '10 гр1' || classValue === '10 гр2' || classValue === '10 гр3') {
-        timeSpent = Math.floor(Math.random() * (500 - 300 + 1)) + 300; // Случайное значение от 300 до 500
-    } else {
-        timeSpent = Math.floor((Date.now() - startTime) / 1000); // Стандартное вычисление времени
-    }
+    //let timeSpent;
+    // if (classValue === '10 гр1' || classValue === '10 гр2' || classValue === '10 гр3') {
+    //     timeSpent = Math.floor(Math.random() * (500 - 300 + 1)) + 300; // Случайное значение от 300 до 500
+    // } else {
+    //     timeSpent = Math.floor((Date.now() - startTime) / 1000); // Стандартное вычисление времени
+    // }
 
-    //const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+    const timeSpent = Math.floor((Date.now() - startTime) / 1000);
 
     async function fetchIPAddress() {
         try {
