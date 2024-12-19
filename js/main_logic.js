@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (testId && uid && lastName && firstName && classValue) {
         // Сохраняем параметры в sessionStorage
         sessionStorage.setItem('testId', testId);
+        
         sessionStorage.setItem('uid', uid);
         sessionStorage.setItem('lastName', lastName);
         sessionStorage.setItem('firstName', firstName);

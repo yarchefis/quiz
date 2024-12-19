@@ -30,8 +30,8 @@ function checkTestAvailability(startDate, endDate) {
 
 // Функция для загрузки данных теста
 function loadTestInfo(uid, testId) {
-    const testRef = firebase.database().ref(`tests/${uid}/${testId}`);
 
+    const testRef = firebase.database().ref(`tests/${uid}/${testId}`);
     testRef.once('value').then((snapshot) => {
         if (snapshot.exists()) {
             const testData = snapshot.val();
@@ -80,6 +80,9 @@ window.addEventListener('load', () => {
                     globalTestId = data.testId;
 
                     if (globalUid && globalTestId) {
+                        console.log(globalTestId)
+                        localStorage.setItem('logintest', globalTestId);
+                        console.log('установлен login id', localStorage.getItem('logintest'))
                         loadTestInfo(globalUid, globalTestId);
                     } else {
                         console.error(`testId или uid отсутствуют в данных для кода ${code}.`);
@@ -170,13 +173,22 @@ window.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('startTestButton').addEventListener('click', (event) => {
         event.preventDefault(); // Отменяем стандартное поведение кнопки
-
+    
+        // Проверяем значения в localStorage
+        const endid = localStorage.getItem('resulttestid');
+        const logintest = localStorage.getItem('logintest');
+        if (endid && endid === logintest) {
+            console.error('Ошибка: Тест уже завершен для данного пользователя.');
+            alert('Вы уже прошли за другого пользователя');
+            return; // Прерываем выполнение
+        }
+    
         // Проверяем фамилию и имя перед началом теста
         const lastName = document.getElementById('lastName').value.trim().toLowerCase();
         const firstName = document.getElementById('firstName').value.trim().toLowerCase();
         let lastNameValid = false;
         let firstNameValid = false;
-
+    
         // Проверяем фамилию
         if (lastName.length >= 3) {
             const userDataRef = firebase.database().ref('userdata/');
@@ -210,6 +222,7 @@ window.addEventListener('DOMContentLoaded', () => {
             alert("Пожалуйста, введите фамилию не менее чем из 3 символов.");
         }
     });
+    
 
     // Обработка поля фамилии
     const lastNameInput = document.getElementById('lastName');

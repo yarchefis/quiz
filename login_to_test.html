@@ -20,7 +20,6 @@
     <!-- <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" /> -->
     <style>
-        
         /* Настройка общей полосы прокрутки */
         ::-webkit-scrollbar {
             width: 10px;
@@ -227,47 +226,55 @@
         <!-- Блок информации -->
         <div class="info-container position-relative">
             <!-- Иконка информации -->
-            <i class="bi bi-info-circle position-absolute" 
-               style="top: 15px; right: 15px; font-size: 1.5rem; color: #FFDB58;"></i>
+            <i class="bi bi-info-circle position-absolute"
+                style="top: 15px; right: 15px; font-size: 1.5rem; color: #FFDB58;"></i>
             <h3 style="color: white;">Добро пожаловать!</h3>
             <p>Прежде чем начать <b>прочитайте текст ниже</b>:</p>
             <ul>
-                <li style="color: red;">используйте chrome или firefox для корректной работы.</li>
-                <li style="color: red;">Отключите блокировщики рекламы(AddBlock и др) для корректной работы библиотек.</li>
+                <li style="color: rgb(255, 74, 74);">используйте chrome или firefox для корректной работы.</li>
+                <li style="color: rgb(255, 74, 74);">Отключите блокировщики рекламы(AddBlock и др) для корректной работы библиотек.
+                </li>
                 <li>Заполните форму входа, чтобы приступить к тестированию.</li>
             </ul>
-            <p style="color: rgba(255, 196, 0, 0.973);">Я ВСЕХ ПРЕДУПРЕДИЛ</p>
+            <!-- <p style="color: rgba(255, 196, 0, 0.973);">Я ВСЕХ ПРЕДУПРЕДИЛ</p>
             <p>Если у вас возникли вопросы, напишите в Telegram:</p>
-            <a href="https://t.me/quiz_helperBot" class="help-link_bot">Помощь >>></a>
+            <a href="https://t.me/quiz_helperBot" class="help-link_bot">Помощь >>></a> -->
+            <p style="font-size: 17px; color: red;">Если у вас что-то не работает, проблема точно не в нас, а в вас. У большинства пользователей всё
+                прекрасно функционирует, и лишь небольшая часть упёртых сволочей пытается выискивать поводы для
+                претензий. Мы предлагаем вам либо разобраться со своей стороны, либо оставить попытки докопаться.
+                Спасибо за внимание и понимание!</p>
         </div>
-    
+
         <!-- Блок формы входа -->
         <div class="form-container position-relative">
             <!-- Иконка профиля -->
-            <i class="bi bi-person-circle position-absolute" 
-               style="top: 15px; right: 15px; font-size: 1.5rem; color: #FFDB58;"></i>
+            <i class="bi bi-person-circle position-absolute"
+                style="top: 15px; right: 15px; font-size: 1.5rem; color: #FFDB58;"></i>
             <h3 id="testname">Загрузка...</h3>
             <div id="testDatesBlock" class="test-dates-block" style="display: none;">
                 <p class="test-dates-period">
                     <span class="start-date" id="startDate"></span> — <span class="end-date" id="endDate"></span>
                 </p>
             </div>
-    
+
             <div class="form-group">
                 <input type="text" id="lastName" autocomplete="off" placeholder="Фамилия" class="form-control"
-                       minlength="3">
-                <div id="lastNameError" class="text-danger" style="display: none;">Тест недоступен. Перезагрузите страницу.</div>
+                    minlength="3">
+                <div id="lastNameError" class="text-danger" style="display: none;">Тест недоступен. Перезагрузите
+                    страницу.</div>
             </div>
             <div class="form-group">
-                <input type="text" autocomplete="off" id="firstName" placeholder="Имя" class="form-control" minlength="3">
+                <input type="text" autocomplete="off" id="firstName" placeholder="Имя" class="form-control"
+                    minlength="3">
             </div>
             <div class="form-group">
-                <input type="hidden" id="class" class="form-control" maxlength="6" placeholder="Заполнится автоматически">
+                <input type="hidden" id="class" class="form-control" maxlength="6"
+                    placeholder="Заполнится автоматически">
             </div>
             <button type="button" id="startTestButton" class="start-button">Начать</button>
         </div>
     </div>
-    
+
 
     <div id="popup" class="popup-overlay">
         <div class="popup-content">

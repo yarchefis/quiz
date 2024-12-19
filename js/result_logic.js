@@ -26,6 +26,8 @@ window.addEventListener('load', () => {
 
     // Если параметры testId и uid существуют, загружаем данные теста
     if (testId && uid && resultId) {
+        localStorage.setItem('resulttestid', testId);
+        console.log('установлен resulttestid', localStorage.getItem('resulttestid'))
         load(uid, testId, resultId);
     } else {
         console.error('testId или uid не найдены в URL.');
